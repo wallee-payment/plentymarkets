@@ -1,0 +1,28 @@
+{
+	"name": "Wallee",
+	"namespace": "Wallee",
+	"type": "payment",
+	"version": "1.0.1",
+	"license": "",
+	"description": "The official Wallee plugin for plentymarkets.",
+	"shortDescription": {
+		"de" : "Das offizielle Wallee-Plugin für plentymarkets.",
+		"en" : "The official Wallee plugin for plentymarkets."
+	},
+	"keywords": [
+		"wallee",
+		"plentymarkets",
+		"payment",
+		"customweb"
+	],
+	"author": "customweb GmbH",
+	"email": "info@customweb.com",
+	"serviceProvider": "Wallee\\Providers\\WalleeServiceProvider",
+	"containers": [],
+	"dependencies":{
+      "wallee/sdk":"1.0.4"
+    },
+	"runOnBuild": [
+		"Wallee\\Migrations\\CreatePaymentMethods2"
+	]
+}

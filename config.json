@@ -1,0 +1,710 @@
+[
+	{
+		"tab": "Grundeinstellungen",
+		"key": "api_user_id",
+		"label": "API Benutzer ID",
+		"type": "text"
+	},
+	{
+		"tab": "Grundeinstellungen",
+		"key": "api_user_key",
+		"label": "API Benutzer Schlüssel",
+		"type": "text"
+	},
+	{
+		"tab": "Grundeinstellungen",
+		"key": "space_id",
+		"label": "Space Id",
+		"type": "text"
+	},
+	{
+		"tab": "Grundeinstellungen",
+		"key": "refund_successful_status",
+		"label": "Status ID für erfolgreiche Gutschrift",
+		"type": "text",
+		"default": "11.2"
+	},
+	{
+		"tab": "Grundeinstellungen",
+		"key": "refund_failed_status",
+		"label": "Status ID für fehlgeschlagene Gutschrift",
+		"type": "text",
+		"default": "11.3"
+	},
+	{
+		"tab": "Alipay",
+		"key": "alipay_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Alipay",
+		"key": "alipay_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Alipay"
+	},
+	{
+		"tab": "Alipay",
+		"key": "alipay_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Alipay",
+		"key": "alipay_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Bank Überweisung",
+		"key": "banktransfer_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Bank Überweisung",
+		"key": "banktransfer_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Bank Transfer"
+	},
+	{
+		"tab": "Bank Überweisung",
+		"key": "banktransfer_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Bank Überweisung",
+		"key": "banktransfer_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "CASHU",
+		"key": "cashu_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "CASHU",
+		"key": "cashu_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "CASHU"
+	},
+	{
+		"tab": "CASHU",
+		"key": "cashu_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "CASHU",
+		"key": "cashu_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Kredit- / Debitkarte",
+		"key": "creditcard_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Kredit- / Debitkarte",
+		"key": "creditcard_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Credit / Debit Card"
+	},
+	{
+		"tab": "Kredit- / Debitkarte",
+		"key": "creditcard_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Kredit- / Debitkarte",
+		"key": "creditcard_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "DaoPay",
+		"key": "daopay_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "DaoPay",
+		"key": "daopay_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "DaoPay"
+	},
+	{
+		"tab": "DaoPay",
+		"key": "daopay_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "DaoPay",
+		"key": "daopay_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Lastschrift (SEPA)",
+		"key": "directdebitsepa_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Lastschrift (SEPA)",
+		"key": "directdebitsepa_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Direct Debit (SEPA)"
+	},
+	{
+		"tab": "Lastschrift (SEPA)",
+		"key": "directdebitsepa_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Lastschrift (SEPA)",
+		"key": "directdebitsepa_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Lastschrift (UK)",
+		"key": "directdebituk_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Lastschrift (UK)",
+		"key": "directdebituk_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Direct Debit (UK)"
+	},
+	{
+		"tab": "Lastschrift (UK)",
+		"key": "directdebituk_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Lastschrift (UK)",
+		"key": "directdebituk_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "EPS",
+		"key": "eps_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "EPS",
+		"key": "eps_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "EPS"
+	},
+	{
+		"tab": "EPS",
+		"key": "eps_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "EPS",
+		"key": "eps_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Giropay",
+		"key": "giropay_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Giropay",
+		"key": "giropay_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Giropay"
+	},
+	{
+		"tab": "Giropay",
+		"key": "giropay_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Giropay",
+		"key": "giropay_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "iDeal",
+		"key": "ideal_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "iDeal",
+		"key": "ideal_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "iDeal"
+	},
+	{
+		"tab": "iDeal",
+		"key": "ideal_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "iDeal",
+		"key": "ideal_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Rechnung",
+		"key": "invoice_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Rechnung",
+		"key": "invoice_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Invoice"
+	},
+	{
+		"tab": "Rechnung",
+		"key": "invoice_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Rechnung",
+		"key": "invoice_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "MasterPass",
+		"key": "masterpass_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "MasterPass",
+		"key": "masterpass_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "MasterPass"
+	},
+	{
+		"tab": "MasterPass",
+		"key": "masterpass_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "MasterPass",
+		"key": "masterpass_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Online Banking",
+		"key": "onlinebanking_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Online Banking",
+		"key": "onlinebanking_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Online Banking"
+	},
+	{
+		"tab": "Online Banking",
+		"key": "onlinebanking_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Online Banking",
+		"key": "onlinebanking_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "paybox",
+		"key": "paybox_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "paybox",
+		"key": "paybox_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "paybox"
+	},
+	{
+		"tab": "paybox",
+		"key": "paybox_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "paybox",
+		"key": "paybox_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Paydirekt",
+		"key": "paydirekt_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Paydirekt",
+		"key": "paydirekt_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Paydirekt"
+	},
+	{
+		"tab": "Paydirekt",
+		"key": "paydirekt_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Paydirekt",
+		"key": "paydirekt_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Paylib",
+		"key": "paylib_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Paylib",
+		"key": "paylib_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Paylib"
+	},
+	{
+		"tab": "Paylib",
+		"key": "paylib_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Paylib",
+		"key": "paylib_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "PayPal",
+		"key": "paypal_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "PayPal",
+		"key": "paypal_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "PayPal"
+	},
+	{
+		"tab": "PayPal",
+		"key": "paypal_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "PayPal",
+		"key": "paypal_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "paysafecard",
+		"key": "paysafecard_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "paysafecard",
+		"key": "paysafecard_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "paysafecard"
+	},
+	{
+		"tab": "paysafecard",
+		"key": "paysafecard_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "paysafecard",
+		"key": "paysafecard_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "POLi",
+		"key": "poli_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "POLi",
+		"key": "poli_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "POLi"
+	},
+	{
+		"tab": "POLi",
+		"key": "poli_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "POLi",
+		"key": "poli_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Przelewy24",
+		"key": "przelewy24_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Przelewy24",
+		"key": "przelewy24_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Przelewy24"
+	},
+	{
+		"tab": "Przelewy24",
+		"key": "przelewy24_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Przelewy24",
+		"key": "przelewy24_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "QIWI",
+		"key": "qiwi_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "QIWI",
+		"key": "qiwi_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "QIWI"
+	},
+	{
+		"tab": "QIWI",
+		"key": "qiwi_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "QIWI",
+		"key": "qiwi_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Skrill",
+		"key": "skrill_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Skrill",
+		"key": "skrill_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Skrill"
+	},
+	{
+		"tab": "Skrill",
+		"key": "skrill_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Skrill",
+		"key": "skrill_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "SOFORT Banking",
+		"key": "sofortbanking_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "SOFORT Banking",
+		"key": "sofortbanking_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "SOFORT Banking"
+	},
+	{
+		"tab": "SOFORT Banking",
+		"key": "sofortbanking_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "SOFORT Banking",
+		"key": "sofortbanking_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Tenpay",
+		"key": "tenpay_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Tenpay",
+		"key": "tenpay_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Tenpay"
+	},
+	{
+		"tab": "Tenpay",
+		"key": "tenpay_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Tenpay",
+		"key": "tenpay_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "Trustly",
+		"key": "trustly_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "Trustly",
+		"key": "trustly_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "Trustly"
+	},
+	{
+		"tab": "Trustly",
+		"key": "trustly_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "Trustly",
+		"key": "trustly_fee",
+		"label": "Fee",
+		"type": "text"
+	},
+	{
+		"tab": "TWINT",
+		"key": "twint_active",
+		"label": "Aktiv",
+		"type": "checkbox",
+		"default": true
+	},
+	{
+		"tab": "TWINT",
+		"key": "twint_title",
+		"label": "Titel",
+		"type": "text",
+		"default": "TWINT"
+	},
+	{
+		"tab": "TWINT",
+		"key": "twint_description",
+		"label": "Description",
+		"type": "text"
+	},
+	{
+		"tab": "TWINT",
+		"key": "twint_fee",
+		"label": "Fee",
+		"type": "text"
+	}
+]
