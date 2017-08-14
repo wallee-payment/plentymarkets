@@ -14,7 +14,7 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.skrill_active') === "true") {
+        if ($this->configRepo->get('wallee.skrill_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.skrill_title');
+        $title = $this->configRepo->get('wallee.skrill_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.skrill_fee');
+        $fee = $this->configRepo->get('wallee.skrill_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.skrill_description');
+        $title = $this->configRepo->get('wallee.skrill_description');
         if (! empty($title)) {
             return $title;
         } else {

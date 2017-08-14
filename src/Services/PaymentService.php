@@ -124,7 +124,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl()
         ];
 
-        $this->getLogger(__METHOD__)->error('Wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransaction', $parameters);
 
@@ -137,7 +137,7 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->error('Wallee::transaction result', $transaction);
+        $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
 
         $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
@@ -150,7 +150,7 @@ class PaymentService
                 'content' => $paymentPageUrl['error_msg']
             ];
         }
-        $this->getLogger(__METHOD__)->error('Wallee::before redirect', $paymentPageUrl);
+        $this->getLogger(__METHOD__)->error('wallee::before redirect', $paymentPageUrl);
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
@@ -334,7 +334,7 @@ class PaymentService
 
     private function getRefundSuccessfulStatus()
     {
-        $status = $this->config->get('Wallee.refund_successful_status');
+        $status = $this->config->get('wallee.refund_successful_status');
         if (empty($status)) {
             return '11.2';
         } else {
@@ -344,7 +344,7 @@ class PaymentService
 
     private function getRefundFailedStatus()
     {
-        $status = $this->config->get('Wallee.refund_failed_status');
+        $status = $this->config->get('wallee.refund_failed_status');
         if (empty($status)) {
             return '11.3';
         } else {

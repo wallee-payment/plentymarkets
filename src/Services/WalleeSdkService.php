@@ -41,9 +41,9 @@ class WalleeSdkService
     public function call(string $method, array $parameters)
     {
         $parameters['gatewayBasePath'] = self::GATEWAY_BASE_PATH;
-        $parameters['apiUserId'] = $this->config->get('Wallee.api_user_id');
-        $parameters['apiUserKey'] = $this->config->get('Wallee.api_user_key');
-        $parameters['spaceId'] = $this->config->get('Wallee.space_id');
-        return $this->libCall->call('Wallee::' . $method, $parameters);
+        $parameters['apiUserId'] = $this->config->get('wallee.api_user_id');
+        $parameters['apiUserKey'] = $this->config->get('wallee.api_user_key');
+        $parameters['spaceId'] = $this->config->get('wallee.space_id');
+        return $this->libCall->call('wallee::' . $method, $parameters);
     }
 }

@@ -14,7 +14,7 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.sofortbanking_active') === "true") {
+        if ($this->configRepo->get('wallee.sofortbanking_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.sofortbanking_title');
+        $title = $this->configRepo->get('wallee.sofortbanking_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.sofortbanking_fee');
+        $fee = $this->configRepo->get('wallee.sofortbanking_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.sofortbanking_description');
+        $title = $this->configRepo->get('wallee.sofortbanking_description');
         if (! empty($title)) {
             return $title;
         } else {

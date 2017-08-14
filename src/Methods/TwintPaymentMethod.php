@@ -14,7 +14,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.twint_active') === "true") {
+        if ($this->configRepo->get('wallee.twint_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.twint_title');
+        $title = $this->configRepo->get('wallee.twint_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.twint_fee');
+        $fee = $this->configRepo->get('wallee.twint_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.twint_description');
+        $title = $this->configRepo->get('wallee.twint_description');
         if (! empty($title)) {
             return $title;
         } else {

@@ -14,7 +14,7 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.paysafecard_active') === "true") {
+        if ($this->configRepo->get('wallee.paysafecard_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.paysafecard_title');
+        $title = $this->configRepo->get('wallee.paysafecard_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.paysafecard_fee');
+        $fee = $this->configRepo->get('wallee.paysafecard_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.paysafecard_description');
+        $title = $this->configRepo->get('wallee.paysafecard_description');
         if (! empty($title)) {
             return $title;
         } else {

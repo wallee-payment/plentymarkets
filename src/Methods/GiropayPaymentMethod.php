@@ -14,7 +14,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.giropay_active') === "true") {
+        if ($this->configRepo->get('wallee.giropay_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.giropay_title');
+        $title = $this->configRepo->get('wallee.giropay_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.giropay_fee');
+        $fee = $this->configRepo->get('wallee.giropay_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.giropay_description');
+        $title = $this->configRepo->get('wallee.giropay_description');
         if (! empty($title)) {
             return $title;
         } else {
