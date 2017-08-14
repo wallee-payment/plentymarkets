@@ -14,7 +14,7 @@ class PaydirektPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.paydirekt_active') === "true") {
+        if ($this->configRepo->get('wallee.paydirekt_active') === "true") {
             return true;
         } else {
             return false;
@@ -28,7 +28,7 @@ class PaydirektPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.paydirekt_title');
+        $title = $this->configRepo->get('wallee.paydirekt_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -43,7 +43,7 @@ class PaydirektPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.paydirekt_fee');
+        $fee = $this->configRepo->get('wallee.paydirekt_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -68,7 +68,7 @@ class PaydirektPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.paydirekt_description');
+        $title = $this->configRepo->get('wallee.paydirekt_description');
         if (! empty($title)) {
             return $title;
         } else {

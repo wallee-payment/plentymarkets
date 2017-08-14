@@ -34,6 +34,6 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
 
     protected function getBaseIconPath()
     {
-        return \Wallee\Services\WalleeSdkService::GATEWAY_BASE_PATH . '/s/' . $this->configRepo->get('Wallee.space_id') . '/resource/icon/payment/method/';
+        return \Wallee\Services\WalleeSdkService::GATEWAY_BASE_PATH . '/s/' . $this->configRepo->get('wallee.space_id') . '/resource/icon/payment/method/';
     }
 }

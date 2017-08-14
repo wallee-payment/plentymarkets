@@ -11,7 +11,7 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('Wallee.creditcard_active') === "true") {
+        if ($this->configRepo->get('wallee.creditcard_active') === "true") {
             return true;
         } else {
             return false;
@@ -25,7 +25,7 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('Wallee.creditcard_title');
+        $title = $this->configRepo->get('wallee.creditcard_title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -40,7 +40,7 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('Wallee.creditcard_fee');
+        $fee = $this->configRepo->get('wallee.creditcard_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -65,7 +65,7 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('Wallee.creditcard_description');
+        $title = $this->configRepo->get('wallee.creditcard_description');
         if (! empty($title)) {
             return $title;
         } else {
