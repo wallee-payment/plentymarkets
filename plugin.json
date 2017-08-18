@@ -9,7 +9,7 @@
 	"version": "1.0.1",
 	"license": " Apache License Version 2",
 	"isClosedSource"    : "false",
-	"pluginIcon"        : "wallee-app-icon.png",
+	"pluginIcon"        : "icon_plugin_md.png",
 	"price"             : 0.00,
 	"description": "The official Wallee plugin for plentymarkets.",
 	"shortDescription": {
@@ -27,7 +27,7 @@
 		"Saferpay"
 	],
 	"author": "customweb GmbH",
-	"authorIcon": "wallee-app-icon.png",
+	"authorIcon": "icon_author_sm.png",
 	"email": "info@customweb.com",
 	"serviceProvider": "Wallee\\Providers\\WalleeServiceProvider",
 	"containers": [],
