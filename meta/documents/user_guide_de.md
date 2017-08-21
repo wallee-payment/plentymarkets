@@ -26,7 +26,7 @@ Dies und vieles Mehr steht Ihnen ab sofort mit einer direkten Integration zur Ve
 Damit Sie wallee nutzen können müssen Sie folgende Voraussetzungen erfüllen:
 
 * Sie benötigen ein wallee Konto. Dieses können Sie mit dem [signup](https://app-wallee.com/user/signup) Link kostenfrei erstellen.
-* Sie müssen das Plugin installieren
+* Sie müssen das Plugin installieren entweder via Marketplace oder indem Sie das Github Repository unter Plugin > Git einfügen.
 
  
 ## Plugin configuration
@@ -44,9 +44,19 @@ Für die Verarbeitung der Zahlugn werden Sie auf die Zahlungsseite von wallee we
  
 ### Gutschriften
  
-Trangen Sie noch die Stati für die Gutschriften ein, bei welchem automatisch eine Gutschriftsanzeige an wallee übermittelt wird. 
+Tragen Sie noch die Stati für die Gutschriften ein, bei welchem automatisch eine Gutschriftsanzeige an wallee übermittelt wird. 
+Bitte führen Sie folgende Schritte durch:
 
-//Discus with Simon.
+1. Erstellen Sie unter Einstellung > Aufträge > Ereignisaktionen eine Ereignisaktion für Statuswechsel. Wählen Sie den initialen
+Status und die Aktion "Rückzahlung der wallee-Zahlung", welche Sie im Ordner Plugin finden. 
+2. Speichern Sie die Ereignisaktion.
+
+Sie können nun entweder Gutschriften oder Retouren direkt in der Bestellung anlegen:
+
+1. Öffnen Sie die Bestellung und wählen Sie entweder eine Gutschrift oder eine Retoure anlegen. 
+2. Selektieren Sie die Produkte, die Sie gutschreiben / retournieren möchten. 
+3. Verschieben Sie den Status der Bestellung in den initialen Status der Ereignisaktion, welche Sie oben definiert haben. Dies führt automatisch dazu,
+dass die Bestellung mit wallee synchronisiert wird. 
 
 ## Further reading
 

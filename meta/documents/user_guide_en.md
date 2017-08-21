@@ -26,7 +26,7 @@ And many more features.
 If you want to start using the plugin you will have to make sure that you fulfill the following requirments:
 
 * You do have a wallee account. If not you can [signup](https://app-wallee.com/user/signup) for a test account.
-* You do need to install the plugin 
+* You do need to install the plugin via marketplace or via github.
 
  
 ## Plugin configuration
@@ -47,8 +47,19 @@ be found on the [documentation](https://app-wallee.com/en/doc/document-handling)
 ### Refunds
  
 Set the status ID for Refunds in the configuration. Once the order is moved into that state the refund will be triggered. 
+In order to do that please follow the steps below:
 
-//Discus with Simon.
+1. Create an "Ereignisaktion" for a state change. Give it a name and select the State change that should trigger the action.
+2. Select the action and under the folder "Plugin" you should find an action called refund of the wallee payment.
+3. Store the configuration.
+
+You have the option between refund and return:
+
+1. Open the order and select the action either create refund or create return.
+2. Select the products that you want to return.
+3. Move the state of the return into the state selected above for the "Ereignisaktion". This will now automatically synchronize
+the items with wallee.
+
 
 ## Further reading
 
