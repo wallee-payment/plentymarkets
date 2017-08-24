@@ -7,7 +7,7 @@ use Plenty\Plugin\ConfigRepository;
 class WalleeSdkService
 {
 
-    const GATEWAY_BASE_PATH = 'https://staging-wallee.com:443';
+    const GATEWAY_BASE_PATH = 'https://app-wallee.com:443';
 
     /**
      *
