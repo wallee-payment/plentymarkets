@@ -13,8 +13,8 @@
 	"price"             : 0.00,
 	"description": "The official Wallee plugin for plentymarkets.",
 	"shortDescription": {
-		"de" : "Das offizielle wallee-Plugin für plentymarkets. Mit dem wallee E-Commerce Hub können Sie eine Vielzahl von PSPs über die API von wallee ansteuern und zahlreiche weitere Services nutzen.",
-		"en" : "The official wallee plugin for plentymarkets. The wallee e-commerce hub allows you to connect to a big selection of payment service provider through a standard gateway. Furthermore you can use a lot of additonal services."
+		"de" : "Ein Plugin - 50+ PSPs. Mit dem wallee Plugin verbinden Sie direkt zu Ihrem gewünschten PSP und akzeptieren Kreditkarten, Rechnungen, SOFORT, Alipay, usw. ",
+		"en" : "Connect to over 50+ Payment Service Provider. Process credit cards, Sofort, Paydirekt, PayPal, Alipay, and many more."
 	},
 	"categories"        : ["3519"],
 	"keywords": [
