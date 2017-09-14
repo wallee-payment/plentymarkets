@@ -1,27 +1,27 @@
 # plentymarkets
 Wallee integration for the plentymarkets E-Commerce-ERP. You have the option to install this plugin 
 via the git integration inside plentymarkets and just add the URL to this repository
-or you installt he plugin via the [plentymarkets marketplace](https://app-wallee.com/en/processors)
+or you install the plugin via the [Plentymarkets Marketplace](https://app-wallee.com/en/processors).
 
 
 # Connect to your Payment Service Provider via wallee
  
 With the wallee payment hub you are able to connect to a big selection of payment processors and payment
-method through a standardized interface. In other words this plugin will solve all your payment hassel. 
+method through a standardized interface. In other words: this plugin will solve all your payment hassel. 
 Once the plugin is installed you can easily select the payment processors of your choice and start 
 processing payments.  wallee is PCI certified. The connectivity allows you to process payments via credit cards as well as 
 any other form of alternative payments. You can also process invoices, 
 wallee creates the invoices and you are able to also create your dunning flow and processes. 
-An extensive list of all integrated payment processors can be foundon our [payment processor page](https://marketplace.plentymarkets.com/).
+An extensive list of all integrated payment processors can be found on our [payment processor page](https://marketplace.plentymarkets.com/).
  
 Your client will be redirected to the wallee payment page at the end of the process. The payment page can be fully styled according your needs.
 
 Beside Processing payments we also solve a lot of other problems for you like:
 
-* Scale with a few clicks and add addional payment providirs or invoice processors
-* Creating your indivudualized invoice documents and packing slips
+* Scale with a few clicks and add additional payment providers or invoice processors
+* Creating your individualized invoice documents and packing slips
 * Automatically print documents via the cloud
-* Define your own dunning process for invoices that you process your self
+* Define your own dunning process for invoices that you process yourself
 * Automatically send reminder via post with our pingen.com integration
 
 And many more features.
@@ -37,10 +37,14 @@ If you want to start using the plugin you will have to make sure that you fulfil
  
 ## Plugin configuration
  
- The plugin configuraiton is easy. Just follow the steps:
+ The plugin configuration is easy. Just follow the steps:
 
-* Create an application user and enter the application user id, the secret that is displayed in the backend and the space id.
-* Activate the plugin and go to Plugins > Configuration. 
+* Create a wallee acount and set up a space. 
+* Create an application user in your wallee account. This user will be allowed to access the space you want to link to the Plentymarkets shop. Navigate to your account > application user and create this user. The user ID and the authentication key will be shown to you. 
+* Grant the necessary account admin rights to the application user.
+* Setup the payment processor of your choice inside your Space under Configuration > Processor.
+* Activate the plugin and go to Plugins > Configuration. Under Plugins > wallee. Provide the Space ID,
+Applicaiton User Id and Secret here. 
 * Activate the payment method you want to accept in your store.
 
  
@@ -52,7 +56,7 @@ be found on the [documentation](https://app-wallee.com/en/doc/document-handling)
  
 ### Refunds
  
-Set the status ID for Refunds in the configuration. Once the order is moved into that state the refund will be triggered. 
+Set the status ID for refunds in the configuration. Once the order is moved into that state the refund will be triggered. 
 In order to do that please follow the steps below:
 
 1. Create an "Ereignisaktion" for a state change. Give it a name and select the State change that should trigger the action.
