@@ -1,13 +1,13 @@
 <?php
 namespace Wallee\Helper;
 
+use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Plenty\Modules\Order\Models\Order;
+use Plenty\Modules\Payment\Contracts\PaymentOrderRelationRepositoryContract;
+use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
-use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
-use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
-use Plenty\Modules\Payment\Contracts\PaymentOrderRelationRepositoryContract;
-use Plenty\Modules\Order\Models\Order;
 
 class PaymentHelper
 {
@@ -107,6 +107,7 @@ class PaymentHelper
         $payment->currency = $transaction['currency'];
         $payment->amount = $transaction['authorizationAmount'];
         $payment->receivedAt = $transaction['authorizedOn'];
+        $payment->unaccountable = ($payment->status != Payment::STATUS_CAPTURED);
 
         $paymentProperty = [];
         $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, 'TransactionID: ' . (string) $transaction['id']);
@@ -129,6 +130,10 @@ class PaymentHelper
             /* @var Payment $payment */
             if ($payment->status != $state) {
                 $payment->status = $state;
+                if ($state == Payment::STATUS_CAPTURED) {
+                    $payment->unaccountable = 0;
+                    $payment->updateOrderPaymentStatus = true;
+                }
                 $this->paymentRepository->updatePayment($payment);
             }
         }

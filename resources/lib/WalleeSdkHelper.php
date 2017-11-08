@@ -84,10 +84,10 @@ class WalleeSdkHelper
      * @param string $operator
      * @return \Wallee\Sdk\Model\EntityQueryFilter
      */
-    public static function createEntityFilter($fieldName, $value, $operator = \Wallee\Sdk\Model\EntityQueryFilter::OPERATOR_EQUALS)
+    public static function createEntityFilter($fieldName, $value, $operator = \Wallee\Sdk\Model\CriteriaOperator::EQUALS)
     {
         $filter = new \Wallee\Sdk\Model\EntityQueryFilter();
-        $filter->setType(\Wallee\Sdk\Model\EntityQueryFilter::TYPE_LEAF);
+        $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::LEAF);
         $filter->setOperator($operator);
         $filter->setFieldName($fieldName);
         $filter->setValue($value);

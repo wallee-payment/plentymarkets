@@ -15,20 +15,22 @@ $webhookUrlService = new WebhookUrlService($client);
 $query = new \Wallee\Sdk\Model\EntityQuery();
 $query->setNumberOfEntities(1);
 $filter = new \Wallee\Sdk\Model\EntityQueryFilter();
-$filter->setType(\Wallee\Sdk\Model\EntityQueryFilter::TYPE_AND);
+$filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
 $filter->setChildren([
     WalleeSdkHelper::createEntityFilter('url', SdkRestApi::getParam('notificationUrl')),
-    WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\WebhookUrl::STATE_ACTIVE)
+    WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE)
 ]);
 $query->setFilter($filter);
 $webhookResult = $webhookUrlService->search($spaceId, $query);
 if (empty($webhookResult)) {
     $webhookUrlRequest = new WebhookUrlCreate();
+    $webhookUrlRequest->setState(\Wallee\Sdk\Model\CreationEntityState::ACTIVE);
     $webhookUrlRequest->setName('plentymarkets ' . SdkRestApi::getParam('storeId'));
     $webhookUrlRequest->setUrl(SdkRestApi::getParam('notificationUrl'));
     $webhookUrl = $webhookUrlService->create($spaceId, $webhookUrlRequest);
 
     $webhookListenerRequest = new WebhookListenerCreate();
+    $webhookListenerRequest->setState(\Wallee\Sdk\Model\CreationEntityState::ACTIVE);
     $webhookListenerRequest->setEntity(1472041829003);
     $webhookListenerRequest->setEntityStates([
         'FAILED',

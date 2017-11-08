@@ -24,7 +24,7 @@ $transactionRequest = new TransactionCreate();
 
 $transactionRequest->setCurrency($basket['currency']);
 $transactionRequest->setCustomerId($basket['customerId']); // FIXME: only set customer id if customer has account.
-$transactionRequest->setCustomersPresence(TransactionCreate::CUSTOMERS_PRESENCE_VIRTUAL_PRESENT);
+$transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
 $transactionRequest->setMerchantReference($basket['orderId']);
 $transactionRequest->setSuccessUrl(SdkRestApi::getParam('successUrl'));
 $transactionRequest->setFailedUrl(SdkRestApi::getParam('failedUrl'));
@@ -158,21 +158,11 @@ $paymentMethodId = (int) $paymentMethod['paymentKey'];
 $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
 $query = new EntityQuery();
 $query->setNumberOfEntities(20);
-$stateFilter = new EntityQueryFilter();
-$stateFilter->setFieldName('state');
-$stateFilter->setOperator(EntityQueryFilter::OPERATOR_EQUALS);
-$stateFilter->setType(EntityQueryFilter::TYPE_LEAF);
-$stateFilter->setValue(PaymentMethodConfiguration::STATE_ACTIVE);
-$paymentMethodFilter = new EntityQueryFilter();
-$paymentMethodFilter->setFieldName('paymentMethod');
-$paymentMethodFilter->setOperator(EntityQueryFilter::OPERATOR_EQUALS);
-$paymentMethodFilter->setType(EntityQueryFilter::TYPE_LEAF);
-$paymentMethodFilter->setValue($paymentMethodId);
 $filter = new EntityQueryFilter();
-$filter->setType(EntityQueryFilter::TYPE_AND);
+$filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
 $filter->setChildren([
-    $stateFilter,
-    $paymentMethodFilter
+    WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
+    WalleeSdkHelper::createEntityFilter('paymentMethod', $paymentMethodId)
 ]);
 $query->setFilter($filter);
 $paymentMethodConfigurations = $paymentMethodConfigurationService->search($spaceId, $query);
@@ -183,6 +173,7 @@ foreach ($paymentMethodConfigurations as $paymentMethodConfiguration) {
 }
 
 $transactionRequest->setAllowedPaymentMethodConfigurations($allowedPaymentMethodConfigurations);
+$transactionRequest->setAutoConfirmationEnabled(true);
 
 $service = new TransactionService($client);
 $transactionResponse = $service->create($spaceId, $transactionRequest);

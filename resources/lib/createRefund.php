@@ -19,7 +19,7 @@ $refundRequest->setTransaction($transactionId);
 
 $refundRequest->setExternalId($order['id']);
 
-$refundRequest->setType(Refund::TYPE_MERCHANT_INITIATED_ONLINE);
+$refundRequest->setType(\Wallee\Sdk\Model\RefundType::MERCHANT_INITIATED_ONLINE);
 
 $reductions = [];
 foreach ($order['orderItems'] as $item) {
