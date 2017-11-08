@@ -32,7 +32,7 @@
 	"serviceProvider": "Wallee\\Providers\\WalleeServiceProvider",
 	"containers": [],
 	"dependencies":{
-      "wallee/sdk":"1.0.4"
+      "wallee/sdk":"1.1.1"
     },
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods2"
