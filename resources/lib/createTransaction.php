@@ -55,12 +55,14 @@ foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
     $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
     $lineItem->setQuantity((int) $basketItem['quantity']);
     $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
-    $lineItem->setTaxes([
-        new TaxCreate([
-            'rate' => $basketItem['vat'],
-            'title' => 'Tax'
-        ])
-    ]);
+    if (isset($basketItem['vat']) && !empty($basketItem['vat'])) {
+        $lineItem->setTaxes([
+            new TaxCreate([
+                'rate' => $basketItem['vat'],
+                'title' => 'Tax'
+            ])
+        ]);
+    }
     $lineItem->setType('PRODUCT');
     $lineItems[] = $lineItem;
 }
@@ -72,13 +74,15 @@ if ($basket['shippingAmount'] > 0) {
     $lineItem->setQuantity(1);
     $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['shippingAmount'], $currencyDecimalPlaces));
     $taxAmount = $basket['shippingAmount'] - $basket['shippingAmountNet'];
-    $taxRate = round($taxAmount / $basket['shippingAmountNet'], 2) * 100;
-    $lineItem->setTaxes([
-        new TaxCreate([
-            'rate' => $taxRate,
-            'title' => 'TAX'
-        ])
-    ]);
+    if ($taxAmount > 0) {
+        $taxRate = round($taxAmount / $basket['shippingAmountNet'], 2) * 100;
+        $lineItem->setTaxes([
+            new TaxCreate([
+                'rate' => $taxRate,
+                'title' => 'TAX'
+            ])
+        ]);
+    }
     $lineItem->setType('SHIPPING');
     $lineItems[] = $lineItem;
 }
