@@ -1,10 +1,12 @@
-# Release Notes for wallee // Include the plugin name in headline 1
+# Release Notes for wallee
+
+## v1.0.3 (2017-12-14)
+
+### Fixed
+- Add compatibility to Ceres 2.0.2
  
-v1.0.2 (2017-09-05) // List version releases (MAJOR.MINOR.PATCH) with
-                       // the release date (YYYY-MM-DD) in reverse-chronological
-                       // order (newest on top) in headline 2
+## v1.0.2 (2017-09-05)
  
-### Added // List added features and functions in an unordered list
+### Added
 - Updated Descirptions and Screenshots
 - Updated URL for processing
- 
