@@ -71,7 +71,7 @@ foreach ($order['orderItems'] as $item) {
 $refundRequest->setReductions($reductions);
 
 $service = new RefundService($client);
-$refundResponse = $service->create($spaceId, $refundRequest);
+$refundResponse = $service->refund($spaceId, $refundRequest);
 
 return [
     'id' => $refundResponse->getId()
