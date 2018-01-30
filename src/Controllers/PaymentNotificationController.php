@@ -75,13 +75,25 @@ class PaymentNotificationController extends Controller
     {
         $webhookRequest = json_decode($this->request->getContent());
         $this->getLogger(__METHOD__)->error('webhookRequest', $webhookRequest);
-        $transactionId = $webhookRequest->entityId;
-        $transaction = $this->sdkService->call('getTransaction', [
-            'id' => $transactionId
-        ]);
-        if (is_array($transaction) && isset($transaction['error'])) {
-            throw new \Exception($transaction['error_msg']);
+
+        if (strtolower($webhookRequest->listenerEntityTechnicalName) == 'transaction') {
+            $transactionId = $webhookRequest->entityId;
+            $transaction = $this->sdkService->call('getTransaction', [
+                'id' => $transactionId
+            ]);
+            if (is_array($transaction) && isset($transaction['error'])) {
+                throw new \Exception($transaction['error_msg']);
+            }
+            $this->paymentHelper->updatePlentyPayment($transaction);
+        } elseif (strtolower($webhookRequest->listenerEntityTechnicalName) == 'transactioninvoice') {
+            $transactionInvoiceId = $webhookRequest->entityId;
+            $transactionInvoice = $this->sdkService->call('getTransactionInvoice', [
+                'id' => $transactionInvoiceId
+            ]);
+            if (is_array($transactionInvoice) && isset($transactionInvoice['error'])) {
+                throw new \Exception($transactionInvoice['error_msg']);
+            }
+            $this->paymentHelper->updateInvoice($transactionInvoice);
         }
-        $this->paymentHelper->updatePlentyPayment($transaction);
     }
 }

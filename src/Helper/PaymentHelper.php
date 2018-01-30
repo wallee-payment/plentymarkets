@@ -131,6 +131,28 @@ class PaymentHelper
             if ($payment->status != $state) {
                 $payment->status = $state;
                 if ($state == Payment::STATUS_CAPTURED) {
+                    $payment->unaccountable = 1;
+                    $payment->updateOrderPaymentStatus = true;
+                }
+                $this->paymentRepository->updatePayment($payment);
+            }
+        }
+    }
+
+    public function updateInvoice($transactionInvoice)
+    {
+        if ($transactionInvoice['state'] == 'NOT_APPLICABLE' || $transactionInvoice['state'] == 'PAID') {
+            $state = Payment::STATUS_CAPTURED;
+        } else {
+            $state = Payment::STATUS_REFUSED;
+        }
+
+        $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transactionInvoice['completion']['lineItemVersion']['transaction']['id']);
+        foreach ($payments as $payment) {
+            /* @var Payment $payment */
+            if ($payment->status != $state) {
+                $payment->status = $state;
+                if ($state == Payment::STATUS_CAPTURED) {
                     $payment->unaccountable = 0;
                     $payment->updateOrderPaymentStatus = true;
                 }
@@ -176,7 +198,7 @@ class PaymentHelper
             case 'COMPLETED':
                 return Payment::STATUS_APPROVED;
             case 'FULFILL':
-                return Payment::STATUS_CAPTURED;
+                return Payment::STATUS_APPROVED;
             case 'DECLINE':
                 return Payment::STATUS_REFUSED;
         }

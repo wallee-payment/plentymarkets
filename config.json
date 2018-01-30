@@ -19,6 +19,13 @@
 	},
 	{
 		"tab": "Grundeinstellungen",
+		"key": "resource_version",
+		"label": "Resource Version",
+		"type": "text",
+		"default": "V2"
+	},
+	{
+		"tab": "Grundeinstellungen",
 		"key": "refund_successful_status",
 		"label": "Status ID für erfolgreiche Gutschrift",
 		"type": "text",
