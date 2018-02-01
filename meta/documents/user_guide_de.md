@@ -3,7 +3,7 @@
 Wallee bietet Ihnen als PSP / E-Commerce hub direkten Zugang zu einer grossen Auswahl an Zahlungsverarbeitern und
 Zahlungsmethoden via eine standardisierte API. Mit anderen Worten lösen wir mit diesem produkt
 Ihre Zahlungsprobleme auf einen Schlag in Ihrem Webshop. Sobald Sie das Plugin in Ihrem Shop installiert haben,
-können Sie aus einem der integrierten [Verarbeitern](https://app-wallee.com/en/processors) auswählen für die
+können Sie aus einem der integrierten <a href="https://app-wallee.com/en/processors" target="_blank">Verarbeitern</a> auswählen für die
 Verarbeitung Ihrer Zahlung. Damit wird die Verarbeitung via Kreditkarten aber auch jede weitere Form alternativen
 Zahlungsarten ermöglicht. Sie können zudem auch Rechnungen Verarbeiten (Für Schweizer Kunden sogar mit Einzahlungsschein).
 Daneben können Sie Ihre Kunden auch mittels selbst-konfigurierbaren Mahnläufen mahnen u.v.m.
@@ -25,7 +25,7 @@ Dies und vieles Mehr steht Ihnen ab sofort mit einer direkten Integration zur Ve
 
 Damit Sie wallee nutzen können müssen Sie folgende Voraussetzungen erfüllen:
 
-* Sie benötigen ein wallee Konto. Dieses können Sie mit dem [signup](https://app-wallee.com/user/signup) Link kostenfrei erstellen.
+* Sie benötigen ein wallee Konto. Dieses können Sie mit dem <a href="https://app-wallee.com/user/signup" target="_blank">signup</a> Link kostenfrei erstellen.
 * Sie müssen das Plugin installieren entweder via Marketplace oder indem Sie das Github Repository unter Plugin > Git einfügen.
 
  
@@ -39,7 +39,7 @@ Das Plugin kann einfach in Ihrem Shop installiert und Konfiguriert werden.
  
 ### Anpassen der E-Mail, Payment Page und Dokumente
 
-Für die Verarbeitung der Zahlugn werden Sie auf die Zahlungsseite von wallee weitergeleitet. Diese Seite können Sie mit Hilfe der TWIG Templates komplett selber gestalten. Mehr informationen finden Sie in der [Dokumentaiton](https://app-wallee.com/de-ch/doc/document-handling).
+Für die Verarbeitung der Zahlugn werden Sie auf die Zahlungsseite von wallee weitergeleitet. Diese Seite können Sie mit Hilfe der TWIG Templates komplett selber gestalten. Mehr informationen finden Sie in der <a href="https://app-wallee.com/de-ch/doc/document-handling" target="_blank">Dokumentation</a>.
  
  
 ### Gutschriften
@@ -60,8 +60,8 @@ dass die Bestellung mit wallee synchronisiert wird.
 
 ## Further reading
 
-Für mehr Informationen verweisen wir Sie auf unsere extensive [Dokumenation](https://app-wallee.com/de-ch/doc).
-Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser [Support](https://wallee.com/support.html) ebenfalls zur Verfügung. 
+Für mehr Informationen verweisen wir Sie auf unsere extensive <a href="https://app-wallee.com/de-ch/doc" target="_blank">Dokumentation</a>.
+Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser <a href="https://wallee.com/support.html" target="_blank">Support</a> ebenfalls zur Verfügung. 
  
 ## Lizenz
  

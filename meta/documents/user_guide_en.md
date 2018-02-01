@@ -6,7 +6,7 @@ Once the plugin is installed you can easily select the payment processors of you
 processing payments.  wallee is PCI certified. The connectivity allows you to process payments via credit cards as well as 
 any other form of alternative payments. You can also process invoices, 
 wallee creates the invoices and you are able to also create your dunning flow and processes. 
-An extensive list of all integrated payment processors can be foundon our [payment processor page](https://app-wallee.com/en/processors).
+An extensive list of all integrated payment processors can be foundon our <a href="https://app-wallee.com/en/processors" target="_blank">payment processor page</a>.
  
 Your client will be redirected to the wallee payment page at the end of the process. The payment page can be fully styled according your needs.
 
@@ -25,7 +25,7 @@ And many more features.
  
 If you want to start using the plugin you will have to make sure that you fulfill the following requirments:
 
-* You do have a wallee account. If not you can [signup](https://app-wallee.com/user/signup) for a test account.
+* You do have a wallee account. If not you can <a href="https://app-wallee.com/user/signup" target="_blank">signup</a> for a test account.
 * You do need to install the plugin via marketplace or via github.
 
  
@@ -42,7 +42,7 @@ If you want to start using the plugin you will have to make sure that you fulfil
  
 The plugin will automatically forward the user to the payment page of wallee. This page can be styled 
 according your needs. In order to style the payment page, documents or email we use TWIG templates. More information can 
-be found on the [documentation](https://app-wallee.com/en/doc/document-handling).
+be found on the <a href="https://app-wallee.com/en/doc/document-handling" target="_blank">documentation</a>.
  
 ### Refunds
  
@@ -63,7 +63,7 @@ the items with wallee.
 
 ## Further reading
 
-More Information about the features in wallee can be found in our extensive [documentation](https://app-wallee.com/en/doc).
+More Information about the features in wallee can be found in our extensive <a href="https://app-wallee.com/en/doc" target="_blank">documentation</a>.
  
 ## License
  
