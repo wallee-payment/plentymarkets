@@ -1,6 +1,6 @@
 # Release Notes for wallee
 
-## v1.0.4 (2018-01-30)
+## v1.0.5 (2018-01-30)
 
 ### Fixed
 - Fix path of payment method images.
