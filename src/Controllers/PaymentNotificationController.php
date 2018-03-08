@@ -95,5 +95,6 @@ class PaymentNotificationController extends Controller
             }
             $this->paymentHelper->updateInvoice($transactionInvoice);
         }
+        return "OK";
     }
 }
