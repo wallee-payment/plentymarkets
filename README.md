@@ -3,6 +3,8 @@ Wallee integration for the plentymarkets E-Commerce-ERP. You have the option to 
 via the git integration inside plentymarkets and just add the URL to this repository
 or you install the plugin via the [Plentymarkets Marketplace](https://app-wallee.com/en/processors).
 
+Please note in order to install this plugin you will have to use *Cerres and the IO Plugin*. 
+
 
 # Connect to your Payment Service Provider via wallee
  
