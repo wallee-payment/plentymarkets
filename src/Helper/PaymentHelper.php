@@ -8,9 +8,12 @@ use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
+use Plenty\Plugin\Log\Loggable;
 
 class PaymentHelper
 {
+
+    use Loggable;
 
     /**
      *
@@ -135,6 +138,7 @@ class PaymentHelper
                     $payment->updateOrderPaymentStatus = true;
                 }
                 $this->paymentRepository->updatePayment($payment);
+                $this->getLogger(__METHOD__)->error('updateOrderPayment', $payment);
             }
         }
     }

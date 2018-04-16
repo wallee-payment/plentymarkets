@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.8 (2018-04-16)
+
+### Fixed
+- Fix bugs.
+
 ## v1.0.7 (2018-03-08)
 
 ### Fixed
