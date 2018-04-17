@@ -235,10 +235,15 @@ class PaymentService
      */
     private function getAddress(Address $address): array
     {
+        $birthday = $address->birthday;
+        if (empty($birthday) || !preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthday)) {
+        	$birthday = null;
+        }
+        
         return [
             'city' => $address->town,
             'country' => $this->countryRepository->findIsoCode($address->countryId, 'iso_code_2'),
-            'dateOfBirth' => $address->birthday,
+            'dateOfBirth' => $birthday,
             'emailAddress' => $address->email,
             'familyName' => $address->lastName,
             'givenName' => $address->firstName,
