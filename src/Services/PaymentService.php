@@ -242,6 +242,7 @@ class PaymentService
         
         return [
             'city' => $address->town,
+            'gender' => $address->gender,
             'country' => $this->countryRepository->findIsoCode($address->countryId, 'iso_code_2'),
             'dateOfBirth' => $birthday,
             'emailAddress' => $address->email,

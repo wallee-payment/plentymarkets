@@ -141,6 +141,16 @@ $billingAddress->setOrganizationName(mb_substr($basketBillingAddress['organisati
 $billingAddress->setPhoneNumber($basketBillingAddress['phoneNumber']);
 $billingAddress->setPostCode(mb_substr($basketBillingAddress['postCode'], 0, 40, "UTF-8"));
 $billingAddress->setStreet(mb_substr($basketBillingAddress['street'], 0, 300, "UTF-8"));
+
+if (isset($basketBillingAddress['gender'])) {
+	if (strtolower($basketBillingAddress['gender']) == 'male') {
+		$billingAddress->setGender(Gender::MALE);
+	}
+	else if (strtolower($basketBillingAddress['gender']) == 'female') {
+		$billingAddress->setGender(Gender::FEMALE);
+	}
+}
+
 $transactionRequest->setBillingAddress($billingAddress);
 
 $basketShippingAddress = SdkRestApi::getParam('shippingAddress');
@@ -155,6 +165,16 @@ $shippingAddress->setOrganizationName(mb_substr($basketShippingAddress['organisa
 $shippingAddress->setPhoneNumber($basketShippingAddress['phoneNumber']);
 $shippingAddress->setPostCode(mb_substr($basketShippingAddress['postCode'], 0, 40, "UTF-8"));
 $shippingAddress->setStreet(mb_substr($basketShippingAddress['street'], 0, 300, "UTF-8"));
+
+if (isset($basketShippingAddress['gender'])) {
+	if (strtolower($basketShippingAddress['gender']) == 'male') {
+		$shippingAddress->setGender(Gender::MALE);
+	}
+	else if (strtolower($basketShippingAddress['gender']) == 'female') {
+		$shippingAddress->setGender(Gender::FEMALE);
+	}
+}
+
 $transactionRequest->setShippingAddress($shippingAddress);
 
 $paymentMethod = SdkRestApi::getParam('paymentMethod');

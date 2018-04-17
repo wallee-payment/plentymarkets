@@ -5,6 +5,7 @@
 ### Fixed
 - Add filter for invalid birthday values on addresses.
 - Mark products as shippable.
+- Pass the gender from plentymarkets.
 
 ## v1.0.8 (2018-04-16)
 
