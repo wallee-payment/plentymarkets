@@ -54,6 +54,7 @@ foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
     $lineItem->setSku($basketItem['itemId']);
     $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
     $lineItem->setQuantity((int) $basketItem['quantity']);
+    $lineItem->setShippingRequired(true);
     $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
     if (isset($basketItem['vat']) && !empty($basketItem['vat'])) {
         $lineItem->setTaxes([
