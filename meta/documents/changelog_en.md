@@ -1,5 +1,11 @@
 # Release Notes for wallee
 
+## v1.0.9 (2018-04-17)
+
+### Fixed
+- Add filter for invalid birthday values on addresses.
+- Mark products as shippable.
+
 ## v1.0.8 (2018-04-16)
 
 ### Fixed
