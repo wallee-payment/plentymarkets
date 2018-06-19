@@ -12,6 +12,7 @@ use Wallee\Sdk\Model\EntityQuery;
 use Wallee\Sdk\Model\EntityQueryFilter;
 use Wallee\Sdk\Model\PaymentMethodConfiguration;
 use Wallee\Sdk\Service\CurrencyService;
+use Wallee\Sdk\Model\Gender;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
@@ -56,7 +57,7 @@ foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
     $lineItem->setQuantity((int) $basketItem['quantity']);
     $lineItem->setShippingRequired(true);
     $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
-    if (isset($basketItem['vat']) && !empty($basketItem['vat'])) {
+    if (isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
         $lineItem->setTaxes([
             new TaxCreate([
                 'rate' => $basketItem['vat'],
@@ -143,12 +144,11 @@ $billingAddress->setPostCode(mb_substr($basketBillingAddress['postCode'], 0, 40,
 $billingAddress->setStreet(mb_substr($basketBillingAddress['street'], 0, 300, "UTF-8"));
 
 if (isset($basketBillingAddress['gender'])) {
-	if (strtolower($basketBillingAddress['gender']) == 'male') {
-		$billingAddress->setGender(Gender::MALE);
-	}
-	else if (strtolower($basketBillingAddress['gender']) == 'female') {
-		$billingAddress->setGender(Gender::FEMALE);
-	}
+    if (strtolower($basketBillingAddress['gender']) == 'male') {
+        $billingAddress->setGender(Gender::MALE);
+    } else if (strtolower($basketBillingAddress['gender']) == 'female') {
+        $billingAddress->setGender(Gender::FEMALE);
+    }
 }
 
 $transactionRequest->setBillingAddress($billingAddress);
@@ -167,12 +167,11 @@ $shippingAddress->setPostCode(mb_substr($basketShippingAddress['postCode'], 0, 4
 $shippingAddress->setStreet(mb_substr($basketShippingAddress['street'], 0, 300, "UTF-8"));
 
 if (isset($basketShippingAddress['gender'])) {
-	if (strtolower($basketShippingAddress['gender']) == 'male') {
-		$shippingAddress->setGender(Gender::MALE);
-	}
-	else if (strtolower($basketShippingAddress['gender']) == 'female') {
-		$shippingAddress->setGender(Gender::FEMALE);
-	}
+    if (strtolower($basketShippingAddress['gender']) == 'male') {
+        $shippingAddress->setGender(Gender::MALE);
+    } else if (strtolower($basketShippingAddress['gender']) == 'female') {
+        $shippingAddress->setGender(Gender::FEMALE);
+    }
 }
 
 $transactionRequest->setShippingAddress($shippingAddress);
