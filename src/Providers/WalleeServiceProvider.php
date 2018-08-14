@@ -41,6 +41,10 @@ use Wallee\Methods\TwintPaymentMethod;
 use Wallee\Procedures\RefundEventProcedure;
 use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
+use Plenty\Modules\Cron\Services\CronContainer;
+use Wallee\Services\WebhookCronHandler;
+use Wallee\Contracts\WebhookRepositoryContract;
+use Wallee\Repositories\WebhookRepository;
 
 class WalleeServiceProvider extends ServiceProvider
 {
@@ -57,7 +61,7 @@ class WalleeServiceProvider extends ServiceProvider
      *
      * @param PaymentMethodContainer $payContainer
      */
-    public function boot(Dispatcher $eventDispatcher, PaymentHelper $paymentHelper, PaymentService $paymentService, BasketRepositoryContract $basketRepository, PaymentMethodContainer $payContainer, PaymentMethodRepositoryContract $paymentMethodService, EventProceduresService $eventProceduresService)
+    public function boot(Dispatcher $eventDispatcher, PaymentHelper $paymentHelper, PaymentService $paymentService, BasketRepositoryContract $basketRepository, PaymentMethodContainer $payContainer, PaymentMethodRepositoryContract $paymentMethodService, EventProceduresService $eventProceduresService, CronContainer $cronContainer)
     {
         $this->registerPaymentMethod($payContainer, 1457546097615, AlipayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097602, BankTransferPaymentMethod::class);
@@ -108,6 +112,9 @@ class WalleeServiceProvider extends ServiceProvider
                 $event->setValue($result['value']);
             }
         });
+
+        $this->getApplication()->bind(WebhookRepositoryContract::class, WebhookRepository::class);
+        $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }
 
     private function registerPaymentMethod($payContainer, $id, $class)
