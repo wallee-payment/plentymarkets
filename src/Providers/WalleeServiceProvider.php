@@ -52,7 +52,7 @@ class WalleeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->getApplication()->register(WalleeRouteServiceProvider::class);
-
+        $this->getApplication()->bind(WebhookRepositoryContract::class, WebhookRepository::class);
         $this->getApplication()->bind(RefundEventProcedure::class);
     }
 
@@ -113,7 +113,6 @@ class WalleeServiceProvider extends ServiceProvider
             }
         });
 
-        $this->getApplication()->bind(WebhookRepositoryContract::class, WebhookRepository::class);
         $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }
 

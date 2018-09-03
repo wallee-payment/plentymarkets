@@ -56,7 +56,11 @@ foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
     $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
     $lineItem->setQuantity((int) $basketItem['quantity']);
     $lineItem->setShippingRequired(true);
-    $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
+    if (SdkRestApi::getParam('showNetPrice') && isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount(($basketItem['price'] / (1 + $basketItem['vat'] / 100)) * $basketItem['quantity'], $currencyDecimalPlaces));
+    } else {
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
+    }
     if (isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
         $lineItem->setTaxes([
             new TaxCreate([
@@ -109,22 +113,23 @@ if ($basket['paymentAmount'] > 0) {
     $lineItems[] = $lineItem;
 }
 $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basket['basketAmount'], $currencyDecimalPlaces)) {
+$basketAmount = SdkRestApi::getParam('showNetPrice') ? $basket['basketAmountNet'] : $basket['basketAmount'];
+if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId('adjustment');
     $lineItem->setSku('adjustment');
     $lineItem->setName('Adjustment');
     $lineItem->setQuantity(1);
-    $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($lineItemTotalAmount - $basket['basketAmount'], $currencyDecimalPlaces));
+    $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($lineItemTotalAmount - $basketAmount, $currencyDecimalPlaces));
     $lineItem->setType('DISCOUNT');
     $lineItems[] = $lineItem;
-} elseif ($lineItemTotalAmount < $basket['basketAmount']) {
+} elseif ($lineItemTotalAmount < $basketAmount) {
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId('adjustment');
     $lineItem->setSku('adjustment');
     $lineItem->setName('Adjustment');
     $lineItem->setQuantity(1);
-    $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['basketAmount'] - $lineItemTotalAmount, $currencyDecimalPlaces));
+    $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketAmount - $lineItemTotalAmount, $currencyDecimalPlaces));
     $lineItem->setType('FEE');
     $lineItems[] = $lineItem;
 }
