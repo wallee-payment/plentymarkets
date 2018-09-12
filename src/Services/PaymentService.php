@@ -285,7 +285,11 @@ class PaymentService
 
         /** @var \Plenty\Modules\Item\Item\Models\ItemText $itemText */
         $itemText = $item->texts;
-        return $itemText->first()->name1;
+        if (! empty($itemText) && ! empty($itemText->first()->name1)) {
+            return $itemText->first()->name1;
+        } else {
+            return "Product";
+        }
     }
 
     /**
