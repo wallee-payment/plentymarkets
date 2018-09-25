@@ -4,7 +4,7 @@ namespace Wallee\Migrations;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 
-class CreatePaymentMethods2
+class CreatePaymentMethods
 {
 
     /**
