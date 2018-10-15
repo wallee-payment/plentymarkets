@@ -121,7 +121,8 @@ class PaymentService
             'shippingAddress' => $this->getAddress($this->getShippingAddress($basket)),
             'language' => $this->session->getLocaleSettings()->language,
             'successUrl' => $this->getSuccessUrl(),
-            'failedUrl' => $this->getFailedUrl()
+            'failedUrl' => $this->getFailedUrl(),
+            'showNetPrice' => $this->session->getCustomer()->showNetPrice
         ];
 
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
@@ -236,10 +237,10 @@ class PaymentService
     private function getAddress(Address $address): array
     {
         $birthday = $address->birthday;
-        if (empty($birthday) || !preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthday)) {
-        	$birthday = null;
+        if (empty($birthday) || ! preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $birthday)) {
+            $birthday = null;
         }
-        
+
         return [
             'city' => $address->town,
             'gender' => $address->gender,
@@ -284,7 +285,11 @@ class PaymentService
 
         /** @var \Plenty\Modules\Item\Item\Models\ItemText $itemText */
         $itemText = $item->texts;
-        return $itemText->first()->name1;
+        if (! empty($itemText) && ! empty($itemText->first()->name1)) {
+            return $itemText->first()->name1;
+        } else {
+            return "Product";
+        }
     }
 
     /**

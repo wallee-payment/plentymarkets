@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.11 (2018-10-15)
+
+### Fixed
+- Process notification through a cron job.
+
 ## v1.0.10 (2018-06-19)
 
 ### Fixed

@@ -9,6 +9,7 @@ use Wallee\Helper\PaymentHelper;
 use Wallee\Services\PaymentService;
 use Plenty\Plugin\Log\Loggable;
 use Wallee\Services\WalleeSdkService;
+use Wallee\Contracts\WebhookRepositoryContract;
 
 class PaymentNotificationController extends Controller
 {
@@ -52,6 +53,12 @@ class PaymentNotificationController extends Controller
     private $sdkService;
 
     /**
+     *
+     * @var WebhookRepositoryContract
+     */
+    private $webhookRepository;
+
+    /**
      * PaymentController constructor.
      *
      * @param Request $request
@@ -60,8 +67,9 @@ class PaymentNotificationController extends Controller
      * @param PaymentHelper $paymentHelper
      * @param PaymentService $paymentService
      * @param WalleeSdkService $sdkService
+     * @param WebhookRepositoryContract $webhookRepository
      */
-    public function __construct(Request $request, Response $response, ConfigRepository $config, PaymentHelper $paymentHelper, PaymentService $paymentService, WalleeSdkService $sdkService)
+    public function __construct(Request $request, Response $response, ConfigRepository $config, PaymentHelper $paymentHelper, PaymentService $paymentService, WalleeSdkService $sdkService, WebhookRepositoryContract $webhookRepository)
     {
         $this->request = $request;
         $this->response = $response;
@@ -69,6 +77,7 @@ class PaymentNotificationController extends Controller
         $this->paymentHelper = $paymentHelper;
         $this->paymentService = $paymentService;
         $this->sdkService = $sdkService;
+        $this->webhookRepository = $webhookRepository;
     }
 
     public function updateTransaction()
@@ -76,24 +85,14 @@ class PaymentNotificationController extends Controller
         $webhookRequest = json_decode($this->request->getContent());
         $this->getLogger(__METHOD__)->error('webhookRequest', $webhookRequest);
 
-        if (strtolower($webhookRequest->listenerEntityTechnicalName) == 'transaction') {
-            $transactionId = $webhookRequest->entityId;
-            $transaction = $this->sdkService->call('getTransaction', [
-                'id' => $transactionId
+        if (in_array(strtolower($webhookRequest->listenerEntityTechnicalName), [
+            'transaction',
+            'transactioninvoice'
+        ])) {
+            $this->webhookRepository->registerWebhook([
+                'listenerEntityTechnicalName' => $webhookRequest->listenerEntityTechnicalName,
+                'entityId' => $webhookRequest->entityId
             ]);
-            if (is_array($transaction) && isset($transaction['error'])) {
-                throw new \Exception($transaction['error_msg']);
-            }
-            $this->paymentHelper->updatePlentyPayment($transaction);
-        } elseif (strtolower($webhookRequest->listenerEntityTechnicalName) == 'transactioninvoice') {
-            $transactionInvoiceId = $webhookRequest->entityId;
-            $transactionInvoice = $this->sdkService->call('getTransactionInvoice', [
-                'id' => $transactionInvoiceId
-            ]);
-            if (is_array($transactionInvoice) && isset($transactionInvoice['error'])) {
-                throw new \Exception($transactionInvoice['error_msg']);
-            }
-            $this->paymentHelper->updateInvoice($transactionInvoice);
         }
         return "OK";
     }
