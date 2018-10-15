@@ -2,9 +2,9 @@
 namespace Wallee\Services;
 
 use Plenty\Modules\Cron\Contracts\CronHandler;
-use Wallee\Contracts\WebhookRepositoryContract;
-use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\ConfigRepository;
+use Plenty\Plugin\Log\Loggable;
+use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Models\Webhook;
 
@@ -64,8 +64,9 @@ class WebhookCronHandler extends CronHandler
     public function handle()
     {
         foreach ($this->webhookRepository->getWebhookList() as $webhook) {
+            $this->getLogger(__METHOD__)->error('processWebhook', $webhook);
             $this->processWebhook($webhook);
-            $this->webhookRepository->deleteWebhook($webhook);
+            $this->webhookRepository->deleteWebhook($webhook->id);
         }
     }
 

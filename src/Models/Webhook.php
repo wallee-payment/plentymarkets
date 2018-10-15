@@ -3,6 +3,14 @@ namespace Wallee\Models;
 
 use Plenty\Modules\Plugin\DataBase\Contracts\Model;
 
+/**
+ * Class Webhook
+ *
+ * @property int $id
+ * @property string $listenerEntityTechnicalName
+ * @property int $entityId
+ * @property int $createdAt
+ */
 class Webhook extends Model
 {
 
@@ -10,19 +18,19 @@ class Webhook extends Model
      *
      * @var int
      */
-    public $id;
+    public $id = 0;
 
     /**
      *
      * @var string
      */
-    public $listenerEntityTechnicalName;
+    public $listenerEntityTechnicalName = '';
 
     /**
      *
      * @var int
      */
-    public $entityId;
+    public $entityId = 0;
 
     /**
      *
@@ -30,8 +38,12 @@ class Webhook extends Model
      */
     public $createdAt;
 
+    /**
+     *
+     * @return string
+     */
     public function getTableName(): string
     {
-        return 'Wallee::Webhook';
+        return 'wallee::Webhook';
     }
 }

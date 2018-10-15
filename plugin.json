@@ -35,7 +35,7 @@
       "wallee/sdk":"1.1.1"
     },
 	"runOnBuild": [
-		"Wallee\\Migrations\\CreatePaymentMethods2",
+		"Wallee\\Migrations\\CreatePaymentMethods",
 		"Wallee\\Migrations\\CreateWebhookTable"
 	]
 }
