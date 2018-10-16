@@ -73,6 +73,4 @@ $refundRequest->setReductions($reductions);
 $service = new RefundService($client);
 $refundResponse = $service->refund($spaceId, $refundRequest);
 
-return [
-    'id' => $refundResponse->getId()
-];
+return WalleeSdkHelper::convertData($refundResponse);

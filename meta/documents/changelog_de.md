@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.12 (2018-10-16)
+
+### Fixed
+- Create payment in plentymarkets for refunds.
+
 ## v1.0.11 (2018-10-15)
 
 ### Fixed
