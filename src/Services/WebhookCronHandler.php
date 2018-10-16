@@ -2,9 +2,9 @@
 namespace Wallee\Services;
 
 use Plenty\Modules\Cron\Contracts\CronHandler;
-use Wallee\Contracts\WebhookRepositoryContract;
-use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\ConfigRepository;
+use Plenty\Plugin\Log\Loggable;
+use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Models\Webhook;
 

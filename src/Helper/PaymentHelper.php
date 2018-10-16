@@ -123,6 +123,37 @@ class PaymentHelper
         return $payment;
     }
 
+    /**
+     * Create a payment in plentymarkets for a refund.
+     *
+     * @param array $refund
+     * @return Payment
+     */
+    public function createRefundPlentyPayment($refund)
+    {
+        /** @var Payment $payment */
+        $payment = pluginApp(\Plenty\Modules\Payment\Models\Payment::class);
+
+        $payment->mopId = (int) $this->getPaymentMopId($refund['transaction']['paymentConnectorConfiguration']['paymentMethodConfiguration']['paymentMethod']);
+        $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
+        $payment->status = $this->mapRefundState($refund['state']);
+        $payment->currency = $refund['transaction']['currency'];
+        $payment->amount = $refund['amount'] < 0 ? - $refund['amount'] : $refund['amount'];
+        $payment->type = Payment::PAYMENT_TYPE_DEBIT;
+        $payment->receivedAt = $refund['createdOn'];
+
+        $paymentProperty = [];
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, 'TransactionID: ' . ((string) $refund['transaction']['id']) . ', RefundID: ' . ((string) $refund['id']));
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $refund['transaction']['id']);
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_REFUND_ID, $refund['id']);
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_ORIGIN, Payment::ORIGIN_PLUGIN);
+        $payment->properties = $paymentProperty;
+
+        $payment = $this->paymentRepository->createPayment($payment);
+
+        return $payment;
+    }
+
     public function updatePlentyPayment($transaction)
     {
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
@@ -205,6 +236,25 @@ class PaymentHelper
                 return Payment::STATUS_APPROVED;
             case 'DECLINE':
                 return Payment::STATUS_REFUSED;
+        }
+    }
+
+    /**
+     * Returns the plentymarkets payment status matching the given refund state.
+     *
+     * @param string $state
+     * @return number
+     */
+    public function mapRefundState(string $state)
+    {
+        switch ($state) {
+            case 'PENDING':
+            case 'MANUAL_CHECK':
+                return Payment::STATUS_AWAITING_APPROVAL;
+            case 'FAILED':
+                return Payment::STATUS_CANCELED;
+            case 'SUCCESSFUL':
+                return Payment::STATUS_APPROVED;
         }
     }
 

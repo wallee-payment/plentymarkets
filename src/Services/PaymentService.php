@@ -341,6 +341,9 @@ class PaymentService
                 throw new \Exception($refund['error_msg']);
             }
 
+            $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
+            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+
             $this->orderRepository->updateOrder([
                 'statusId' => $this->getRefundSuccessfulStatus()
             ], $order->id);
