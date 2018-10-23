@@ -31,6 +31,7 @@
 	"email": "info@customweb.com",
 	"serviceProvider": "Wallee\\Providers\\WalleeServiceProvider",
 	"containers": [],
+	"require": ["IO"],
 	"dependencies":{
       "wallee/sdk":"1.1.1"
     },
