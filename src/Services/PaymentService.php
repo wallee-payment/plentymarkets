@@ -122,6 +122,7 @@ class PaymentService
             'language' => $this->session->getLocaleSettings()->language,
             'successUrl' => $this->getSuccessUrl(),
             'failedUrl' => $this->getFailedUrl(),
+            'checkoutUrl' => $this->getCheckoutUrl(),
             'showNetPrice' => $this->session->getCustomer()->showNetPrice
         ];
 
@@ -306,6 +307,15 @@ class PaymentService
      * @return string
      */
     private function getFailedUrl(): string
+    {
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/wallee/fail-transaction';
+    }
+
+    /**
+     *
+     * @return string
+     */
+    private function getCheckoutUrl(): string
     {
         return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/checkout';
     }
