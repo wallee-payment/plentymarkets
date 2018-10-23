@@ -1,6 +1,6 @@
 # Release Notes for wallee
 
-## v1.0.13 (2018-10-23)
+## v1.0.14 (2018-10-23)
 
 ### Fixed
 - Show reason for transaction failure to customer.

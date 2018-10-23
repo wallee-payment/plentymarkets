@@ -6,7 +6,7 @@
 	},
 	"namespace": "Wallee",
 	"type": "payment",
-	"version": "1.0.13",
+	"version": "1.0.14",
 	"license": " Apache License Version 2",
 	"isClosedSource"    : false,
 	"pluginIcon"        : "icon_plugin_md.png",
@@ -31,6 +31,7 @@
 	"email": "info@customweb.com",
 	"serviceProvider": "Wallee\\Providers\\WalleeServiceProvider",
 	"containers": [],
+	"require": ["IO"],
 	"dependencies":{
       "wallee/sdk":"1.1.1"
     },
