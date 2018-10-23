@@ -47,6 +47,7 @@ class PaymentProcessController extends Controller
      */
     public function __construct(Request $request, Response $response, WalleeSdkService $sdkService, NotificationService $notificationService)
     {
+        parent::__construct();
         $this->request = $request;
         $this->response = $response;
         $this->sdkService = $sdkService;
@@ -65,6 +66,6 @@ class PaymentProcessController extends Controller
         if (is_array($transaction) && ! isset($transaction['error']) && isset($transaction['userFailureMessage']) && ! empty($transaction['userFailureMessage'])) {
             $this->notificationService->error($transaction['userFailureMessage']);
         }
-        $this->response->redirectTo('checkout');
+        return $this->response->redirectTo('checkout');
     }
 }
