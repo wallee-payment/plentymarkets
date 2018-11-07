@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.15 (2018-11-07)
+
+### Fixed
+- Add logging to transaction failure controller.
+
 ## v1.0.14 (2018-10-23)
 
 ### Fixed
