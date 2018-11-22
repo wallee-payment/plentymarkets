@@ -122,8 +122,7 @@ class PaymentService
             'language' => $this->session->getLocaleSettings()->language,
             'successUrl' => $this->getSuccessUrl(),
             'failedUrl' => $this->getFailedUrl(),
-            'checkoutUrl' => $this->getCheckoutUrl(),
-            'showNetPrice' => $this->session->getCustomer()->showNetPrice
+            'checkoutUrl' => $this->getCheckoutUrl()
         ];
 
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);

@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.16 (2018-11-22)
+
+### Fixed
+- Fix line item price calculation.
+
 ## v1.0.15 (2018-11-07)
 
 ### Fixed

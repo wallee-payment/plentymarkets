@@ -49,6 +49,7 @@ function collectTransactionData($transactionRequest, $client)
         }
     }
 
+    $basketNetPrices = $basket['basketAmountNet'] == $basket['basketAmount'];
     $lineItems = [];
     foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
         $lineItem = new LineItemCreate();
@@ -57,7 +58,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
         $lineItem->setQuantity((int) $basketItem['quantity']);
         $lineItem->setShippingRequired(true);
-        if (SdkRestApi::getParam('showNetPrice') && isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
+        if ($basketNetPrices && isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
             $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount(($basketItem['price'] / (1 + $basketItem['vat'] / 100)) * $basketItem['quantity'], $currencyDecimalPlaces));
         } else {
             $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
@@ -114,7 +115,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItems[] = $lineItem;
     }
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-    $basketAmount = SdkRestApi::getParam('showNetPrice') ? $basket['basketAmountNet'] : $basket['basketAmount'];
+    $basketAmount = $basket['basketAmount'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');
