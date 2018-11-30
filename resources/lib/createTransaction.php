@@ -24,6 +24,7 @@ function collectTransactionData($transactionRequest, $client)
     $spaceId = SdkRestApi::getParam('spaceId');
 
     $basket = SdkRestApi::getParam('basket');
+    $basketForTemplate = SdkRestApi::getParam('basketForTemplate');
 
     $transactionRequest->setCurrency($basket['currency']);
     $transactionRequest->setCustomerId($basket['customerId']); // FIXME: only set customer id if customer has account.
@@ -49,7 +50,7 @@ function collectTransactionData($transactionRequest, $client)
         }
     }
 
-    $basketNetPrices = $basket['basketAmountNet'] == $basket['basketAmount'];
+    $basketNetPrices = $basketForTemplate['basketAmountNet'] == $basketForTemplate['basketAmount'];
     $lineItems = [];
     foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
         $lineItem = new LineItemCreate();
@@ -115,7 +116,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItems[] = $lineItem;
     }
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-    $basketAmount = $basket['basketAmount'];
+    $basketAmount = $basketForTemplate['basketAmount'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');

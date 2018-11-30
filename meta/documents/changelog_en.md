@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.17 (2018-11-30)
+
+### Fixed
+- Fix calculation of net basket amounts.
+
 ## v1.0.16 (2018-11-22)
 
 ### Fixed

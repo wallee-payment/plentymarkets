@@ -105,16 +105,15 @@ class PaymentService
     /**
      * Returns the payment method's content.
      *
-     * @param Basket $basket
+     * @param array $basket
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function getPaymentContent(Basket $basket, PaymentMethod $paymentMethod): array
+    public function getPaymentContent(Basket $basket, array $basketForTemplate, PaymentMethod $paymentMethod): array
     {
-        $this->getLogger(__METHOD__)->error('Wallee:EnterPaymentContent', $basket);
-        $this->getLogger(__METHOD__)->error('Wallee:PaymentMethod', $paymentMethod);
         $parameters = [
             'basket' => $basket,
+            'basketForTemplate' => $basketForTemplate,
             'paymentMethod' => $paymentMethod,
             'basketItems' => $this->getBasketItems($basket),
             'billingAddress' => $this->getAddress($this->getBillingAddress($basket)),
@@ -124,7 +123,6 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransaction', $parameters);

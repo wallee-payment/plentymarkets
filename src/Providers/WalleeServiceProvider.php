@@ -3,7 +3,6 @@ namespace Wallee\Providers;
 
 use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\ServiceProvider;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketCreate;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketChanged;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
@@ -45,6 +44,8 @@ use Plenty\Modules\Cron\Services\CronContainer;
 use Wallee\Services\WebhookCronHandler;
 use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Repositories\WebhookRepository;
+use IO\Services\BasketService;
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 
 class WalleeServiceProvider extends ServiceProvider
 {
@@ -98,7 +99,7 @@ class WalleeServiceProvider extends ServiceProvider
 
         $eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) use ($paymentHelper, $basketRepository, $paymentService, $paymentMethodService) {
             if ($paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                $content = $paymentService->getPaymentContent($basketRepository->load(), $paymentMethodService->findByPaymentMethodId($event->getMop()));
+                $content = $paymentService->getPaymentContent($basketRepository->load(), pluginApp(BasketService::class)->getBasketForTemplate(), $paymentMethodService->findByPaymentMethodId($event->getMop()));
                 $event->setValue(isset($content['content']) ? $content['content'] : null);
                 $event->setType(isset($content['type']) ? $content['type'] : '');
             }
