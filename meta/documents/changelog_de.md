@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.18 (2018-12-07)
+
+### Fixed
+- Update logging levels.
+
 ## v1.0.17 (2018-11-30)
 
 ### Fixed
