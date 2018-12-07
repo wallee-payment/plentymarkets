@@ -169,7 +169,7 @@ class PaymentHelper
                     $payment->updateOrderPaymentStatus = true;
                 }
                 $this->paymentRepository->updatePayment($payment);
-                $this->getLogger(__METHOD__)->error('updateOrderPayment', $payment);
+                $this->getLogger(__METHOD__)->debug('updateOrderPayment', $payment);
             }
         }
     }

@@ -63,9 +63,9 @@ class PaymentProcessController extends Controller
         $transaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $id
         ]);
-        $this->getLogger(__METHOD__)->error('wallee:failTransaction', $transaction);
+        $this->getLogger(__METHOD__)->debug('wallee:failTransaction', $transaction);
         if (is_array($transaction) && ! isset($transaction['error']) && isset($transaction['userFailureMessage']) && ! empty($transaction['userFailureMessage'])) {
-            $this->notificationService->error($transaction['userFailureMessage']);
+            $this->notificationService->debug($transaction['userFailureMessage']);
         }
         return $this->response->redirectTo('checkout');
     }

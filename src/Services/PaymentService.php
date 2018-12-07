@@ -123,7 +123,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransaction', $parameters);
 
@@ -136,7 +136,7 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
+        $this->getLogger(__METHOD__)->debug('wallee::transaction result', $transaction);
 
         $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
@@ -149,7 +149,7 @@ class PaymentService
                 'content' => $paymentPageUrl['error_msg']
             ];
         }
-        $this->getLogger(__METHOD__)->error('wallee::before redirect', $paymentPageUrl);
+        $this->getLogger(__METHOD__)->debug('wallee::before redirect', $paymentPageUrl);
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
@@ -324,7 +324,7 @@ class PaymentService
      */
     public function refund($transactionId, Order $order)
     {
-        $this->getLogger(__METHOD__)->error('Wallee:RefundOrder', [
+        $this->getLogger(__METHOD__)->debug('Wallee:RefundOrder', [
             'transactionId' => $transactionId,
             'order' => $order
         ]);
