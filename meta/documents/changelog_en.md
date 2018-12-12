@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.19 (2018-12-12)
+
+### Fixed
+- Respect URL settings regarding trailing slashes.
+
 ## v1.0.18 (2018-12-07)
 
 ### Fixed
