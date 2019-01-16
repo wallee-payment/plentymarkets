@@ -196,6 +196,20 @@ class PaymentHelper
         }
     }
 
+    public function updateRefund($refund)
+    {
+        $state = $this->mapRefundState($refund['state']);
+
+        $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_REFUND_ID, $refund['id']);
+        foreach ($payments as $payment) {
+            /* @var Payment $payment */
+            if ($payment->status != $state) {
+                $payment->status = $state;
+                $this->paymentRepository->updatePayment($payment);
+            }
+        }
+    }
+
     /**
      * Assign the payment to an order in plentymarkets.
      *

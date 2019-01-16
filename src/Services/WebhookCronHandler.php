@@ -90,6 +90,15 @@ class WebhookCronHandler extends CronHandler
                 throw new \Exception($transactionInvoice['error_msg']);
             }
             $this->paymentHelper->updateInvoice($transactionInvoice);
+        } elseif (strtolower($webhook->listenerEntityTechnicalName) == 'refund') {
+            $refundId = $webhook->entityId;
+            $refund = $this->sdkService->call('getRefund', [
+                'id' => $refundId
+            ]);
+            if (is_array($refund) && isset($refund['error'])) {
+                throw new \Exception($refund['error_msg']);
+            }
+            $this->paymentHelper->updateRefund($refund);
         }
     }
 }

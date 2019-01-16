@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.20 (2019-01-16)
+
+### Fixed
+- Update state of refund payments.
+
 ## v1.0.19 (2018-12-12)
 
 ### Fixed

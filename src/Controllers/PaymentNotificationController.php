@@ -87,7 +87,8 @@ class PaymentNotificationController extends Controller
 
         if (in_array(strtolower($webhookRequest->listenerEntityTechnicalName), [
             'transaction',
-            'transactioninvoice'
+            'transactioninvoice',
+            'refund'
         ])) {
             $this->webhookRepository->registerWebhook([
                 'listenerEntityTechnicalName' => $webhookRequest->listenerEntityTechnicalName,

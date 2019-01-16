@@ -52,6 +52,10 @@ $webhookEntities[] = new WebhookEntity(1472041816898, 'Transaction Invoice', [
     \Wallee\Sdk\Model\TransactionInvoiceState::PAID,
     \Wallee\Sdk\Model\TransactionInvoiceState::DERECOGNIZED
 ], 'update-transaction-invoice');
+$webhookEntities[] = new WebhookEntity(1472041839405, 'Refund', [
+    \Wallee\Sdk\Model\RefundState::SUCCESSFUL,
+    \Wallee\Sdk\Model\RefundState::FAILED
+]);
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 $spaceId = SdkRestApi::getParam('spaceId');
