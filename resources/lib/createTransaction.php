@@ -84,7 +84,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['shippingAmount'], $currencyDecimalPlaces));
         $taxAmount = $basket['shippingAmount'] - $basket['shippingAmountNet'];
         if ($taxAmount > 0) {
-            $taxRate = round($taxAmount / $basket['shippingAmountNet'], 2) * 100;
+            $taxRate = round($taxAmount / $basket['shippingAmountNet'], 3) * 100;
             $lineItem->setTaxes([
                 new TaxCreate([
                     'rate' => $taxRate,
