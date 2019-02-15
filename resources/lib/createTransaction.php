@@ -123,7 +123,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItem->setSku('adjustment');
         $lineItem->setName('Adjustment');
         $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($lineItemTotalAmount - $basketAmount, $currencyDecimalPlaces));
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketAmount - $lineItemTotalAmount, $currencyDecimalPlaces));
         $lineItem->setType('DISCOUNT');
         $lineItems[] = $lineItem;
     } elseif ($lineItemTotalAmount < $basketAmount) {

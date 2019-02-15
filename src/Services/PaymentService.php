@@ -322,15 +322,17 @@ class PaymentService
      * @param number $transactionId
      * @param Order $order
      */
-    public function refund($transactionId, Order $order)
+    public function refund($transactionId, Order $refundOrder, Order $order)
     {
-        $this->getLogger(__METHOD__)->debug('Wallee:RefundOrder', [
+        $this->getLogger(__METHOD__)->error('Wallee:RefundOrder', [
             'transactionId' => $transactionId,
+            'refundOrder' => $refundOrder,
             'order' => $order
         ]);
         try {
             $refund = $this->sdkService->call('createRefund', [
                 'transactionId' => $transactionId,
+                'refundOrder' => $refundOrder,
                 'order' => $order
             ]);
 
@@ -339,17 +341,17 @@ class PaymentService
             }
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
-            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $refundOrder->id);
 
             $this->orderRepository->updateOrder([
                 'statusId' => $this->getRefundSuccessfulStatus()
-            ], $order->id);
+            ], $refundOrder->id);
         } catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('The refund failed.', $e);
 
             $this->orderRepository->updateOrder([
                 'statusId' => $this->getRefundFailedStatus()
-            ], $order->id);
+            ], $refundOrder->id);
         }
     }
 
