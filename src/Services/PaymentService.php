@@ -324,7 +324,7 @@ class PaymentService
      */
     public function refund($transactionId, Order $refundOrder, Order $order)
     {
-        $this->getLogger(__METHOD__)->error('Wallee:RefundOrder', [
+        $this->getLogger(__METHOD__)->debug('Wallee:RefundOrder', [
             'transactionId' => $transactionId,
             'refundOrder' => $refundOrder,
             'order' => $order
