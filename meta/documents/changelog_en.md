@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v1.0.22 (2019-02-15)
+
+### Fixed
+- Fix shipping tax calculation.
+
 ## v1.0.21 (2019-02-15)
 
 ### Fixed
