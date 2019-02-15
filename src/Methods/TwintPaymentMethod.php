@@ -58,7 +58,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'twint.svg';
+        return $this->getImagePath('twint.svg');
     }
 
     /**

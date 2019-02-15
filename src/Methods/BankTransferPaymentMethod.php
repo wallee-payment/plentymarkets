@@ -58,7 +58,7 @@ class BankTransferPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'bank-transfer.svg';
+        return $this->getImagePath('bank-transfer.svg');
     }
 
     /**

@@ -45,6 +45,32 @@ class WalleeSdkHelper
     }
 
     /**
+     * Returns the amount of the line item's reductions.
+     *
+     * @param \Wallee\Sdk\Model\LineItem[] $lineItems
+     * @param \Wallee\Sdk\Model\LineItemReduction[] $reductions
+     * @param int $currencyDecimalPlaces
+     * @return float
+     */
+    public static function getReductionAmount(array $lineItems, array $reductions, $currencyDecimalPlaces = 2)
+    {
+        $lineItemMap = array();
+        foreach ($lineItems as $lineItem) {
+            $lineItemMap[$lineItem->getUniqueId()] = $lineItem;
+        }
+
+        $amount = 0;
+        foreach ($reductions as $reduction) {
+            $lineItem = $lineItemMap[$reduction->getLineItemUniqueId()];
+            $unitPrice = $lineItem->getAmountIncludingTax() / $lineItem->getQuantity();
+            $amount += $unitPrice * $reduction->getQuantityReduction();
+            $amount += $reduction->getUnitPriceReduction() * ($lineItem->getQuantity() - $reduction->getQuantityReduction());
+        }
+
+        return self::roundAmount($amount, $currencyDecimalPlaces);
+    }
+
+    /**
      * Convert data to string|array.
      *
      * @param mixed $data
@@ -92,5 +118,20 @@ class WalleeSdkHelper
         $filter->setFieldName($fieldName);
         $filter->setValue($value);
         return $filter;
+    }
+
+    /**
+     * Creates and returns a new entity order by.
+     *
+     * @param string $fieldName
+     * @param mixed $sortOrder
+     * @return \Wallee\Sdk\Model\EntityQueryOrderBy
+     */
+    public static function createEntityOrderBy($fieldName, $sortOrder = \Wallee\Sdk\Model\EntityQueryOrderByType::DESC)
+    {
+        $orderBy = new \Wallee\Sdk\Model\EntityQueryOrderBy();
+        $orderBy->setFieldName($fieldName);
+        $orderBy->setSorting($sortOrder);
+        return $orderBy;
     }
 }

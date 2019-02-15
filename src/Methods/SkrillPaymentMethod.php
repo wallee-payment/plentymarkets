@@ -58,7 +58,7 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'skrill.svg';
+        return $this->getImagePath('skrill.svg');
     }
 
     /**

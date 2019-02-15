@@ -58,7 +58,7 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'przelewy24.svg';
+        return $this->getImagePath('przelewy24.svg');
     }
 
     /**

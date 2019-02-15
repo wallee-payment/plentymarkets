@@ -58,7 +58,7 @@ class TenpayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'tenpay.svg';
+        return $this->getImagePath('tenpay.svg');
     }
 
     /**

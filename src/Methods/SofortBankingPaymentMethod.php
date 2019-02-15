@@ -58,7 +58,7 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'sofort-banking.svg';
+        return $this->getImagePath('sofort-banking.svg');
     }
 
     /**

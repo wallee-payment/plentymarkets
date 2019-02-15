@@ -58,7 +58,7 @@ class DirectDebitSepaPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'direct-debit-sepa.svg';
+        return $this->getImagePath('direct-debit-sepa.svg');
     }
 
     /**

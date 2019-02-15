@@ -58,7 +58,7 @@ class DirectDebitUkPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'direct-debit-uk.svg';
+        return $this->getImagePath('direct-debit-uk.svg');
     }
 
     /**

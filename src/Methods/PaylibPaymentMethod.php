@@ -58,7 +58,7 @@ class PaylibPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'paylib.svg';
+        return $this->getImagePath('paylib.svg');
     }
 
     /**

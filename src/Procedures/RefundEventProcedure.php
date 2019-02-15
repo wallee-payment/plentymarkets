@@ -8,23 +8,24 @@ use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
 use Wallee\Services\PaymentService;
 use Wallee\Helper\PaymentHelper;
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 
 class RefundEventProcedure
 {
     use Loggable;
 
-    public function run(EventProceduresTriggered $eventTriggered, PaymentService $paymentService, PaymentRepositoryContract $paymentContract, PaymentHelper $paymentHelper)
+    public function run(EventProceduresTriggered $eventTriggered, PaymentService $paymentService, PaymentRepositoryContract $paymentContract, PaymentHelper $paymentHelper, OrderRepositoryContract $orderRepository)
     {
         /** @var Order $order */
-        $order = $eventTriggered->getOrder();
+        $refund = $eventTriggered->getOrder();
 
         // only sales orders and credit notes are allowed order types to refund
-        switch ($order->typeId) {
+        switch ($refund->typeId) {
             case 1: // sales order
-                $orderId = $order->id;
+                $orderId = $refund->id;
                 break;
             case 4: // credit note
-                $originOrders = $order->originOrders;
+                $originOrders = $refund->originOrders;
                 if (! $originOrders->isEmpty() && $originOrders->count() > 0) {
                     $originOrder = $originOrders->first();
 
@@ -58,7 +59,8 @@ class RefundEventProcedure
                 $transactionId = (int) $paymentHelper->getPaymentPropertyValue($payment, PaymentProperty::TYPE_TRANSACTION_ID);
                 if ($transactionId > 0) {
                     // refund the payment
-                    $paymentService->refund($transactionId, $order);
+                    $order = $orderRepository->findOrderById($orderId);
+                    $paymentService->refund($transactionId, $refund, $order);
                 }
             }
         }

@@ -55,7 +55,7 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'masterpass.svg';
+        return $this->getImagePath('masterpass.svg');
     }
 
     /**

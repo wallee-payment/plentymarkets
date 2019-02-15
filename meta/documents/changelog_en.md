@@ -1,5 +1,11 @@
 # Release Notes for wallee
 
+## v1.0.21 (2019-02-15)
+
+### Fixed
+- Allow to refund partial amounts.
+- Ensure correct transaction total.
+
 ## v1.0.20 (2019-01-16)
 
 ### Fixed

@@ -58,7 +58,7 @@ class PayboxPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'paybox.svg';
+        return $this->getImagePath('paybox.svg');
     }
 
     /**

@@ -55,7 +55,7 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'credit-debit-card.svg';
+        return $this->getImagePath('credit-debit-card.svg');
     }
 
     /**

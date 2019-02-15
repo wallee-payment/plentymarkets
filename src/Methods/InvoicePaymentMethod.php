@@ -55,7 +55,7 @@ class InvoicePaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'invoice.svg';
+        return $this->getImagePath('invoice.svg');
     }
 
     /**

@@ -58,7 +58,7 @@ class EpsPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'eps.svg';
+        return $this->getImagePath('eps.svg');
     }
 
     /**

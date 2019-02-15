@@ -58,7 +58,7 @@ class IDealPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'ideal.svg';
+        return $this->getImagePath('ideal.svg');
     }
 
     /**
