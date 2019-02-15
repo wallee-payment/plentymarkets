@@ -58,7 +58,7 @@ class QiwiPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'qiwi.svg';
+        return $this->getImagePath('qiwi.svg');
     }
 
     /**

@@ -58,7 +58,7 @@ class PoliPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'poli.svg';
+        return $this->getImagePath('poli.svg');
     }
 
     /**

@@ -58,7 +58,7 @@ class PayPalPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'paypal.svg';
+        return $this->getImagePath('paypal.svg');
     }
 
     /**

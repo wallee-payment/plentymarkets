@@ -58,7 +58,7 @@ class TrustlyPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'trustly.svg';
+        return $this->getImagePath('trustly.svg');
     }
 
     /**

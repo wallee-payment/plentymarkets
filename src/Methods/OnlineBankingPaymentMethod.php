@@ -58,7 +58,7 @@ class OnlineBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'online-banking.svg';
+        return $this->getImagePath('online-banking.svg');
     }
 
     /**

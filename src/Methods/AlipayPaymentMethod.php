@@ -58,7 +58,7 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'alipay.svg';
+        return $this->getImagePath('alipay.svg');
     }
 
     /**

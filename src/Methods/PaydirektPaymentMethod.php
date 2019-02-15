@@ -58,7 +58,7 @@ class PaydirektPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'paydirekt.svg';
+        return $this->getImagePath('paydirekt.svg');
     }
 
     /**

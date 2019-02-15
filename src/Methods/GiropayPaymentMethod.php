@@ -58,7 +58,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'giropay.svg';
+        return $this->getImagePath('giropay.svg');
     }
 
     /**

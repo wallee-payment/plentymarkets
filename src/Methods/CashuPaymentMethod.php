@@ -58,7 +58,7 @@ class CashuPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'cashu.svg';
+        return $this->getImagePath('cashu.svg');
     }
 
     /**

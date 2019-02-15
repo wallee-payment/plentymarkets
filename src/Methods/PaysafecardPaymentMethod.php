@@ -58,7 +58,7 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        return $this->getBaseIconPath() . 'paysafecard.svg';
+        return $this->getImagePath('paysafecard.svg');
     }
 
     /**
