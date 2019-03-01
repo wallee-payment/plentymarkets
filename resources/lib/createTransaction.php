@@ -52,6 +52,7 @@ function collectTransactionData($transactionRequest, $client)
 
     $basketNetPrices = $basketForTemplate['basketAmountNet'] == $basketForTemplate['basketAmount'];
     $lineItems = [];
+    $maxTaxRate = 0;
     foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId($basketItem['plenty_basket_row_item_variation_id']);
@@ -71,6 +72,9 @@ function collectTransactionData($transactionRequest, $client)
                     'title' => 'Tax'
                 ])
             ]);
+            if ($basketItem['vat'] > $maxTaxRate) {
+                $maxTaxRate = $basketItem['vat'];
+            }
         }
         $lineItem->setType('PRODUCT');
         $lineItems[] = $lineItem;
@@ -84,10 +88,9 @@ function collectTransactionData($transactionRequest, $client)
         $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['shippingAmount'], $currencyDecimalPlaces));
         $taxAmount = $basket['shippingAmount'] - $basket['shippingAmountNet'];
         if ($taxAmount > 0) {
-            $taxRate = round($taxAmount / $basket['shippingAmountNet'], 3) * 100;
             $lineItem->setTaxes([
                 new TaxCreate([
-                    'rate' => $taxRate,
+                    'rate' => $maxTaxRate,
                     'title' => 'TAX'
                 ])
             ]);
