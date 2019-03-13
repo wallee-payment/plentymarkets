@@ -4,6 +4,8 @@ namespace Wallee\Methods;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 use Plenty\Plugin\ConfigRepository;
 use Wallee\Services\PaymentService;
+use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
+use Plenty\Modules\Payment\Models\Payment;
 
 abstract class AbstractPaymentMethod extends PaymentMethodService
 {
@@ -21,15 +23,23 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
     protected $paymentService;
 
     /**
+     *
+     * @var PaymentRepositoryContract
+     */
+    protected $paymentRepository;
+
+    /**
      * Constructor.
      *
      * @param ConfigRepository $configRepo
      * @param PaymentService $paymentService
+     * @param PaymentRepositoryContract $paymentRepository
      */
-    public function __construct(ConfigRepository $configRepo, PaymentService $paymentService)
+    public function __construct(ConfigRepository $configRepo, PaymentService $paymentService, PaymentRepositoryContract $paymentRepository)
     {
         $this->configRepo = $configRepo;
         $this->paymentService = $paymentService;
+        $this->paymentRepository = $paymentRepository;
     }
 
     protected function getBaseIconPath()
@@ -47,5 +57,21 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
     protected function getImagePath($fileName)
     {
         return $this->getBaseIconPath() . $fileName . '?' . time();
+    }
+
+    public function isSwitchableTo($orderId)
+    {
+        return false;
+    }
+
+    public function isSwitchableFrom($orderId)
+    {
+        $payments = $this->paymentRepository->getPaymentsByOrderId($orderId);
+        foreach ($payments as $payment) {
+            if ($payment->status != Payment::STATUS_CANCELED) {
+                return false;
+            }
+        }
+        return true;
     }
 }

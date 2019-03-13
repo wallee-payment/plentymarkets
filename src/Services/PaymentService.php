@@ -105,7 +105,8 @@ class PaymentService
     /**
      * Returns the payment method's content.
      *
-     * @param array $basket
+     * @param Basket $basket
+     * @param array $basketForTemplate
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
@@ -116,14 +117,14 @@ class PaymentService
             'basketForTemplate' => $basketForTemplate,
             'paymentMethod' => $paymentMethod,
             'basketItems' => $this->getBasketItems($basket),
-            'billingAddress' => $this->getAddress($this->getBillingAddress($basket)),
-            'shippingAddress' => $this->getAddress($this->getShippingAddress($basket)),
+            'billingAddress' => $this->getAddress($this->getBasketBillingAddress($basket)),
+            'shippingAddress' => $this->getAddress($this->getBasketShippingAddress($basket)),
             'language' => $this->session->getLocaleSettings()->language,
             'successUrl' => $this->getSuccessUrl(),
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransaction', $parameters);
 
@@ -136,24 +137,12 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->debug('wallee::transaction result', $transaction);
+        $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
 
         $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
-        $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
-            'id' => $transaction['id']
-        ]);
-        if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
-            return [
-                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => $paymentPageUrl['error_msg']
-            ];
-        }
-        $this->getLogger(__METHOD__)->debug('wallee::before redirect', $paymentPageUrl);
-
         return [
-            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
-            'content' => $paymentPageUrl
+            'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
         ];
     }
 
@@ -172,32 +161,61 @@ class PaymentService
     /**
      * Creates the payment in plentymarkets.
      *
-     * @param number $orderId
+     * @param Order $order
+     * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function executePayment($orderId)
+    public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+
+        $parameters = [
+            'id' => $transactionId,
+            'order' => $order,
+            'paymentMethod' => $paymentMethod,
+            'billingAddress' => $this->getAddress($order->billingAddress),
+            'shippingAddress' => $this->getAddress($order->deliveryAddress),
+            'language' => $this->session->getLocaleSettings()->language,
+            'successUrl' => $this->getSuccessUrl(),
+            'failedUrl' => $this->getFailedUrl(),
+            'checkoutUrl' => $this->getCheckoutUrl()
+        ];
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+
+        // $transaction = $this->sdkService->call('updateTransaction', $parameters);
 
         $transaction = $this->sdkService->call('getTransaction', [
             'id' => $transactionId
         ]);
 
+        $this->getLogger(__METHOD__)->error('wallee::ConfirmTransaction', $transaction);
+
         if (is_array($transaction) && $transaction['error']) {
             return [
                 'type' => 'error',
-                'value' => $transaction['error_msg']
+                'content' => $transaction['error_msg']
             ];
         }
 
-        $payment = $this->paymentHelper->createPlentyPayment($transaction);
-        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
-
         $this->session->getPlugin()->setValue('walleeTransactionId', null);
 
+        $payment = $this->paymentHelper->createPlentyPayment($transaction);
+        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+
+        $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
+            'id' => $transaction['id']
+        ]);
+        if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            return [
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $paymentPageUrl['error_msg']
+            ];
+        }
+        $this->getLogger(__METHOD__)->error('wallee::before redirect', $paymentPageUrl);
+
         return [
-            'type' => 'success',
-            'value' => 'The payment has been executed successfully.'
+            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+            'content' => $paymentPageUrl
         ];
     }
 
@@ -206,7 +224,7 @@ class PaymentService
      * @param Basket $basket
      * @return Address
      */
-    private function getBillingAddress(Basket $basket): Address
+    private function getBasketBillingAddress(Basket $basket): Address
     {
         $addressId = $basket->customerInvoiceAddressId;
         return $this->addressRepository->findAddressById($addressId);
@@ -217,13 +235,13 @@ class PaymentService
      * @param Basket $basket
      * @return Address
      */
-    private function getShippingAddress(Basket $basket)
+    private function getBasketShippingAddress(Basket $basket)
     {
         $addressId = $basket->customerShippingAddressId;
         if ($addressId != null && $addressId != - 99) {
             return $this->addressRepository->findAddressById($addressId);
         } else {
-            return $this->getBillingAddress($basket);
+            return $this->getBasketBillingAddress($basket);
         }
     }
 
@@ -296,7 +314,7 @@ class PaymentService
      */
     private function getSuccessUrl(): string
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/place-order';
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/confirmation';
     }
 
     /**

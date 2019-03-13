@@ -227,6 +227,11 @@ collectTransactionData($pendingTransaction, $client);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
 $transactionResponse = $service->update($spaceId, $pendingTransaction);
 
-return [
-    'id' => $transactionResponse->getId()
-];
+$possiblePaymentMethods = $service->fetchPossiblePaymentMethods($spaceId, $transactionResponse->getId());
+if ($possiblePaymentMethods != null && ! empty($possiblePaymentMethods)) {
+    return [
+        'id' => $transactionResponse->getId()
+    ];
+} else {
+    throw new \Exception('The selected payment method is not available.');
+}
