@@ -38,5 +38,13 @@
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods",
 		"Wallee\\Migrations\\CreateWebhookTable"
+	],
+	"dataProviders": [
+		{
+			"key": "Wallee\\Providers\\DataProvider\\PaymentInformation",
+			"name": "wallee Payment Information",
+			"description": "Display information about the wallee payment on the checkout page.",
+			"defaultLayoutContainer": "Ceres::OrderConfirmation.AdditionalPaymentInformation"
+		}
 	]
 }

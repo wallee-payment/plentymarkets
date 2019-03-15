@@ -1,0 +1,11 @@
+<hr>
+<div>
+    {% if payment.status == 1 and (transaction.state == 'AUTHORIZED' or transaction.state == 'COMPLETED' or transaction.state == 'FULFILL') %}
+    	<p>Your payment has been received. The order's status will be updated shortly.</p>
+    {% endif %}
+    
+    {% if transaction.state == 'FULFILL' %}
+    	<p><a href="/wallee/download-invoice/{{ transaction.id }}">Download Invoice</a></p>
+    	<p><a href="/wallee/download-packing-slip/{{ transaction.id }}">Download Packing Slip</a></p>
+    {% endif %}
+</div>
