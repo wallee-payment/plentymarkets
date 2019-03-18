@@ -1,0 +1,27 @@
+{% extends getPartial('page-design') %}
+
+{% block PageBody %}
+	<p>{{ transaction.userFailureMessage }}</p>
+	
+	<p>Transaction Id: {{ transaction.id }}</p>
+	
+	<p>Order Id: {{ order.id }}</p>
+	
+	<p>Payment State: {{ payment.status }}</p>
+	
+	<p>Current Payment Method: {{ currentPaymentMethodId }}</p>
+	
+	{% if allowSwitchPaymentMethod %}
+		<div>
+			<p>Switch payment method:</p>
+			<ul>
+    			{% for method in paymentMethodListForSwitch %}
+    				<li>
+				        {{ method | json_encode() }} {% if method.id == currentPaymentMethodId %}[current]{% endif %}
+				        <a href="/wallee/pay-order/{{ order.id }}/{{ method.id }}">Pay</a>
+				    </li>
+    			{% endfor %}
+			</ul>
+		</div>
+	{% endif %}
+{% endblock %}

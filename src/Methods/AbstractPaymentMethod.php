@@ -66,12 +66,6 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
 
     public function isSwitchableFrom($orderId)
     {
-        $payments = $this->paymentRepository->getPaymentsByOrderId($orderId);
-        foreach ($payments as $payment) {
-            if ($payment->status != Payment::STATUS_CANCELED) {
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
 }

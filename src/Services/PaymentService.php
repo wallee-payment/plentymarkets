@@ -16,6 +16,9 @@ use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Wallee\Helper\OrderHelper;
+use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
+use Plenty\Modules\Order\RelationReference\Models\OrderRelationReference;
 
 class PaymentService
 {
@@ -39,6 +42,12 @@ class PaymentService
      * @var ItemRepositoryContract
      */
     private $itemRepository;
+
+    /**
+     *
+     * @var VariationRepositoryContract
+     */
+    private $variationRepository;
 
     /**
      *
@@ -72,6 +81,12 @@ class PaymentService
 
     /**
      *
+     * @var OrderHelper
+     */
+    private $orderHelper;
+
+    /**
+     *
      * @var OrderRepositoryContract
      */
     private $orderRepository;
@@ -82,23 +97,27 @@ class PaymentService
      * @param WalleeSdkService $sdkService
      * @param ConfigRepository $config
      * @param ItemRepositoryContract $itemRepository
+     * @param VariationRepositoryContract $variationRepository
      * @param FrontendSessionStorageFactoryContract $session
      * @param AddressRepositoryContract $addressRepository
      * @param CountryRepositoryContract $countryRepository
      * @param WebstoreHelper $webstoreHelper
      * @param PaymentHelper $paymentHelper
+     * @param OrderHelper $orderHelper
      * @param OrderRepositoryContract $orderRepository
      */
-    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderRepositoryContract $orderRepository)
+    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
     {
         $this->sdkService = $sdkService;
         $this->config = $config;
         $this->itemRepository = $itemRepository;
+        $this->variationRepository = $variationRepository;
         $this->session = $session;
         $this->addressRepository = $addressRepository;
         $this->countryRepository = $countryRepository;
         $this->webstoreHelper = $webstoreHelper;
         $this->paymentHelper = $paymentHelper;
+        $this->orderHelper = $orderHelper;
         $this->orderRepository = $orderRepository;
     }
 
@@ -126,20 +145,20 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
-        $transaction = $this->sdkService->call('createTransaction', $parameters);
+        // $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
 
         $this->createWebhook();
 
-        if (is_array($transaction) && isset($transaction['error'])) {
-            return [
-                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => $transaction['error_msg']
-            ];
-        }
+        // if (is_array($transaction) && isset($transaction['error'])) {
+        // return [
+        // 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+        // 'content' => $transaction['error_msg']
+        // ];
+        // }
 
-        $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
+        // $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
 
-        $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
+        // $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
@@ -167,27 +186,20 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
-        $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
-
         $parameters = [
-            'id' => $transactionId,
             'order' => $order,
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
             'shippingAddress' => $this->getAddress($order->deliveryAddress),
             'language' => $this->session->getLocaleSettings()->language,
+            'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
             'successUrl' => $this->getSuccessUrl(),
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
-        // $transaction = $this->sdkService->call('updateTransaction', $parameters);
-
-        $transaction = $this->sdkService->call('getTransaction', [
-            'id' => $transactionId
-        ]);
-
+        $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         $this->getLogger(__METHOD__)->error('wallee::ConfirmTransaction', $transaction);
 
         if (is_array($transaction) && $transaction['error']) {
@@ -196,8 +208,6 @@ class PaymentService
                 'content' => $transaction['error_msg']
             ];
         }
-
-        $this->session->getPlugin()->setValue('walleeTransactionId', null);
 
         $payment = $this->paymentHelper->createPlentyPayment($transaction);
         $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);

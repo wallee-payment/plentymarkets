@@ -275,18 +275,16 @@ class PaymentHelper
     /**
      * Returns a PaymentProperty with the given params
      *
-     * @param Payment $payment
-     * @param array $data
+     * @param int $typeId
+     * @param mixed $data
      * @return PaymentProperty
      */
     private function getPaymentProperty($typeId, $value)
     {
         /** @var PaymentProperty $paymentProperty */
         $paymentProperty = pluginApp(\Plenty\Modules\Payment\Models\PaymentProperty::class);
-
         $paymentProperty->typeId = $typeId;
         $paymentProperty->value = (string) $value;
-
         return $paymentProperty;
     }
 
