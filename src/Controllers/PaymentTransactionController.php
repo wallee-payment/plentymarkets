@@ -49,12 +49,10 @@ class PaymentTransactionController extends Controller
         $transaction = $this->sdkService->call('getTransaction', [
             'id' => $id
         ]);
-        $this->getLogger(__METHOD__)->error('wallee::transaction', $transaction);
         if (is_array($transaction) && ! isset($transaction['error'])) {
             $invoiceDocument = $this->sdkService->call('getInvoiceDocument', [
                 'id' => $id
             ]);
-            $this->getLogger(__METHOD__)->error('wallee::invoice document', $invoiceDocument);
             if (is_array($invoiceDocument) && ! isset($invoiceDocument['error'])) {
                 return $this->download($invoiceDocument);
             }
@@ -66,12 +64,10 @@ class PaymentTransactionController extends Controller
         $transaction = $this->sdkService->call('getTransaction', [
             'id' => $id
         ]);
-        $this->getLogger(__METHOD__)->error('wallee::transaction', $transaction);
         if (is_array($transaction) && ! isset($transaction['error'])) {
             $packingSlip = $this->sdkService->call('getPackingSlip', [
                 'id' => $id
             ]);
-            $this->getLogger(__METHOD__)->error('wallee::packing slip', $packingSlip);
             if (is_array($packingSlip) && ! isset($packingSlip['error'])) {
                 return $this->download($packingSlip);
             }

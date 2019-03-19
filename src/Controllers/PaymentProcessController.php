@@ -17,23 +17,21 @@ use IO\Services\OrderService;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use IO\Constants\OrderPaymentStatus;
 use Plenty\Modules\Order\Models\Order;
-use Plenty\Modules\Order\Property\Models\OrderProperty;
 use Plenty\Modules\Frontend\PaymentMethod\Contracts\FrontendPaymentMethodRepositoryContract;
 use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Wallee\Services\PaymentService;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
+use IO\Services\OrderTotalsService;
+use IO\Models\LocalizedOrder;
+use IO\Services\SessionStorageService;
+use Wallee\Helper\OrderHelper;
+use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 
 class PaymentProcessController extends Controller
 {
 
     use Loggable;
-
-    /**
-     *
-     * @var Request
-     */
-    private $request;
 
     /**
      *
@@ -85,6 +83,12 @@ class PaymentProcessController extends Controller
 
     /**
      *
+     * @var OrderHelper
+     */
+    private $orderHelper;
+
+    /**
+     *
      * @var OrderService
      */
     private $orderService;
@@ -102,9 +106,20 @@ class PaymentProcessController extends Controller
     private $paymentMethodService;
 
     /**
+     *
+     * @var SessionStorageService
+     */
+    private $sessionStorage;
+
+    /**
+     *
+     * @var FrontendSessionStorageFactoryContract
+     */
+    private $frontendSession;
+
+    /**
      * Constructor.
      *
-     * @param Request $request
      * @param Response $response
      * @param WalleeSdkService $sdkService
      * @param NotificationService $notificationService
@@ -113,14 +128,16 @@ class PaymentProcessController extends Controller
      * @param PaymentRepositoryContract $paymentRepository
      * @param OrderRepositoryContract $orderRepository
      * @param PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository
+     * @param OrderHelper $orderHelper
      * @param OrderService $orderService
      * @param FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository
      * @param PaymentMethodRepositoryContract $paymentMethodService
+     * @param SessionStorageService $sessionStorage
+     * @param FrontendSessionStorageFactoryContract $frontendSession
      */
-    public function __construct(Request $request, Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService)
+    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession)
     {
         parent::__construct();
-        $this->request = $request;
         $this->response = $response;
         $this->sdkService = $sdkService;
         $this->notificationService = $notificationService;
@@ -129,9 +146,12 @@ class PaymentProcessController extends Controller
         $this->paymentRepository = $paymentRepository;
         $this->orderRepository = $orderRepository;
         $this->paymentOrderRelationRepository = $paymentOrderRelationRepository;
+        $this->orderHelper = $orderHelper;
         $this->orderService = $orderService;
         $this->frontendPaymentMethodRepository = $frontendPaymentMethodRepository;
         $this->paymentMethodService = $paymentMethodService;
+        $this->sessionStorage = $sessionStorage;
+        $this->frontendSession = $frontendSession;
     }
 
     /**
@@ -144,50 +164,51 @@ class PaymentProcessController extends Controller
             'id' => $id
         ]);
         if (is_array($transaction) && isset($transaction['error'])) {
-            // TODO: Handle transaction fetching error.
+            return $this->response->redirectTo('confirmation');
         }
-        $this->getLogger(__METHOD__)->debug('wallee:failTransaction', $transaction);
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
         $payment = $payments[0];
-        $this->getLogger(__METHOD__)->error('wallee:failTransaction', $payment);
 
         $orderRelation = $this->paymentOrderRelationRepository->findOrderRelation($payment);
         $order = $this->orderRepository->findOrderById($orderRelation->orderId);
-        $this->getLogger(__METHOD__)->error('wallee:failTransaction', $order);
 
-        $paymentMethodId = $this->getOrderPropertyValue($order, OrderPropertyType::PAYMENT_METHOD);
+        $paymentMethodId = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::PAYMENT_METHOD);
 
-        if (isset($transaction['userFailureMessage']) && ! empty($transaction['userFailureMessage'])) {
+        $errorMessage = $this->frontendSession->getPlugin()->getValue('walleePayErrorMessage');
+        if ($errorMessage) {
+            $this->notificationService->error($errorMessage);
+            $this->frontendSession->getPlugin()->unsetKey('walleePayErrorMessage');
+        } elseif (isset($transaction['userFailureMessage']) && ! empty($transaction['userFailureMessage'])) {
             $this->notificationService->error($transaction['userFailureMessage']);
             $this->paymentHelper->updatePlentyPayment($transaction);
         }
 
-        // return $this->response->redirectTo('confirmation');
+        if (! is_null($order) && ! ($order instanceof LocalizedOrder)) {
+            $order = LocalizedOrder::wrap($order, $this->sessionStorage->getLang());
+        }
+
         return $twig->render('wallee::Failure', [
             'transaction' => $transaction,
             'payment' => $payment,
-            'order' => $order,
+            'orderData' => $order,
+            'totals' => pluginApp(OrderTotalsService::class)->getAllTotals($order->order),
             'currentPaymentMethodId' => $paymentMethodId,
-            'allowSwitchPaymentMethod' => $this->allowSwitchPaymentMethod($order->id),
-            'paymentMethodListForSwitch' => $this->getPaymentMethodListForSwitch($paymentMethodId, $order->id)
+            'allowSwitchPaymentMethod' => $this->allowSwitchPaymentMethod($order->order->id),
+            'paymentMethodListForSwitch' => $this->getPaymentMethodListForSwitch($paymentMethodId, $order->order->id)
         ]);
     }
 
-    /**
-     *
-     * @param int $id
-     * @param int $paymentMethodId
-     */
-    public function payOrder(int $id, int $paymentMethodId)
+    public function payOrder(Request $request)
     {
-        $this->getLogger(__METHOD__)->error('wallee:retryPayment', $paymentMethodId);
+        $orderId = $request->get('orderId', '');
+        $paymentMethodId = $request->get('paymentMethod', '');
 
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
         $orderRepo = $this->orderRepository;
-        $order = $order = $authHelper->processUnguarded(function () use ($id, $orderRepo) {
-            return $orderRepo->findOrderById($id);
+        $order = $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
+            return $orderRepo->findOrderById($orderId);
         });
 
         $this->switchPaymentMethodForOrder($order, $paymentMethodId);
@@ -195,8 +216,13 @@ class PaymentProcessController extends Controller
 
         if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
             return $this->response->redirectTo($result['content']);
+        } elseif (isset($result['transactionId'])) {
+            if (isset($result['content'])) {
+                $this->frontendSession->getPlugin()->setValue('walleePayErrorMessage', $result['content']);
+            }
+            return $this->response->redirectTo('wallee/fail-transaction/' . $result['transactionId']);
         } else {
-            // TODO
+            return $this->response->redirectTo('confirmation');
         }
     }
 
@@ -240,11 +266,17 @@ class PaymentProcessController extends Controller
 
     private function getPaymentMethodListForSwitch($paymentMethodId, $orderId)
     {
+        $lang = $this->sessionStorage->getLang();
         $paymentMethods = $this->frontendPaymentMethodRepository->getCurrentPaymentMethodsList();
         $paymentMethodsForSwitch = [];
         foreach ($paymentMethods as $paymentMethod) {
             if ($paymentMethod->pluginKey == 'wallee') {
-                $paymentMethodsForSwitch[] = $paymentMethod;
+                $paymentMethodsForSwitch[] = [
+                    'id' => $paymentMethod->id,
+                    'name' => $this->frontendPaymentMethodRepository->getPaymentMethodName($paymentMethod, $lang),
+                    'icon' => $this->frontendPaymentMethodRepository->getPaymentMethodIcon($paymentMethod, $lang),
+                    'description' => $this->frontendPaymentMethodRepository->getPaymentMethodDescription($paymentMethod, $lang)
+                ];
             }
         }
         return $paymentMethodsForSwitch;
@@ -273,27 +305,5 @@ class PaymentProcessController extends Controller
         }
 
         return true;
-    }
-
-    /**
-     *
-     * @param Order $order
-     * @param int $propertyType
-     * @return null|string
-     */
-    public function getOrderPropertyValue($order, $propertyType)
-    {
-        $properties = $order->properties;
-        if (($properties->count() > 0) || (is_array($properties) && count($properties) > 0)) {
-            /** @var OrderProperty $property */
-            foreach ($properties as $property) {
-                if ($property instanceof OrderProperty) {
-                    if ($property->typeId == $propertyType) {
-                        return $property->value;
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

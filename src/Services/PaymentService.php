@@ -131,7 +131,10 @@ class PaymentService
      */
     public function getPaymentContent(Basket $basket, array $basketForTemplate, PaymentMethod $paymentMethod): array
     {
+        $this->createWebhook();
+
         $parameters = [
+            'transactionId' => $this->session->getPlugin()->getValue('walleeTransactionId'),
             'basket' => $basket,
             'basketForTemplate' => $basketForTemplate,
             'paymentMethod' => $paymentMethod,
@@ -145,20 +148,25 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
-        // $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
+        $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
+        if (is_array($transaction) && isset($transaction['error'])) {
+            return [
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $transaction['error_msg']
+            ];
+        }
 
-        $this->createWebhook();
+        $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
-        // if (is_array($transaction) && isset($transaction['error'])) {
-        // return [
-        // 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-        // 'content' => $transaction['error_msg']
-        // ];
-        // }
-
-        // $this->getLogger(__METHOD__)->error('wallee::transaction result', $transaction);
-
-        // $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
+        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+            'transactionId' => $transaction['id']
+        ]);
+        if (! $hasPossiblePaymentMethods) {
+            return [
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => 'The selected payment method is not available.'
+            ];
+        }
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
@@ -186,7 +194,10 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
+        $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+
         $parameters = [
+            'transactionId' => $transactionId,
             'order' => $order,
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
@@ -199,12 +210,13 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
-        $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
-        $this->getLogger(__METHOD__)->error('wallee::ConfirmTransaction', $transaction);
+        $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
+        $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
             return [
-                'type' => 'error',
+                'transactionId' => $transactionId,
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
                 'content' => $transaction['error_msg']
             ];
         }
@@ -212,16 +224,27 @@ class PaymentService
         $payment = $this->paymentHelper->createPlentyPayment($transaction);
         $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
 
+        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+            'transactionId' => $transaction['id']
+        ]);
+        if (! $hasPossiblePaymentMethods) {
+            return [
+                'transactionId' => $transaction['id'],
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => 'The selected payment method is not available.'
+            ];
+        }
+
         $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
             'id' => $transaction['id']
         ]);
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
             return [
+                'transactionId' => $transaction['id'],
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
                 'content' => $paymentPageUrl['error_msg']
             ];
         }
-        $this->getLogger(__METHOD__)->error('wallee::before redirect', $paymentPageUrl);
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,

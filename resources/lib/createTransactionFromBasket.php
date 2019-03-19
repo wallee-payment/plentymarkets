@@ -210,15 +210,18 @@ function collectTransactionData($transactionRequest, $client)
     $transactionRequest->setAllowedPaymentMethodConfigurations($allowedPaymentMethodConfigurations);
 }
 
-$spaceId = SdkRestApi::getParam('spaceId');
-
-$transactionRequest = new TransactionCreate();
-collectTransactionData($transactionRequest, $client);
-$transactionRequest->setAutoConfirmationEnabled(true);
-$transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
-
 $service = new TransactionService($client);
-$createdTransaction = $service->create($spaceId, $transactionRequest);
+$spaceId = SdkRestApi::getParam('spaceId');
+$transactionId = SdkRestApi::getParam('transactionId');
+if (! empty($transactionId)) {
+    $createdTransaction = $service->read($spaceId, $transactionId);
+} else {
+    $transactionRequest = new TransactionCreate();
+    collectTransactionData($transactionRequest, $client);
+    $transactionRequest->setAutoConfirmationEnabled(true);
+    $transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
+    $createdTransaction = $service->create($spaceId, $transactionRequest);
+}
 
 $pendingTransaction = new TransactionPending();
 $pendingTransaction->setId($createdTransaction->getId());
@@ -227,11 +230,4 @@ collectTransactionData($pendingTransaction, $client);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
 $transactionResponse = $service->update($spaceId, $pendingTransaction);
 
-$possiblePaymentMethods = $service->fetchPossiblePaymentMethods($spaceId, $transactionResponse->getId());
-if ($possiblePaymentMethods != null && ! empty($possiblePaymentMethods)) {
-    return [
-        'id' => $transactionResponse->getId()
-    ];
-} else {
-    throw new \Exception('The selected payment method is not available.');
-}
+return WalleeSdkHelper::convertData($transactionResponse);
