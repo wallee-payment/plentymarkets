@@ -83,7 +83,7 @@ function collectTransactionData($transactionRequest, $client)
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 4 || $orderItem['typeId'] == 5) {
             // GIFT_CARD
-            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces);
+            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 6) {
             // SHIPPING
