@@ -16,6 +16,9 @@ use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Wallee\Helper\OrderHelper;
+use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
+use Plenty\Modules\Order\RelationReference\Models\OrderRelationReference;
 
 class PaymentService
 {
@@ -39,6 +42,12 @@ class PaymentService
      * @var ItemRepositoryContract
      */
     private $itemRepository;
+
+    /**
+     *
+     * @var VariationRepositoryContract
+     */
+    private $variationRepository;
 
     /**
      *
@@ -72,6 +81,12 @@ class PaymentService
 
     /**
      *
+     * @var OrderHelper
+     */
+    private $orderHelper;
+
+    /**
+     *
      * @var OrderRepositoryContract
      */
     private $orderRepository;
@@ -82,42 +97,50 @@ class PaymentService
      * @param WalleeSdkService $sdkService
      * @param ConfigRepository $config
      * @param ItemRepositoryContract $itemRepository
+     * @param VariationRepositoryContract $variationRepository
      * @param FrontendSessionStorageFactoryContract $session
      * @param AddressRepositoryContract $addressRepository
      * @param CountryRepositoryContract $countryRepository
      * @param WebstoreHelper $webstoreHelper
      * @param PaymentHelper $paymentHelper
+     * @param OrderHelper $orderHelper
      * @param OrderRepositoryContract $orderRepository
      */
-    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderRepositoryContract $orderRepository)
+    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
     {
         $this->sdkService = $sdkService;
         $this->config = $config;
         $this->itemRepository = $itemRepository;
+        $this->variationRepository = $variationRepository;
         $this->session = $session;
         $this->addressRepository = $addressRepository;
         $this->countryRepository = $countryRepository;
         $this->webstoreHelper = $webstoreHelper;
         $this->paymentHelper = $paymentHelper;
+        $this->orderHelper = $orderHelper;
         $this->orderRepository = $orderRepository;
     }
 
     /**
      * Returns the payment method's content.
      *
-     * @param array $basket
+     * @param Basket $basket
+     * @param array $basketForTemplate
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
     public function getPaymentContent(Basket $basket, array $basketForTemplate, PaymentMethod $paymentMethod): array
     {
+        $this->createWebhook();
+
         $parameters = [
+            'transactionId' => $this->session->getPlugin()->getValue('walleeTransactionId'),
             'basket' => $basket,
             'basketForTemplate' => $basketForTemplate,
             'paymentMethod' => $paymentMethod,
             'basketItems' => $this->getBasketItems($basket),
-            'billingAddress' => $this->getAddress($this->getBillingAddress($basket)),
-            'shippingAddress' => $this->getAddress($this->getShippingAddress($basket)),
+            'billingAddress' => $this->getAddress($this->getBasketBillingAddress($basket)),
+            'shippingAddress' => $this->getAddress($this->getBasketShippingAddress($basket)),
             'language' => $this->session->getLocaleSettings()->language,
             'successUrl' => $this->getSuccessUrl(),
             'failedUrl' => $this->getFailedUrl(),
@@ -125,10 +148,7 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
-        $transaction = $this->sdkService->call('createTransaction', $parameters);
-
-        $this->createWebhook();
-
+        $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
         if (is_array($transaction) && isset($transaction['error'])) {
             return [
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -136,24 +156,20 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->debug('wallee::transaction result', $transaction);
-
         $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
 
-        $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
-            'id' => $transaction['id']
+        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+            'transactionId' => $transaction['id']
         ]);
-        if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+        if (! $hasPossiblePaymentMethods) {
             return [
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => $paymentPageUrl['error_msg']
+                'content' => 'The selected payment method is not available.'
             ];
         }
-        $this->getLogger(__METHOD__)->debug('wallee::before redirect', $paymentPageUrl);
 
         return [
-            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
-            'content' => $paymentPageUrl
+            'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
         ];
     }
 
@@ -172,32 +188,67 @@ class PaymentService
     /**
      * Creates the payment in plentymarkets.
      *
-     * @param number $orderId
+     * @param Order $order
+     * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function executePayment($orderId)
+    public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
-        $transaction = $this->sdkService->call('getTransaction', [
-            'id' => $transactionId
-        ]);
+        $parameters = [
+            'transactionId' => $transactionId,
+            'order' => $order,
+            'paymentMethod' => $paymentMethod,
+            'billingAddress' => $this->getAddress($order->billingAddress),
+            'shippingAddress' => $this->getAddress($order->deliveryAddress),
+            'language' => $this->session->getLocaleSettings()->language,
+            'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
+            'successUrl' => $this->getSuccessUrl(),
+            'failedUrl' => $this->getFailedUrl(),
+            'checkoutUrl' => $this->getCheckoutUrl()
+        ];
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
+        $this->session->getPlugin()->unsetKey('walleeTransactionId');
+
+        $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
             return [
-                'type' => 'error',
-                'value' => $transaction['error_msg']
+                'transactionId' => $transactionId,
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $transaction['error_msg']
             ];
         }
 
         $payment = $this->paymentHelper->createPlentyPayment($transaction);
-        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $orderId);
+        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
 
-        $this->session->getPlugin()->setValue('walleeTransactionId', null);
+        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+            'transactionId' => $transaction['id']
+        ]);
+        if (! $hasPossiblePaymentMethods) {
+            return [
+                'transactionId' => $transaction['id'],
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => 'The selected payment method is not available.'
+            ];
+        }
+
+        $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
+            'id' => $transaction['id']
+        ]);
+        if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            return [
+                'transactionId' => $transaction['id'],
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $paymentPageUrl['error_msg']
+            ];
+        }
 
         return [
-            'type' => 'success',
-            'value' => 'The payment has been executed successfully.'
+            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+            'content' => $paymentPageUrl
         ];
     }
 
@@ -206,7 +257,7 @@ class PaymentService
      * @param Basket $basket
      * @return Address
      */
-    private function getBillingAddress(Basket $basket): Address
+    private function getBasketBillingAddress(Basket $basket): Address
     {
         $addressId = $basket->customerInvoiceAddressId;
         return $this->addressRepository->findAddressById($addressId);
@@ -217,13 +268,13 @@ class PaymentService
      * @param Basket $basket
      * @return Address
      */
-    private function getShippingAddress(Basket $basket)
+    private function getBasketShippingAddress(Basket $basket)
     {
         $addressId = $basket->customerShippingAddressId;
         if ($addressId != null && $addressId != - 99) {
             return $this->addressRepository->findAddressById($addressId);
         } else {
-            return $this->getBillingAddress($basket);
+            return $this->getBasketBillingAddress($basket);
         }
     }
 
@@ -296,7 +347,7 @@ class PaymentService
      */
     private function getSuccessUrl(): string
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/place-order';
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/confirmation';
     }
 
     /**

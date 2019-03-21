@@ -2,33 +2,53 @@
 use Wallee\Sdk\Service\TransactionService;
 use Wallee\Sdk\Service\LanguageService;
 use Wallee\Sdk\Model\TransactionCreate;
-use Wallee\Sdk\Model\LineItem;
 use Wallee\Sdk\Model\LineItemCreate;
 use Wallee\Sdk\Model\AddressCreate;
-use Wallee\Sdk\Model\Tax;
 use Wallee\Sdk\Model\TaxCreate;
 use Wallee\Sdk\Service\PaymentMethodConfigurationService;
 use Wallee\Sdk\Model\EntityQuery;
 use Wallee\Sdk\Model\EntityQueryFilter;
-use Wallee\Sdk\Model\PaymentMethodConfiguration;
 use Wallee\Sdk\Service\CurrencyService;
 use Wallee\Sdk\Model\Gender;
 use Wallee\Sdk\Model\TransactionPending;
+use Wallee\Sdk\Model\LineItemType;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 
+function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces)
+{
+    $lineItem = new LineItemCreate();
+    $lineItem->setUniqueId($uniqueId);
+    $lineItem->setSku($sku);
+    $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 40, "UTF-8"));
+    $lineItem->setQuantity((int) $orderItem['quantity']);
+    if ($basketNetPrices) {
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceNet'], $currencyDecimalPlaces));
+    } else {
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceGross'], $currencyDecimalPlaces));
+    }
+    if (isset($orderItem['vatRate']) && ! empty($orderItem['vatRate'])) {
+        $lineItem->setTaxes([
+            new TaxCreate([
+                'rate' => $orderItem['vatRate'],
+                'title' => 'Tax'
+            ])
+        ]);
+    }
+    $lineItem->setType($type);
+    return $lineItem;
+}
+
 function collectTransactionData($transactionRequest, $client)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
+    $order = SdkRestApi::getParam('order');
 
-    $basket = SdkRestApi::getParam('basket');
-    $basketForTemplate = SdkRestApi::getParam('basketForTemplate');
-
-    $transactionRequest->setCurrency($basket['currency']);
-    $transactionRequest->setCustomerId($basket['customerId']); // FIXME: only set customer id if customer has account.
-    $transactionRequest->setMerchantReference($basket['orderId']);
+    $transactionRequest->setCurrency($order['amounts'][0]['currency']);
+    $transactionRequest->setCustomerId(SdkRestApi::getParam('customerId')); // FIXME: only set customer id if customer has account.
+    $transactionRequest->setMerchantReference($order['id']);
     $transactionRequest->setSuccessUrl(SdkRestApi::getParam('successUrl'));
     $transactionRequest->setFailedUrl(SdkRestApi::getParam('checkoutUrl'));
 
@@ -44,82 +64,38 @@ function collectTransactionData($transactionRequest, $client)
     $currencyDecimalPlaces = 2;
     $currencies = $currencyService->all();
     foreach ($currencies as $currency) {
-        if ($currency->getCurrencyCode() == $basket['currency']) {
+        if ($currency->getCurrencyCode() == $order['amounts'][0]['currency']) {
             $currencyDecimalPlaces = $currency->getFractionDigits();
             break;
         }
     }
 
-    $basketNetPrices = $basketForTemplate['basketAmountNet'] == $basketForTemplate['basketAmount'];
+    $netPrices = $order['amounts'][0]['isNet'];
     $lineItems = [];
-    $maxTaxRate = 0;
-    foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
-        $lineItem = new LineItemCreate();
-        $lineItem->setUniqueId($basketItem['plenty_basket_row_item_variation_id']);
-        $lineItem->setSku($basketItem['itemId']);
-        $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
-        $lineItem->setQuantity((int) $basketItem['quantity']);
-        $lineItem->setShippingRequired(true);
-        if ($basketNetPrices && isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
-            $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount(($basketItem['price'] / (1 + $basketItem['vat'] / 100)) * $basketItem['quantity'], $currencyDecimalPlaces));
-        } else {
-            $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basketItem['price'] * $basketItem['quantity'], $currencyDecimalPlaces));
+    foreach ($order['orderItems'] as $orderItem) {
+        if ($orderItem['typeId'] == 1 || $orderItem['typeId'] == 2 || $orderItem['typeId'] == 3) {
+            // VARIANTION
+            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces);
+            $lineItem->setShippingRequired(true);
+            $lineItems[] = $lineItem;
+        } elseif ($orderItem['typeId'] == 4 || $orderItem['typeId'] == 5) {
+            // GIFT_CARD
+            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces);
+            $lineItems[] = $lineItem;
+        } elseif ($orderItem['typeId'] == 6) {
+            // SHIPPING
+            $lineItems[] = buildLineItem($orderItem, 'shipping', 'shipping', LineItemType::SHIPPING, false, $currencyDecimalPlaces);
+        } elseif ($orderItem['typeId'] == 7) {
+            // PAYMENT SURCHARGE
+            $lineItems[] = buildLineItem($orderItem, 'payment-fee', 'payment-fee', LineItemType::FEE, $netPrices, $currencyDecimalPlaces);
+        } elseif ($orderItem['typeId'] == 8) {
+            // GIFT WRAP
+            $lineItems[] = buildLineItem($orderItem, 'gift-wrap', 'gift-wrap', LineItemType::FEE, $netPrices, $currencyDecimalPlaces);
         }
-        if (isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
-            $lineItem->setTaxes([
-                new TaxCreate([
-                    'rate' => $basketItem['vat'],
-                    'title' => 'Tax'
-                ])
-            ]);
-            if ($basketItem['vat'] > $maxTaxRate) {
-                $maxTaxRate = $basketItem['vat'];
-            }
-        }
-        $lineItem->setType('PRODUCT');
-        $lineItems[] = $lineItem;
     }
-    if ($basket['shippingAmount'] > 0) {
-        $lineItem = new LineItemCreate();
-        $lineItem->setUniqueId('shipping');
-        $lineItem->setSku('shipping');
-        $lineItem->setName('Shipping');
-        $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['shippingAmount'], $currencyDecimalPlaces));
-        $taxAmount = $basket['shippingAmount'] - $basket['shippingAmountNet'];
-        if ($taxAmount > 0) {
-            $lineItem->setTaxes([
-                new TaxCreate([
-                    'rate' => $maxTaxRate,
-                    'title' => 'TAX'
-                ])
-            ]);
-        }
-        $lineItem->setType('SHIPPING');
-        $lineItems[] = $lineItem;
-    }
-    if ($basket['couponDiscount'] < 0) {
-        $lineItem = new LineItemCreate();
-        $lineItem->setUniqueId('coupon-discount');
-        $lineItem->setSku('coupon-discount');
-        $lineItem->setName('Coupon Discount');
-        $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['couponDiscount'], $currencyDecimalPlaces));
-        $lineItem->setType('DISCOUNT');
-        $lineItems[] = $lineItem;
-    }
-    if ($basket['paymentAmount'] > 0) {
-        $lineItem = new LineItemCreate();
-        $lineItem->setUniqueId('payment-fee');
-        $lineItem->setSku('payment-fee');
-        $lineItem->setName('Payment Fee');
-        $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($basket['paymentAmount'], $currencyDecimalPlaces));
-        $lineItem->setType('FEE');
-        $lineItems[] = $lineItem;
-    }
+
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-    $basketAmount = $basketForTemplate['basketAmount'];
+    $basketAmount = $netPrices ? $order['amounts'][0]['netTotal'] : $order['amounts'][0]['grossTotal'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');
@@ -210,23 +186,24 @@ function collectTransactionData($transactionRequest, $client)
     $transactionRequest->setAllowedPaymentMethodConfigurations($allowedPaymentMethodConfigurations);
 }
 
-$spaceId = SdkRestApi::getParam('spaceId');
-
-$transactionRequest = new TransactionCreate();
-collectTransactionData($transactionRequest, $client);
-$transactionRequest->setAutoConfirmationEnabled(true);
-$transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
-
 $service = new TransactionService($client);
-$createdTransaction = $service->create($spaceId, $transactionRequest);
+$spaceId = SdkRestApi::getParam('spaceId');
+$transactionId = SdkRestApi::getParam('transactionId');
+if (! empty($transactionId)) {
+    $createdTransaction = $service->read($spaceId, $transactionId);
+} else {
+    $transactionRequest = new TransactionCreate();
+    collectTransactionData($transactionRequest, $client);
+    $transactionRequest->setAutoConfirmationEnabled(false);
+    $transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
+    $createdTransaction = $service->create($spaceId, $transactionRequest);
+}
 
 $pendingTransaction = new TransactionPending();
 $pendingTransaction->setId($createdTransaction->getId());
 $pendingTransaction->setVersion($createdTransaction->getVersion());
 collectTransactionData($pendingTransaction, $client);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
-$transactionResponse = $service->update($spaceId, $pendingTransaction);
+$transactionResponse = $service->confirm($spaceId, $pendingTransaction);
 
-return [
-    'id' => $transactionResponse->getId()
-];
+return WalleeSdkHelper::convertData($transactionResponse);

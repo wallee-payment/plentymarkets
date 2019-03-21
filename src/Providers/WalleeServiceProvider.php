@@ -46,6 +46,7 @@ use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Repositories\WebhookRepository;
 use IO\Services\BasketService;
 use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 
 class WalleeServiceProvider extends ServiceProvider
 {
@@ -62,7 +63,7 @@ class WalleeServiceProvider extends ServiceProvider
      *
      * @param PaymentMethodContainer $payContainer
      */
-    public function boot(Dispatcher $eventDispatcher, PaymentHelper $paymentHelper, PaymentService $paymentService, BasketRepositoryContract $basketRepository, PaymentMethodContainer $payContainer, PaymentMethodRepositoryContract $paymentMethodService, EventProceduresService $eventProceduresService, CronContainer $cronContainer)
+    public function boot(Dispatcher $eventDispatcher, PaymentHelper $paymentHelper, PaymentService $paymentService, BasketRepositoryContract $basketRepository, OrderRepositoryContract $orderRepository, PaymentMethodContainer $payContainer, PaymentMethodRepositoryContract $paymentMethodService, EventProceduresService $eventProceduresService, CronContainer $cronContainer)
     {
         $this->registerPaymentMethod($payContainer, 1457546097615, AlipayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097602, BankTransferPaymentMethod::class);
@@ -99,18 +100,17 @@ class WalleeServiceProvider extends ServiceProvider
 
         $eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) use ($paymentHelper, $basketRepository, $paymentService, $paymentMethodService) {
             if ($paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                $content = $paymentService->getPaymentContent($basketRepository->load(), pluginApp(BasketService::class)->getBasketForTemplate(), $paymentMethodService->findByPaymentMethodId($event->getMop()));
-                $event->setValue(isset($content['content']) ? $content['content'] : null);
-                $event->setType(isset($content['type']) ? $content['type'] : '');
+                $result = $paymentService->getPaymentContent($basketRepository->load(), pluginApp(BasketService::class)->getBasketForTemplate(), $paymentMethodService->findByPaymentMethodId($event->getMop()));
+                $event->setValue(isset($result['content']) ? $result['content'] : null);
+                $event->setType(isset($result['type']) ? $result['type'] : '');
             }
         });
 
-        $eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) use ($paymentHelper, $paymentService) {
+        $eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) use ($paymentHelper, $orderRepository, $paymentService, $paymentMethodService) {
             if ($paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                $result = $paymentService->executePayment($event->getOrderId());
-
-                $event->setType($result['type']);
-                $event->setValue($result['value']);
+                $result = $paymentService->executePayment($orderRepository->findOrderById($event->getOrderId()), $paymentMethodService->findByPaymentMethodId($event->getMop()));
+                $event->setValue(isset($result['content']) ? $result['content'] : null);
+                $event->setType(isset($result['type']) ? $result['type'] : '');
             }
         });
 
