@@ -146,7 +146,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
         if (is_array($transaction) && isset($transaction['error'])) {
@@ -208,7 +208,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 

@@ -5,7 +5,7 @@
     {% endif %}
     
     {% if transaction.state == 'FULFILL' %}
-    	<p><a href="/wallee/download-invoice/{{ transaction.id }}">{{ trans("wallee::Template.paymentInformationDownloadInvoice") }}</a></p>
-    	<p><a href="/wallee/download-packing-slip/{{ transaction.id }}">{{ trans("wallee::Template.paymentInformationDownloadPackingSlip") }}</a></p>
+    	{% if downloadInvoice %}<p><a href="/wallee/download-invoice/{{ transaction.id }}">{{ trans("wallee::Template.paymentInformationDownloadInvoice") }}</a></p>{% endif %}
+    	{% if downloadPackingSlip %}<p><a href="/wallee/download-packing-slip/{{ transaction.id }}">{{ trans("wallee::Template.paymentInformationDownloadPackingSlip") }}</a></p>{% endif %}
     {% endif %}
 </div>

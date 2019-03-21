@@ -6,6 +6,7 @@ use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Wallee\Services\WalleeSdkService;
+use Plenty\Plugin\ConfigRepository;
 
 class PaymentInformation
 {
@@ -32,7 +33,9 @@ class PaymentInformation
                         return $twig->render('wallee::PaymentInformation', [
                             'order' => $order,
                             'transaction' => $transaction,
-                            'payment' => $payment
+                            'payment' => $payment,
+                            'downloadInvoice' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_invoice') === "true",
+                            'downloadPackingSlip' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_packing_slip') === "true"
                         ]);
                     }
                 } else {

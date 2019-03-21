@@ -1,5 +1,14 @@
 # Release Notes for wallee
 
+## v2.0.0 (2019-03-21)
+
+### Added
+- Allow customers to change payment method if a payment fails.
+- Allow customers to download invoice document and packing slip from order confirmation page.
+
+### Fixed
+- Create order before redirecting customer to payment page.
+
 ## v1.0.23 (2019-03-01)
 
 ### Fixed

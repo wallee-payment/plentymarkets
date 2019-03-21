@@ -5,7 +5,6 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 use Plenty\Plugin\ConfigRepository;
 use Wallee\Services\PaymentService;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
-use Plenty\Modules\Payment\Models\Payment;
 
 abstract class AbstractPaymentMethod extends PaymentMethodService
 {

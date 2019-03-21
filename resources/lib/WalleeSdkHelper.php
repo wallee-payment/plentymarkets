@@ -89,14 +89,22 @@ class WalleeSdkHelper
             }
             return $data;
         } elseif (is_object($data)) {
-            $values = [];
-            foreach (array_keys($data::swaggerTypes()) as $property) {
-                $getter = 'get' . ucfirst($property);
-                if ($data->$getter() !== null) {
-                    $values[$property] = self::convertData($data->$getter());
+            if ($data instanceof stdClass) {
+                $values = [];
+                foreach ($data as $property => $value) {
+                    $values[$property] = self::convertData($value);
                 }
+                return $values;
+            } else {
+                $values = [];
+                foreach (array_keys($data::swaggerTypes()) as $property) {
+                    $getter = 'get' . ucfirst($property);
+                    if ($data->$getter() !== null) {
+                        $values[$property] = self::convertData($data->$getter());
+                    }
+                }
+                return $values;
             }
-            return $values;
         } else {
             return (string) $data;
         }

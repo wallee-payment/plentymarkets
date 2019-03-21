@@ -45,6 +45,22 @@
                     "options": {
                         "defaultValue": "11.3"
                     }
+                },
+                "confirmation_invoice": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.confirmationInvoiceLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "confirmation_packing_slip": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.confirmationPackingSlipLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
                 }
             }
         },

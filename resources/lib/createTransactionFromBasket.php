@@ -1,19 +1,16 @@
 <?php
 use Wallee\Sdk\Service\TransactionService;
 use Wallee\Sdk\Service\LanguageService;
-use Wallee\Sdk\Model\TransactionCreate;
-use Wallee\Sdk\Model\LineItem;
 use Wallee\Sdk\Model\LineItemCreate;
 use Wallee\Sdk\Model\AddressCreate;
-use Wallee\Sdk\Model\Tax;
 use Wallee\Sdk\Model\TaxCreate;
 use Wallee\Sdk\Service\PaymentMethodConfigurationService;
 use Wallee\Sdk\Model\EntityQuery;
 use Wallee\Sdk\Model\EntityQueryFilter;
-use Wallee\Sdk\Model\PaymentMethodConfiguration;
 use Wallee\Sdk\Service\CurrencyService;
 use Wallee\Sdk\Model\Gender;
 use Wallee\Sdk\Model\TransactionPending;
+use Wallee\Sdk\Model\TransactionCreate;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
