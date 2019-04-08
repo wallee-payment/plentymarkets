@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.1 (2019-04-08)
+
+### Fixed
+- Improve mapping of transaction states to payment status in plentymarkets store.
+
 ## v2.0.0 (2019-03-21)
 
 ### Added

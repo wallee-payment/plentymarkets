@@ -56,7 +56,7 @@ class PaymentHelper
     }
 
     /**
-     * Returns the Wallee payment method's id.
+     * Returns the wallee payment method's id.
      *
      * @param number $paymentMethodId
      * @return string
@@ -75,7 +75,7 @@ class PaymentHelper
     }
 
     /**
-     * Returns the Wallee payment method's id.
+     * Returns the wallee payment method's id.
      *
      * @param number $paymentMethodId
      * @return string
@@ -171,11 +171,22 @@ class PaymentHelper
                 $this->paymentRepository->updatePayment($payment);
             }
         }
+        
+        return true;
     }
 
     public function updateInvoice($transactionInvoice)
     {
-        if ($transactionInvoice['state'] == 'NOT_APPLICABLE' || $transactionInvoice['state'] == 'PAID') {
+        if ($transactionInvoice['state'] == 'NOT_APPLICABLE') {
+            $transactionState = $transactionInvoice['completion']['lineItemVersion']['transaction']['state'];
+            if ($transactionState == 'FULFILL') {
+                $state = Payment::STATUS_CAPTURED;
+            } elseif ($transactionState == 'DECLINE' || $transactionState == 'VOIDED' || $transactionState == 'FAILED') {
+                return true;
+            } else {
+                return false;
+            }
+        } elseif ($transactionInvoice['state'] == 'PAID') {
             $state = Payment::STATUS_CAPTURED;
         } else {
             $state = Payment::STATUS_REFUSED;
@@ -193,6 +204,8 @@ class PaymentHelper
                 $this->paymentRepository->updatePayment($payment);
             }
         }
+        
+        return true;
     }
 
     public function updateRefund($refund)
@@ -207,6 +220,8 @@ class PaymentHelper
                 $this->paymentRepository->updatePayment($payment);
             }
         }
+        
+        return true;
     }
 
     /**

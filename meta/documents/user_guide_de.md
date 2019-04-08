@@ -1,6 +1,6 @@
 # Verbinden Sie Ihren Plentymarket Shops mit wallee
 
-Wallee bietet Ihnen als PSP / E-Commerce hub direkten Zugang zu einer grossen Auswahl an Zahlungsverarbeitern und
+wallee bietet Ihnen als PSP / E-Commerce hub direkten Zugang zu einer grossen Auswahl an Zahlungsverarbeitern und
 Zahlungsmethoden via eine standardisierte API. Mit anderen Worten lösen wir mit diesem produkt
 Ihre Zahlungsprobleme auf einen Schlag in Ihrem Webshop. Sobald Sie das Plugin in Ihrem Shop installiert haben,
 können Sie aus einem der integrierten <a href="https://app-wallee.com/en/processors" target="_blank">Verarbeitern</a> auswählen für die
@@ -61,7 +61,7 @@ dass die Bestellung mit wallee synchronisiert wird.
 ## Further reading
 
 Für mehr Informationen verweisen wir Sie auf unsere extensive <a href="https://app-wallee.com/de-ch/doc" target="_blank">Dokumentation</a>.
-Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser <a href="https://wallee.com/support.html" target="_blank">Support</a> ebenfalls zur Verfügung. 
+Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser <a href="supportUrl" target="_blank">Support</a> ebenfalls zur Verfügung. 
  
 ## Lizenz
  

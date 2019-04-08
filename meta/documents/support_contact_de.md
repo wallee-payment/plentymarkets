@@ -1,6 +1,6 @@
 ## Web page
  
-Für Informationen zum Plugin oder zum Produkt <a href="https://wallee.com/support.html" target="_blank">kontaktieren Sie unseren Support</a>. 
+Für Informationen zum Plugin oder zum Produkt <a href="supportUrl" target="_blank">kontaktieren Sie unseren Support</a>. 
 
 Sofern Sie bereits ein wallee Konto haben, nutzen Sie bitte das Support Fomular im Account
  

@@ -59,7 +59,7 @@ class WalleeServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot services of the Wallee plugin.
+     * Boot services of the wallee plugin.
      *
      * @param PaymentMethodContainer $payContainer
      */

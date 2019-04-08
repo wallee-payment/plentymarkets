@@ -32,7 +32,7 @@ class CreatePaymentMethods
     }
 
     /**
-     * Creates the payment methods for the Wallee plugin.
+     * Creates the payment methods for the wallee plugin.
      */
     public function run()
     {

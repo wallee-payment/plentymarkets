@@ -64,9 +64,15 @@ class WebhookCronHandler extends CronHandler
     public function handle()
     {
         foreach ($this->webhookRepository->getWebhookList() as $webhook) {
-            $this->getLogger(__METHOD__)->info('processWebhook', $webhook);
-            $this->processWebhook($webhook);
-            $this->webhookRepository->deleteWebhook($webhook->id);
+            try {
+                $this->getLogger(__METHOD__)->info('processWebhook', $webhook);
+                $result = $this->processWebhook($webhook);
+                if ($result) {
+                    $this->webhookRepository->deleteWebhook($webhook->id);
+                }
+            } catch (\Exception $e) {
+                $this->getLogger(__METHOD__)->error('The webhook processing failed.', $e);
+            }
         }
     }
 
@@ -80,7 +86,7 @@ class WebhookCronHandler extends CronHandler
             if (is_array($transaction) && isset($transaction['error'])) {
                 throw new \Exception($transaction['error_msg']);
             }
-            $this->paymentHelper->updatePlentyPayment($transaction);
+            return $this->paymentHelper->updatePlentyPayment($transaction);
         } elseif (strtolower($webhook->listenerEntityTechnicalName) == 'transactioninvoice') {
             $transactionInvoiceId = $webhook->entityId;
             $transactionInvoice = $this->sdkService->call('getTransactionInvoice', [
@@ -89,7 +95,7 @@ class WebhookCronHandler extends CronHandler
             if (is_array($transactionInvoice) && isset($transactionInvoice['error'])) {
                 throw new \Exception($transactionInvoice['error_msg']);
             }
-            $this->paymentHelper->updateInvoice($transactionInvoice);
+            return $this->paymentHelper->updateInvoice($transactionInvoice);
         } elseif (strtolower($webhook->listenerEntityTechnicalName) == 'refund') {
             $refundId = $webhook->entityId;
             $refund = $this->sdkService->call('getRefund', [
@@ -98,7 +104,7 @@ class WebhookCronHandler extends CronHandler
             if (is_array($refund) && isset($refund['error'])) {
                 throw new \Exception($refund['error_msg']);
             }
-            $this->paymentHelper->updateRefund($refund);
+            return $this->paymentHelper->updateRefund($refund);
         }
     }
 }

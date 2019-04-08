@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="keywords" value="wallee, plentymarkets, plentymarkets Extension, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the plentymarkets extension that enables processing payments with wallee.">		<link rel="canonical" href="https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/master/docs/en/documentation.html" />
+		<title>wallee plentymarkets</title>
+		<link href="assets/base.css" rel="stylesheet" />
+	</head>
+	<body class="documentation">
+		<div class="layout-wrapper">
+							<div class="layout-title">
+					<h1>wallee plentymarkets</h1>
+<h2>Documentation</h2>				</div>
+										<div class="layout-navigation">
+					<ul class="nav">
+	<li>
+		<a href="https://app-wallee.com/user/signup">
+			Sign Up
+		</a>
+	</li>
+	<li>
+		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.0.1/">
+			Source
+		</a>
+	</li>
+</ul>				</div>
+										<div class="layout-content">
+												<div class="col-body">
+							<div class="col-body-wrapper">
+																	<div class="body-container">
+																						<div class="chapter" id="_prerequisites">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">1</span>Prerequisites					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>If you don&#8217;t already have one, create a <a href="https://www.wallee.com/">wallee</a> account.</p>
+</div><div class="paragraph">
+<p>Please note in order to install this plugin you will have to use <strong>Cerres and the IO Plugin</strong>.</p>
+</div>					</div>
+</div>	<div class="chapter" id="_installation">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">2</span>Installation					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>You do need to install the plugin via marketplace or via github.</p>
+</div>					</div>
+</div>	<div class="chapter" id="_configuration">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">3</span>Configuration					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>The plugin configuration is easy. Just follow the steps:</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a wallee acount and set up a space.</p>
+</li>
+<li>
+<p>Create an application user in your wallee account. This user will be allowed to access the space you want to link to the Plentymarkets shop. Navigate to your account &#8594; application user and create this user. The user ID and the authentication key will be shown to you.</p>
+</li>
+<li>
+<p>Grant the necessary account admin rights to the application user.</p>
+</li>
+<li>
+<p>Setup the payment processor of your choice inside your Space under Configuration &#8594; Processor.</p>
+</li>
+<li>
+<p>Activate the plugin and go to Plugins &#8594; Configuration. Under Plugins &#8594; wallee. Provide the Space ID, Applicaiton User Id and Secret here.</p>
+</li>
+<li>
+<p>Activate the payment method you want to accept in your store.</p>
+</li>
+</ol>
+</div>					</div>
+</div>	<div class="chapter" id="_payment_method_configuration">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">4</span>Payment method configuration					</h1>
+	</div>
+	<div class="chapter-body">
+							<div class="section" id="_customization">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">4.1</span>Customization					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>The plugin will automatically forward the user to the payment page of wallee. This page can be styled according your needs. In order to style the payment page, documents or email we use TWIG templates. More information can be found on the <a href="https://app-wallee.com/en/doc/document-handling" target="_blank">documentation</a>.</p>
+</div>					</div>
+</div>			</div>
+</div>	<div class="chapter" id="_transaction_management">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">5</span>Transaction management					</h1>
+	</div>
+	<div class="chapter-body">
+							<div class="section" id="_refund_of_a_transaction">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">5.1</span>Refund of a transaction					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>Set the status ID for refunds in the configuration. Once the order is moved into that state the refund will be triggered.
+In order to do that please follow the steps below:</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create an "Ereignisaktion" for a state change. Give it a name and select the State change that should trigger the action.</p>
+</li>
+<li>
+<p>Select the action and under the folder "Plugin" you should find an action called refund of the wallee payment.</p>
+</li>
+<li>
+<p>Store the configuration.</p>
+</li>
+</ol>
+</div><div class="paragraph">
+<p>You have the option between refund and return:</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the order and select the action either create refund or create return.</p>
+</li>
+<li>
+<p>Select the products that you want to return.</p>
+</li>
+<li>
+<p>Move the state of the return into the state selected above for the "Ereignisaktion". This will now automatically synchronize the items with wallee.</p>
+</li>
+</ol>
+</div>					</div>
+</div>			</div>
+</div>	<div class="chapter" id="_support">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">6</span>Support					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>If you need help, feel free to contact our <a href="https://app-wallee.com/space/select?target=/support">support</a>.</p>
+</div>					</div>
+</div>																			</div>
+															</div>
+						</div>
+						<div class="col-right">
+		<div class="col-right-wrapper">
+							<div class="table-of-contents">
+	<ul class="nav">
+					<li class="nav-level-1">
+	<a href="#_prerequisites">
+		<span class="item-number">1</span>
+		<span class="item-title">Prerequisites</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_installation">
+		<span class="item-number">2</span>
+		<span class="item-title">Installation</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_configuration">
+		<span class="item-number">3</span>
+		<span class="item-title">Configuration</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_payment_method_configuration">
+		<span class="item-number">4</span>
+		<span class="item-title">Payment method configuration</span>
+			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_customization">
+		<span class="item-number">4.1</span>
+		<span class="item-title">Customization</span>
+			</a>
+    </li>    		    	</ul>
+    </li>					<li class="nav-level-1">
+	<a href="#_transaction_management">
+		<span class="item-number">5</span>
+		<span class="item-title">Transaction management</span>
+			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_refund_of_a_transaction">
+		<span class="item-number">5.1</span>
+		<span class="item-title">Refund of a transaction</span>
+			</a>
+    </li>    		    	</ul>
+    </li>					<li class="nav-level-1">
+	<a href="#_support">
+		<span class="item-number">6</span>
+		<span class="item-title">Support</span>
+			</a>
+    </li>			</ul>
+</div>					</div>
+	</div>
+				</div>
+					</div>
+
+		<script type="text/javascript" src="assets/jquery.js"></script>
+		<script type="text/javascript" src="assets/scrollspy.js"></script>
+		<script type="text/javascript" src="assets/sticky-kit.js"></script>
+		<script type="text/javascript" src="assets/base.js"></script>
+	</body>
+</html>
