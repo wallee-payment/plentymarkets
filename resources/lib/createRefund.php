@@ -18,14 +18,16 @@ function getReductions($refundOrder, $orderItems, $isNet)
     $reductions = [];
     foreach ($refundOrder['orderItems'] as $item) {
         $unitPriceReduction = 0;
-        if (isset($item['references'][0]['referenceOrderItemId'])) {
+        if (isset($item['references'][0]['referenceOrderItemId']) && $item['quantity'] != 0) {
             $orderItemId = $item['references'][0]['referenceOrderItemId'];
             if ($orderItemId && isset($orderItems[$orderItemId])) {
                 $orderItem = $orderItems[$orderItemId];
-                $orderItemUnitPrice = WalleeSdkHelper::roundAmount(($isNet ? $orderItem['amounts'][0]['priceNet'] : $orderItem['amounts'][0]['priceGross']) / $orderItem['quantity']);
-                $itemUnitPrice = WalleeSdkHelper::roundAmount(($isNet ? $item['amounts'][0]['priceNet'] : $item['amounts'][0]['priceGross']) / $item['quantity']);
-                if ($orderItemUnitPrice > $itemUnitPrice) {
-                    $unitPriceReduction = $itemUnitPrice;
+                if ($orderItem['quantity'] != 0) {
+                    $orderItemUnitPrice = WalleeSdkHelper::roundAmount(($isNet ? $orderItem['amounts'][0]['priceNet'] : $orderItem['amounts'][0]['priceGross']) / $orderItem['quantity']);
+                    $itemUnitPrice = WalleeSdkHelper::roundAmount(($isNet ? $item['amounts'][0]['priceNet'] : $item['amounts'][0]['priceGross']) / $item['quantity']);
+                    if ($orderItemUnitPrice > $itemUnitPrice) {
+                        $unitPriceReduction = $itemUnitPrice;
+                    }
                 }
             }
         }
@@ -177,6 +179,9 @@ function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $
     if ($reductionAmount != $refundAmount) {
         $fixedReductions = [];
         $baseAmount = WalleeSdkHelper::calculateLineItemTotalAmount($baseLineItems);
+        if ($baseAmount == 0) {
+            throw new \Exception('There are no line items left that can be refunded on the transaction ' . $transactionId . ' in space ' . $spaceId . '.');
+        }
         $rate = $refundAmount / $baseAmount;
         foreach ($baseLineItems as $lineItem) {
             if ($lineItem->getQuantity() > 0) {
