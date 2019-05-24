@@ -1,5 +1,16 @@
 # Release Notes for wallee
 
+## v2.0.3 (2019-05-14)
+
+### Fixed
+- Fix refund processing.
+- Ignore webhooks with links to non-existing entities.
+
+## v2.0.2 (2019-04-18)
+
+### Fixed
+- Fix a bug leading to an error during refund.
+
 ## v2.0.1 (2019-04-08)
 
 ### Fixed

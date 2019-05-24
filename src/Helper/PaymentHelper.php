@@ -104,7 +104,7 @@ class PaymentHelper
         /** @var Payment $payment */
         $payment = pluginApp(\Plenty\Modules\Payment\Models\Payment::class);
 
-        $payment->mopId = (int) $this->getPaymentMopId($transaction['paymentConnectorConfiguration']['paymentMethodConfiguration']['paymentMethod']);
+        $payment->mopId = (int) $transaction['metaData']['plentyPaymentMethodId'];
         $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
         $payment->status = $this->mapTransactionState($transaction['state']);
         $payment->currency = $transaction['currency'];
@@ -134,7 +134,7 @@ class PaymentHelper
         /** @var Payment $payment */
         $payment = pluginApp(\Plenty\Modules\Payment\Models\Payment::class);
 
-        $payment->mopId = (int) $this->getPaymentMopId($refund['transaction']['paymentConnectorConfiguration']['paymentMethodConfiguration']['paymentMethod']);
+        $payment->mopId = (int) $refund['transaction']['metaData']['plentyPaymentMethodId'];
         $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
         $payment->status = $this->mapRefundState($refund['state']);
         $payment->currency = $refund['transaction']['currency'];

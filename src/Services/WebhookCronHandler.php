@@ -83,6 +83,10 @@ class WebhookCronHandler extends CronHandler
             $transaction = $this->sdkService->call('getTransaction', [
                 'id' => $transactionId
             ]);
+            if (empty($transaction)) {
+                $this->getLogger(__METHOD__)->error('The transaction was not found.', $transactionId);
+                return true;
+            }
             if (is_array($transaction) && isset($transaction['error'])) {
                 throw new \Exception($transaction['error_msg']);
             }
@@ -92,6 +96,10 @@ class WebhookCronHandler extends CronHandler
             $transactionInvoice = $this->sdkService->call('getTransactionInvoice', [
                 'id' => $transactionInvoiceId
             ]);
+            if (empty($transactionInvoice)) {
+                $this->getLogger(__METHOD__)->error('The transaction invoice was not found.', $transactionInvoiceId);
+                return true;
+            }
             if (is_array($transactionInvoice) && isset($transactionInvoice['error'])) {
                 throw new \Exception($transactionInvoice['error_msg']);
             }
@@ -101,6 +109,10 @@ class WebhookCronHandler extends CronHandler
             $refund = $this->sdkService->call('getRefund', [
                 'id' => $refundId
             ]);
+            if (empty($refund)) {
+                $this->getLogger(__METHOD__)->error('The refund was not found.', $refundId);
+                return true;
+            }
             if (is_array($refund) && isset($refund['error'])) {
                 throw new \Exception($refund['error_msg']);
             }

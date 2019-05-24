@@ -186,6 +186,13 @@ function collectTransactionData($transactionRequest, $client)
 
     $paymentMethod = SdkRestApi::getParam('paymentMethod');
     $paymentMethodId = (int) $paymentMethod['paymentKey'];
+    
+    $metaData = $transactionRequest->getMetaData();
+    if (!is_array($metaData)) {
+        $metaData = [];
+    }
+    $metaData['plentyPaymentMethodId'] = (int) $paymentMethod['id'];
+    $transactionRequest->setMetaData($metaData);
 
     $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
     $query = new EntityQuery();
