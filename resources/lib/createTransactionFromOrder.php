@@ -25,9 +25,9 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
     $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 40, "UTF-8"));
     $lineItem->setQuantity((int) $orderItem['quantity']);
     if ($basketNetPrices) {
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceNet'], $currencyDecimalPlaces));
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));
     } else {
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceGross'], $currencyDecimalPlaces));
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceGross'] * $orderItem['quantity'], $currencyDecimalPlaces));
     }
     if (isset($orderItem['vatRate']) && ! empty($orderItem['vatRate'])) {
         $lineItem->setTaxes([

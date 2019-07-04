@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.4 (2019-07-04)
+
+### Fixed
+- Fix bug in line item calculation.
+
 ## v2.0.3 (2019-05-14)
 
 ### Fixed
