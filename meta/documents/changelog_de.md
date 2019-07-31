@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.5 (2019-07-31)
+
+### Added
+- Set order item property values on line items.
+
 ## v2.0.4 (2019-07-04)
 
 ### Fixed

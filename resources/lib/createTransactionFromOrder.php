@@ -12,12 +12,13 @@ use Wallee\Sdk\Service\CurrencyService;
 use Wallee\Sdk\Model\Gender;
 use Wallee\Sdk\Model\TransactionPending;
 use Wallee\Sdk\Model\LineItemType;
+use Wallee\Sdk\Model\LineItemAttributeCreate;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 
-function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces)
+function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces, $itemAttributes)
 {
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId($uniqueId);
@@ -38,6 +39,15 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
         ]);
     }
     $lineItem->setType($type);
+    
+    $attributes = array();
+    foreach ($itemAttributes as $itemAttribute) {
+        $attribute = new LineItemAttributeCreate();
+        $attribute->setLabel(mb_substr($itemAttribute['label'], 0, 512, "UTF-8"));
+        $attribute->setValue(mb_substr($itemAttribute['value'], 0, 512, "UTF-8"));
+        $attributes['property_' . $itemAttribute['key']] = $attribute;
+    }
+    $lineItem->setAttributes($attributes);
     return $lineItem;
 }
 
@@ -71,26 +81,28 @@ function collectTransactionData($transactionRequest, $client)
     }
 
     $netPrices = $order['amounts'][0]['isNet'];
+    $itemAttributes = SdkRestApi::getParam('itemAttributes');
     $lineItems = [];
     foreach ($order['orderItems'] as $orderItem) {
+        $attributes = isset($itemAttributes[$orderItem['id']]) ? $itemAttributes[$orderItem['id']] : [];
         if ($orderItem['typeId'] == 1 || $orderItem['typeId'] == 2 || $orderItem['typeId'] == 3) {
             // VARIANTION
-            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces);
+            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces, $attributes);
             $lineItem->setShippingRequired(true);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 4 || $orderItem['typeId'] == 5) {
             // GIFT_CARD
-            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces);
+            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces, $attributes);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 6) {
             // SHIPPING
-            $lineItems[] = buildLineItem($orderItem, 'shipping', 'shipping', LineItemType::SHIPPING, false, $currencyDecimalPlaces);
+            $lineItems[] = buildLineItem($orderItem, 'shipping', 'shipping', LineItemType::SHIPPING, false, $currencyDecimalPlaces, $attributes);
         } elseif ($orderItem['typeId'] == 7) {
             // PAYMENT SURCHARGE
-            $lineItems[] = buildLineItem($orderItem, 'payment-fee', 'payment-fee', LineItemType::FEE, $netPrices, $currencyDecimalPlaces);
+            $lineItems[] = buildLineItem($orderItem, 'payment-fee', 'payment-fee', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes);
         } elseif ($orderItem['typeId'] == 8) {
             // GIFT WRAP
-            $lineItems[] = buildLineItem($orderItem, 'gift-wrap', 'gift-wrap', LineItemType::FEE, $netPrices, $currencyDecimalPlaces);
+            $lineItems[] = buildLineItem($orderItem, 'gift-wrap', 'gift-wrap', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes);
         }
     }
 

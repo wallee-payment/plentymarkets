@@ -207,7 +207,7 @@ class PaymentProcessController extends Controller
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
         $orderRepo = $this->orderRepository;
-        $order = $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
+        $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
             return $orderRepo->findOrderById($orderId);
         });
 

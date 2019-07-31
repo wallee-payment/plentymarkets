@@ -19,6 +19,12 @@ use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
 use Plenty\Modules\Order\RelationReference\Models\OrderRelationReference;
+use Plenty\Modules\Item\VariationProperty\Contracts\VariationPropertyValueRepositoryContract;
+use Plenty\Modules\Authorization\Services\AuthHelper;
+use Plenty\Modules\Item\Property\Contracts\PropertyGroupNameRepositoryContract;
+use Plenty\Modules\Item\Property\Contracts\PropertyNameRepositoryContract;
+use Plenty\Modules\Item\Property\Contracts\PropertyRepositoryContract;
+use Plenty\Modules\Item\Property\Contracts\PropertySelectionRepositoryContract;
 
 class PaymentService
 {
@@ -48,6 +54,30 @@ class PaymentService
      * @var VariationRepositoryContract
      */
     private $variationRepository;
+
+    /**
+     *
+     * @var VariationPropertyValueRepositoryContract
+     */
+    private $variationPropertyValueRepository;
+
+    /**
+     *
+     * @var PropertyNameRepositoryContract
+     */
+    private $propertyNameRepository;
+
+    /**
+     *
+     * @var PropertyGroupNameRepositoryContract
+     */
+    private $propertyGroupNameRepository;
+
+    /**
+     *
+     * @var PropertySelectionRepositoryContract
+     */
+    private $propertySelectionRepository;
 
     /**
      *
@@ -98,6 +128,10 @@ class PaymentService
      * @param ConfigRepository $config
      * @param ItemRepositoryContract $itemRepository
      * @param VariationRepositoryContract $variationRepository
+     * @param VariationPropertyValueRepositoryContract $variationPropertyValueRepository
+     * @param PropertyNameRepositoryContract $propertyNameRepository
+     * @param PropertyGroupNameRepositoryContract $propertyGroupNameRepository
+     * @param PropertySelectionRepositoryContract $propertySelectionRepository
      * @param FrontendSessionStorageFactoryContract $session
      * @param AddressRepositoryContract $addressRepository
      * @param CountryRepositoryContract $countryRepository
@@ -106,12 +140,16 @@ class PaymentService
      * @param OrderHelper $orderHelper
      * @param OrderRepositoryContract $orderRepository
      */
-    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
+    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, VariationPropertyValueRepositoryContract $variationPropertyValueRepository, PropertyNameRepositoryContract $propertyNameRepository, PropertyGroupNameRepositoryContract $propertyGroupNameRepository, PropertySelectionRepositoryContract $propertySelectionRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
     {
         $this->sdkService = $sdkService;
         $this->config = $config;
         $this->itemRepository = $itemRepository;
         $this->variationRepository = $variationRepository;
+        $this->variationPropertyValueRepository = $variationPropertyValueRepository;
+        $this->propertyNameRepository = $propertyNameRepository;
+        $this->propertyGroupNameRepository = $propertyGroupNameRepository;
+        $this->propertySelectionRepository = $propertySelectionRepository;
         $this->session = $session;
         $this->addressRepository = $addressRepository;
         $this->countryRepository = $countryRepository;
@@ -146,7 +184,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
         if (is_array($transaction) && isset($transaction['error'])) {
@@ -199,6 +237,7 @@ class PaymentService
         $parameters = [
             'transactionId' => $transactionId,
             'order' => $order,
+            'itemAttributes' => $this->getLineItemAttributes($order),
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
             'shippingAddress' => $this->getAddress($order->deliveryAddress),
@@ -208,11 +247,12 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::Transaction', $transaction);
         if (is_array($transaction) && $transaction['error']) {
             return [
                 'transactionId' => $transactionId,
@@ -250,6 +290,76 @@ class PaymentService
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'content' => $paymentPageUrl
         ];
+    }
+
+    private function getLineItemAttributes(Order $order)
+    {
+        $itemAttributes = [];
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+        foreach ($order->orderItems as $orderItem) {
+            if (! empty($orderItem->orderProperties)) {
+                $attributes = [];
+                foreach ($orderItem->orderProperties as $orderProperty) {
+                    $variationPropertyValueRepository = $this->variationPropertyValueRepository;
+                    $variationPropertyValue = $authHelper->processUnguarded(function () use ($orderItem, $orderProperty, $variationPropertyValueRepository) {
+                        return $variationPropertyValueRepository->show($orderItem->itemVariationId, $orderProperty->propertyId);
+                    });
+
+                    $language = $this->session->getLocaleSettings()->language;
+
+                    $propertyNameRepository = $this->propertyNameRepository;
+                    $propertyName = $authHelper->processUnguarded(function () use ($orderProperty, $language, $propertyNameRepository) {
+                        return $propertyNameRepository->findOne($orderProperty->propertyId, $language);
+                    });
+
+                    $this->getLogger(__METHOD__)->error('wallee::Variation', [
+                        'variation' => $variationPropertyValue,
+                        'propertyName' => $propertyName
+                    ]);
+
+                    switch ($orderProperty->type) {
+                        case '':
+                            $propertyGroupId = $variationPropertyValue->property->propertyGroupId;
+                            $propertyGroupNameRepository = $this->propertyGroupNameRepository;
+                            $propertyGroup = $authHelper->processUnguarded(function () use ($propertyGroupId, $language, $propertyGroupNameRepository) {
+                                return $propertyGroupNameRepository->findOne($propertyGroupId, $language);
+                            });
+                            $attributes[] = [
+                                'key' => $orderProperty->propertyId,
+                                'label' => $propertyGroup->name,
+                                'value' => $propertyName->name
+                            ];
+                            break;
+                        case 'selection':
+                            $propertySelectionId = $orderProperty->value;
+                            $propertySelectionRepository = $this->propertySelectionRepository;
+                            $propertySelection = $authHelper->processUnguarded(function () use ($propertySelectionId, $language, $propertySelectionRepository) {
+                                return $propertySelectionRepository->findOne($propertySelectionId, $language);
+                            });
+                            $attributes[] = [
+                                'key' => $orderProperty->propertyId,
+                                'label' => $propertyName->name,
+                                'value' => $propertySelection->name
+                            ];
+                            break;
+                        case 'text':
+                        case 'float':
+                        case 'int':
+                        default:
+                            $attributes[] = [
+                                'key' => $orderProperty->propertyId,
+                                'label' => $propertyName->name,
+                                'value' => $orderProperty->value
+                            ];
+                    }
+                }
+                if (! empty($attributes)) {
+                    $itemAttributes[$orderItem->id] = $attributes;
+                }
+            }
+        }
+        return $itemAttributes;
     }
 
     /**
