@@ -18,17 +18,28 @@ require_once __DIR__ . '/WalleeSdkHelper.php';
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 
+function getItemAmount($orderItem) {
+    foreach ($orderItem['amounts'] as $amount) {
+        if ($amount['isSystemCurrency'] == false) {
+            return $amount;
+        }
+    }
+    return $orderItem['amounts'][0];
+}
+
 function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces, $itemAttributes)
 {
+    $itemAmount = getItemAmount($orderItem);
+    
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId($uniqueId);
     $lineItem->setSku($sku);
     $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 40, "UTF-8"));
     $lineItem->setQuantity((int) $orderItem['quantity']);
     if ($basketNetPrices) {
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($itemAmount['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));
     } else {
-        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($orderItem['amounts'][0]['priceGross'] * $orderItem['quantity'], $currencyDecimalPlaces));
+        $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($itemAmount['priceGross'] * $orderItem['quantity'], $currencyDecimalPlaces));
     }
     if (isset($orderItem['vatRate']) && ! empty($orderItem['vatRate'])) {
         $lineItem->setTaxes([
@@ -51,12 +62,22 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
     return $lineItem;
 }
 
+function getOrderAmount($order) {
+    foreach ($order['amounts'] as $amount) {
+        if ($amount['isSystemCurrency'] == false) {
+            return $amount;
+        }
+    }
+    return $order['amounts'][0];
+}
+
 function collectTransactionData($transactionRequest, $client)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
     $order = SdkRestApi::getParam('order');
+    $orderAmount = getOrderAmount($order);
 
-    $transactionRequest->setCurrency($order['amounts'][0]['currency']);
+    $transactionRequest->setCurrency($orderAmount['currency']);
     $transactionRequest->setCustomerId(SdkRestApi::getParam('customerId')); // FIXME: only set customer id if customer has account.
     $transactionRequest->setMerchantReference($order['id']);
     $transactionRequest->setSuccessUrl(SdkRestApi::getParam('successUrl'));
@@ -74,13 +95,13 @@ function collectTransactionData($transactionRequest, $client)
     $currencyDecimalPlaces = 2;
     $currencies = $currencyService->all();
     foreach ($currencies as $currency) {
-        if ($currency->getCurrencyCode() == $order['amounts'][0]['currency']) {
+        if ($currency->getCurrencyCode() == $orderAmount['currency']) {
             $currencyDecimalPlaces = $currency->getFractionDigits();
             break;
         }
     }
 
-    $netPrices = $order['amounts'][0]['isNet'];
+    $netPrices = $orderAmount['isNet'];
     $itemAttributes = SdkRestApi::getParam('itemAttributes');
     $lineItems = [];
     foreach ($order['orderItems'] as $orderItem) {
@@ -107,7 +128,7 @@ function collectTransactionData($transactionRequest, $client)
     }
 
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-    $basketAmount = $netPrices ? $order['amounts'][0]['netTotal'] : $order['amounts'][0]['grossTotal'];
+    $basketAmount = $netPrices ? $orderAmount['netTotal'] : $orderAmount['grossTotal'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');

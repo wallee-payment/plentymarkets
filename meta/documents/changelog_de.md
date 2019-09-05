@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.6 (2019-09-05)
+
+### Fixed
+- Use the amounts in the order currency.
+
 ## v2.0.5 (2019-07-31)
 
 ### Added
