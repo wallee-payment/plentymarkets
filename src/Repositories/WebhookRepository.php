@@ -28,6 +28,7 @@ class WebhookRepository implements WebhookRepositoryContract
 
         $webhook->listenerEntityTechnicalName = $data['listenerEntityTechnicalName'];
         $webhook->entityId = $data['entityId'];
+        $webhook->spaceId = $data['spaceId'];
         $webhook->createdAt = time();
 
         $database->save($webhook);

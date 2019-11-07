@@ -9,6 +9,7 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Model;
  * @property int $id
  * @property string $listenerEntityTechnicalName
  * @property int $entityId
+ * @property int $spaceId
  * @property int $createdAt
  */
 class Webhook extends Model
@@ -31,6 +32,12 @@ class Webhook extends Model
      * @var int
      */
     public $entityId = 0;
+    
+    /**
+     * 
+     * @var int
+     */
+    public $spaceId = 0;
 
     /**
      *

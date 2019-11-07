@@ -81,7 +81,8 @@ class WebhookCronHandler extends CronHandler
         if (strtolower($webhook->listenerEntityTechnicalName) == 'transaction') {
             $transactionId = $webhook->entityId;
             $transaction = $this->sdkService->call('getTransaction', [
-                'id' => $transactionId
+                'id' => $transactionId,
+                'spaceId' => $webhook->spaceId
             ]);
             if (empty($transaction)) {
                 $this->getLogger(__METHOD__)->error('The transaction was not found.', $transactionId);
@@ -94,7 +95,8 @@ class WebhookCronHandler extends CronHandler
         } elseif (strtolower($webhook->listenerEntityTechnicalName) == 'transactioninvoice') {
             $transactionInvoiceId = $webhook->entityId;
             $transactionInvoice = $this->sdkService->call('getTransactionInvoice', [
-                'id' => $transactionInvoiceId
+                'id' => $transactionInvoiceId,
+                'spaceId' => $webhook->spaceId
             ]);
             if (empty($transactionInvoice)) {
                 $this->getLogger(__METHOD__)->error('The transaction invoice was not found.', $transactionInvoiceId);
@@ -107,7 +109,8 @@ class WebhookCronHandler extends CronHandler
         } elseif (strtolower($webhook->listenerEntityTechnicalName) == 'refund') {
             $refundId = $webhook->entityId;
             $refund = $this->sdkService->call('getRefund', [
-                'id' => $refundId
+                'id' => $refundId,
+                'spaceId' => $webhook->spaceId
             ]);
             if (empty($refund)) {
                 $this->getLogger(__METHOD__)->error('The refund was not found.', $refundId);

@@ -92,7 +92,8 @@ class PaymentNotificationController extends Controller
         ])) {
             $this->webhookRepository->registerWebhook([
                 'listenerEntityTechnicalName' => $webhookRequest->listenerEntityTechnicalName,
-                'entityId' => $webhookRequest->entityId
+                'entityId' => $webhookRequest->entityId,
+                'spaceId' => $webhookRequest->spaceId
             ]);
         }
         return "OK";
