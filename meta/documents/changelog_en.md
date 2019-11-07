@@ -1,4 +1,9 @@
-# Release Notes for wallee
+# Release Notes for WhiteLabelName
+
+## v2.0.7 (2019-11-07)
+
+### Fixed
+- Fix bug in webhook processing.
 
 ## v2.0.6 (2019-09-05)
 
