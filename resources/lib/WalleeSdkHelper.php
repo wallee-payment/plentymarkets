@@ -79,7 +79,35 @@ class WalleeSdkHelper
      */
     public static function convertData($data)
     {
-        return \Wallee\Sdk\ObjectSerializer::sanitizeForSerialization($data);
+        if (is_scalar($data) || null === $data) {
+            return $data;
+        } elseif ($data instanceof \DateTime) {
+            return $data->format(\DateTime::ATOM);
+        } elseif (is_array($data)) {
+            foreach ($data as $property => $value) {
+                $data[$property] = self::convertData($value);
+            }
+            return $data;
+        } elseif (is_object($data)) {
+            if ($data instanceof stdClass) {
+                $values = [];
+                foreach ($data as $property => $value) {
+                    $values[$property] = self::convertData($value);
+                }
+                return $values;
+            } else {
+                $values = [];
+                foreach (array_keys($data::swaggerTypes()) as $property) {
+                    $getter = 'get' . ucfirst($property);
+                    if ($data->$getter() !== null) {
+                        $values[$property] = self::convertData($data->$getter());
+                    }
+                }
+                return $values;
+            }
+        } else {
+            return (string) $data;
+        }
     }
 
     /**
