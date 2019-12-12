@@ -58,7 +58,9 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
         $attribute->setValue(mb_substr($itemAttribute['value'], 0, 512, "UTF-8"));
         $attributes['property_' . $itemAttribute['key']] = $attribute;
     }
-    $lineItem->setAttributes($attributes);
+    if (! empty($attributes)) {
+        $lineItem->setAttributes($attributes);
+    }
     return $lineItem;
 }
 
@@ -235,6 +237,7 @@ if (! empty($transactionId)) {
     $transactionRequest = new TransactionCreate();
     collectTransactionData($transactionRequest, $client);
     $transactionRequest->setAutoConfirmationEnabled(false);
+    $transactionRequest->setChargeRetryEnabled(false);
     $transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
     $createdTransaction = $service->create($spaceId, $transactionRequest);
 }

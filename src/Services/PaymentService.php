@@ -184,10 +184,11 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
         if (is_array($transaction) && isset($transaction['error'])) {
+            $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
                 'content' => $transaction['error_msg']
@@ -247,13 +248,13 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
-        $this->getLogger(__METHOD__)->error('wallee::Transaction', $transaction);
         if (is_array($transaction) && $transaction['error']) {
+            $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
                 'transactionId' => $transactionId,
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -279,6 +280,7 @@ class PaymentService
             'id' => $transaction['id']
         ]);
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
             return [
                 'transactionId' => $transaction['id'],
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -313,7 +315,7 @@ class PaymentService
                         return $propertyNameRepository->findOne($orderProperty->propertyId, $language);
                     });
 
-                    $this->getLogger(__METHOD__)->error('wallee::Variation', [
+                    $this->getLogger(__METHOD__)->debug('wallee::Variation', [
                         'variation' => $variationPropertyValue,
                         'propertyName' => $propertyName
                     ]);

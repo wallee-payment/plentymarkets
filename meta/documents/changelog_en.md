@@ -1,4 +1,9 @@
-# Release Notes for WhiteLabelName
+# Release Notes for wallee
+
+## v2.0.8 (2019-12-05)
+
+### Fixed
+- Update SDK to latest version.
 
 ## v2.0.7 (2019-11-07)
 

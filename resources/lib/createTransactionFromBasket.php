@@ -222,7 +222,8 @@ if (! empty($transactionId)) {
 } else {
     $transactionRequest = new TransactionCreate();
     collectTransactionData($transactionRequest, $client);
-    $transactionRequest->setAutoConfirmationEnabled(true);
+    $transactionRequest->setAutoConfirmationEnabled(false);
+    $transactionRequest->setChargeRetryEnabled(false);
     $transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
     $createdTransaction = $service->create($spaceId, $transactionRequest);
 }
