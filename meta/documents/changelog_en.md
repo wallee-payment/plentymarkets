@@ -1,5 +1,11 @@
 # Release Notes for wallee
 
+## v2.0.9 (2020-02-10)
+
+### Fixed
+- Update SDK to latest version.
+- Fix incorrect translation key.
+
 ## v2.0.8 (2019-12-05)
 
 ### Fixed
