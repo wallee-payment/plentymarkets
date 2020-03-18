@@ -252,6 +252,41 @@ class PaymentService
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
+        $existingTransactions = $this->sdkService->call('getTransactionByMerchantReference', [
+            'merchantReference' => $order->id
+        ]);
+        if (is_array($existingTransactions) && $existingTransactions['error']) {
+            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransactions);
+            return [
+                'transactionId' => $transactionId,
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $existingTransactions['error_msg']
+            ];
+        } elseif (!empty($existingTransactions)) {
+            foreach ($existingTransactions as $existingTransaction) {
+                if (in_array($existingTransaction['state'], [
+                    'CONFIRMED',
+                    'PROCESSING'
+                ])) {
+                    return [
+                        'transactionId' => $transactionId,
+                        'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                        'content' => 'The payment is being processed.'
+                    ];
+                } elseif (in_array($existingTransaction['state'], [
+                    'PENDING',
+                    'FAILED'
+                ])) {
+                    // Ok, continue.
+                } else {
+                    return [
+                        'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+                        'content' => $this->getSuccessUrl()
+                    ];
+                }
+            }
+        }
+        
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);

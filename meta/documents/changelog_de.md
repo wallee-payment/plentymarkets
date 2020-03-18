@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.10 (2020-03-18)
+
+### Fixed
+- Prevent having multiple payments for one order.
+
 ## v2.0.9 (2020-02-10)
 
 ### Fixed
