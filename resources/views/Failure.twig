@@ -137,11 +137,7 @@
                                         				{% if method.id == currentPaymentMethodId %}checked="checked"{% endif %} />
                                     				<label class="provider-select-label" for="paymentMethod{{ method.id }}">
                                     					<div class="icon">
-                                    						<div class="square-container">
-                                    							<div class="square-inner center-xy">
-                                    								<img src="{{ method.icon }}" alt="{{ method.name }}" title="{{ method.name }}" />
-                                								</div>
-                            								</div>
+                                    						<img src="{{ method.icon }}" alt="{{ method.name }}" title="{{ method.name }}" class="img-fluid" />
                         								</div>
                     									<div class="content">
                                 							{{ method.name }}

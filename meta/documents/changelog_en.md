@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.11 (2020-05-05)
+
+### Fixed
+- Fix a bug preventing the customer selecting a different payment method if the payment failed.
+
 ## v2.0.10 (2020-03-18)
 
 ### Fixed

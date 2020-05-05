@@ -23,7 +23,6 @@ use Plenty\Modules\Item\VariationProperty\Contracts\VariationPropertyValueReposi
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Item\Property\Contracts\PropertyGroupNameRepositoryContract;
 use Plenty\Modules\Item\Property\Contracts\PropertyNameRepositoryContract;
-use Plenty\Modules\Item\Property\Contracts\PropertyRepositoryContract;
 use Plenty\Modules\Item\Property\Contracts\PropertySelectionRepositoryContract;
 
 class PaymentService
@@ -252,38 +251,36 @@ class PaymentService
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
-        $existingTransactions = $this->sdkService->call('getTransactionByMerchantReference', [
+        $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
         ]);
-        if (is_array($existingTransactions) && $existingTransactions['error']) {
-            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransactions);
+        if (is_array($existingTransaction) && $existingTransaction['error']) {
+            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
             return [
                 'transactionId' => $transactionId,
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => $existingTransactions['error_msg']
+                'content' => $existingTransaction['error_msg']
             ];
-        } elseif (!empty($existingTransactions)) {
-            foreach ($existingTransactions as $existingTransaction) {
-                if (in_array($existingTransaction['state'], [
-                    'CONFIRMED',
-                    'PROCESSING'
-                ])) {
-                    return [
-                        'transactionId' => $transactionId,
-                        'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                        'content' => 'The payment is being processed.'
-                    ];
-                } elseif (in_array($existingTransaction['state'], [
-                    'PENDING',
-                    'FAILED'
-                ])) {
-                    // Ok, continue.
-                } else {
-                    return [
-                        'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
-                        'content' => $this->getSuccessUrl()
-                    ];
-                }
+        } elseif (!empty($existingTransaction)) {
+            if (in_array($existingTransaction['state'], [
+                'CONFIRMED',
+                'PROCESSING'
+            ])) {
+                return [
+                    'transactionId' => $transactionId,
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => 'The payment is being processed.'
+                ];
+            } elseif (in_array($existingTransaction['state'], [
+                'PENDING',
+                'FAILED'
+            ])) {
+                // Ok, continue.
+            } else {
+                return [
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+                    'content' => $this->getSuccessUrl()
+                ];
             }
         }
         
