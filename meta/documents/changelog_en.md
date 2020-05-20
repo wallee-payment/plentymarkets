@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.12 (2020-05-20)
+
+### Fixed
+- Fix translation key on payment failure page.
+
 ## v2.0.11 (2020-05-05)
 
 ### Fixed
