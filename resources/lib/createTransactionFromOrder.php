@@ -34,7 +34,7 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId($uniqueId);
     $lineItem->setSku($sku);
-    $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 40, "UTF-8"));
+    $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 150, "UTF-8"));
     $lineItem->setQuantity((int) $orderItem['quantity']);
     if ($basketNetPrices) {
         $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($itemAmount['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));

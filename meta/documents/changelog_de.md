@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.13 (2020-12-02)
+
+### Fixed
+- Allow longer line item names.
+
 ## v2.0.12 (2020-05-20)
 
 ### Fixed

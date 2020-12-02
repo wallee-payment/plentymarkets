@@ -54,7 +54,7 @@ function collectTransactionData($transactionRequest, $client)
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId($basketItem['plenty_basket_row_item_variation_id']);
         $lineItem->setSku($basketItem['itemId']);
-        $lineItem->setName(mb_substr($basketItem['name'], 0, 40, "UTF-8"));
+        $lineItem->setName(mb_substr($basketItem['name'], 0, 150, "UTF-8"));
         $lineItem->setQuantity((int) $basketItem['quantity']);
         $lineItem->setShippingRequired(true);
         if ($basketNetPrices && isset($basketItem['vat']) && ! empty($basketItem['vat'])) {
