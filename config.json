@@ -30,6 +30,14 @@
                         "defaultValue": "V2"
                     }
                 },
+                "order_retry_status": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.orderRetryStatusLabel",
+                    "options": {
+                    	"tooltip": "Config.orderRetryStatusTooltip"
+                    }
+                },
                 "refund_successful_status": {
                     "type": "inputText",
                     "required": false,

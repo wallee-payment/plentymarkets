@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.14 (2021-02-16)
+
+### Added
+- Add setting to configure order statuses that allow to switch the payment method.
+
 ## v2.0.13 (2020-12-02)
 
 ### Fixed

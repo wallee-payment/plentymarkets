@@ -2,6 +2,7 @@
 namespace Wallee\Controllers;
 
 use IO\Services\NotificationService;
+use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Http\Response;
@@ -116,6 +117,12 @@ class PaymentProcessController extends Controller
      * @var FrontendSessionStorageFactoryContract
      */
     private $frontendSession;
+    
+    /**
+     *
+     * @var ConfigRepository
+     */
+    private $config;
 
     /**
      * Constructor.
@@ -134,8 +141,9 @@ class PaymentProcessController extends Controller
      * @param PaymentMethodRepositoryContract $paymentMethodService
      * @param SessionStorageService $sessionStorage
      * @param FrontendSessionStorageFactoryContract $frontendSession
+     * @param ConfigRepository $config
      */
-    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession)
+    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession, ConfigRepository $config)
     {
         parent::__construct();
         $this->response = $response;
@@ -152,6 +160,7 @@ class PaymentProcessController extends Controller
         $this->paymentMethodService = $paymentMethodService;
         $this->sessionStorage = $sessionStorage;
         $this->frontendSession = $frontendSession;
+        $this->config = $config;
     }
 
     /**
@@ -300,10 +309,22 @@ class PaymentProcessController extends Controller
         $statusId = $order->statusId;
         $orderCreatedDate = $order->createdAt;
 
-        if (! ($statusId <= 3.4 || ($statusId == 5 && $orderCreatedDate->toDateString() == date('Y-m-d')))) {
+        if ($this->checkOrderRetryStatus($statusId)
+            || $statusId <= 3.4
+            || ($statusId == 5 && $orderCreatedDate->toDateString() == date('Y-m-d'))) {
+            return true;
+        } else {
             return false;
         }
-
-        return true;
+    }
+    
+    private function checkOrderRetryStatus($statusId) {
+        $orderRetryStatusString = $this->config->get('wallee.order_retry_status');
+        if (!empty($orderRetryStatusString)) {
+            $orderRetryStatus = array_map('trim', explode(';', $orderRetryStatusString));
+            return in_array($statusId, $orderRetryStatus);
+        } else {
+            return false;
+        }
     }
 }
