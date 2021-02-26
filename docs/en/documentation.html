@@ -22,7 +22,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.0.15/">
+		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.0.16/">
 			Source
 		</a>
 	</li>
@@ -51,7 +51,7 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Install the plugin directly from the <a href="https://marketplace.plentymarkets.com/plugins/payment/wallee_5038" target="_blank">plentyMarketplace</a> or via <a href="https://github.com/wallee-payment/plentymarkets" target="_blank">GitHub</a>.</p>
+<p>Install the plugin directly from the <a href="https://marketplace.plentymarkets.com/plugins/payment/wallee_5038" target="_blank">plentyMarketplace</a> or via <a href="https://github.com/wallee-payment/plentymarkets" target="_blank">GitHub</a>. Check out <a href="https://knowledge.plentymarkets.com/en/plugins/adding-plugins-system" target="_blank">plentyKnowledge</a> on how to install plugins.</p>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -132,7 +132,7 @@ your customer groups.</p>
 </li>
 </ol>
 </div><div class="paragraph">
-<p>The main configuration is now finished. You should see the payment methods in your checkout. To view the payment methods configuration in the backend of plentymarkets go to Plugins &#8594; wallee.</p>
+<p>The main configuration is now finished. You should see the payment methods in your checkout. To view the payment methods configuration in the backend of plentymarkets go to Plugins &gt; wallee.</p>
 </div>					</div>
 </div>	<div class="chapter" id="_payment_method_configuration">
 	<div class="chapter-title">
@@ -190,10 +190,10 @@ can be found in the <a href="https://app-wallee.com/en-us/doc/payment/transactio
 this interval.</p>
 </li>
 <li>
-<p>If the transaction fails during the authorization process, the plentyMarketplace order is either marked as <code>[8] Canceled</code>.</p>
+<p>If the transaction fails during the authorization process, the plentymarkets order is either marked as <code>[8] Canceled</code>.</p>
 </li>
 <li>
-<p>If the transaction in wallee is marked as <code>fulfill</code>, the plentyMarketplace order is marked as <code>[5] Cleared for shipping</code>, indicating that it can now be fulfilled.</p>
+<p>If the transaction in wallee is marked as <code>fulfill</code>, the plentymarkets order is marked as <code>[5] Cleared for shipping</code>, indicating that it can now be fulfilled.</p>
 </li>
 <li>
 <p>If the transaction&#8217;s authorization is voided or the risk assessments indicate that the order should not be fulfilled, the order is marked as <code>[5] Canceled</code>.</p>
@@ -209,14 +209,14 @@ this interval.</p>
 <p>We recommend that you only change the order status to indicate that shipping has taken place. If you change it before the transaction has reached a final state in wallee, the plugin may changed the order status again. If you want different order statuses to be set, you can change the behaviour in the plugin configuration.</p>
 </div>					</div>
 </div>			</div>
-</div>					<div class="section" id="_state_mapping_of_plentymarketplace_payment_status">
+</div>					<div class="section" id="_state_mapping_of_plentymarkets_payment_status">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">5.2</span>State mapping of plentyMarketplace payment status					</h2>
+			<span class="title-number">5.2</span>State mapping of plentymarkets payment status					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>Below you find a diagram that shows the state machine of plentyMarketplace for payment status including additional information for the state transitions.</p>
+<p>Below you find a diagram that shows the state machine of plentymarkets for payment status including additional information for the state transitions.</p>
 </div><div class="imageblock">
 <div class="content">
 <img src="resource/state_graph_payment_status.svg" alt="state graph payment status"/>
@@ -224,16 +224,16 @@ this interval.</p>
 </div><div class="olist glossary">
 <ol class="glossary">
 <li>
-<p>If the transaction in wallee is <code>authorized</code>, the payment status of the plentyMarketplace order is set to <code>awaiting confirmation</code>.</p>
+<p>If the transaction in wallee is <code>authorized</code>, the payment status of the plentymarkets order is set to <code>awaiting confirmation</code>.</p>
 </li>
 <li>
-<p>If the transaction fails during the authorization process, the payment status of the plentyMarketplace order is set to <code>canceled</code>.</p>
+<p>If the transaction fails during the authorization process, the payment status of the plentymarkets order is set to <code>canceled</code>.</p>
 </li>
 <li>
-<p>If the transaction&#8217;s authorization is voided, the payment status of the plentyMarketplace order is set to <code>canceled</code>.</p>
+<p>If the transaction&#8217;s authorization is voided, the payment status of the plentymarkets order is set to <code>canceled</code>.</p>
 </li>
 <li>
-<p>Once the invoice is paid, the payment status of the plentyMarketplace order is set to <code>Confirmed</code>. This also applies if the invoice is not traceable due to external administration.</p>
+<p>Once the invoice is paid, the payment status of the plentymarkets order is set to <code>Confirmed</code>. This also applies if the invoice is not traceable due to external administration.</p>
 </li>
 </ol>
 </div>					</div>
@@ -251,7 +251,7 @@ this interval.</p>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>This requires to set the status ID for refunds in the plentyMarkets shop configuration. Once the order is moved into that status the refund will be triggered and synchronized with wallee.</p>
+<p>This requires to set the status ID for refunds in the plentymarkets shop configuration. Once the order is moved into that status the refund will be triggered and synchronized with wallee.</p>
 </div><div class="paragraph">
 <p>In order to do so please follow the steps below in the backend of your plentymarkets store:</p>
 </div><div class="paragraph">
@@ -349,10 +349,28 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 </div><div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Press the update button in your plentymarkets store backend under Plugins &#8594; wallee.</p>
+<p>Press the update button in your plentymarkets store backend under Plugins &gt; wallee.</p>
 </li>
 <li>
 <p>Save and publish the plugin set.</p>
+</li>
+</ol>
+</div>					</div>
+</div>					<div class="section" id="_how_to_prevent_paypal_payments_processed_through_whitelabelname_from_being_registered_twice">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">8.2</span>How to prevent PayPal payments processed through wallee from being registered twice?					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>You can configure the plentymarkets PayPal import to ignore wallee payments.</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the plentymarkets store backend, navigate to Setup &gt; Orders &gt; Payment &gt; Incoming.</p>
+</li>
+<li>
+<p>Set <strong>Ignore wallee PayPal transactions</strong> to <strong>Yes</strong>.</p>
 </li>
 </ol>
 </div>					</div>
@@ -424,9 +442,9 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 			</a>
     </li>    		    	</ul>
     </li>    		    			<li class="nav-level-2">
-	<a href="#_state_mapping_of_plentymarketplace_payment_status">
+	<a href="#_state_mapping_of_plentymarkets_payment_status">
 		<span class="item-number">5.2</span>
-		<span class="item-title">State mapping of plentyMarketplace payment status</span>
+		<span class="item-title">State mapping of plentymarkets payment status</span>
 			</a>
     </li>    		    	</ul>
     </li>					<li class="nav-level-1">
@@ -456,6 +474,11 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 	<a href="#_how_can_i_update_the_whitelabelname_plugin_in_my_store">
 		<span class="item-number">8.1</span>
 		<span class="item-title">How can I update the wallee plugin in my store?</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_how_to_prevent_paypal_payments_processed_through_whitelabelname_from_being_registered_twice">
+		<span class="item-number">8.2</span>
+		<span class="item-title">How to prevent PayPal payments processed through wallee from being registered twice?</span>
 			</a>
     </li>    		    	</ul>
     </li>					<li class="nav-level-1">
