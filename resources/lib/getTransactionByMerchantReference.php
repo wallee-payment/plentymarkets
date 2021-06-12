@@ -14,12 +14,26 @@ $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'),
 $spaceId = SdkRestApi::getParam('spaceId');
 
 $service = new TransactionService($client);
-$query = new EntityQuery();
+
+$merchantReferenceFilter = new EntityQueryFilter();
+$merchantReferenceFilter->setType(EntityQueryFilterType::LEAF);
+$merchantReferenceFilter->setOperator(CriteriaOperator::EQUALS);
+$merchantReferenceFilter->setFieldName('merchantReference');
+$merchantReferenceFilter->setValue(SdkRestApi::getParam('merchantReference'));
+
+// To avoid overlapping usage of old IDs we check also that the already 
+// created transaction is not very long back.
+$dateFilter = new EntityQueryFilter();
+$dateFilter->setType(EntityQueryFilterType::LEAF);
+$dateFilter->setOperator(CriteriaOperator::GREATER_THAN);
+$dateFilter->setFieldName('createdOn');
+$dateFilter->setValue(date('c', strtotime("-3 months")));
+
 $filter = new EntityQueryFilter();
-$filter->setType(EntityQueryFilterType::LEAF);
-$filter->setOperator(CriteriaOperator::EQUALS);
-$filter->setFieldName('merchantReference');
-$filter->setValue(SdkRestApi::getParam('merchantReference'));
+$filter->setType(EntityQueryFilterType::_AND);
+$filter->setChildren([$dateFilter, $merchantReferenceFilter]);
+
+$query = new EntityQuery();
 $query->setFilter($filter);
 $orderBy = new EntityQueryOrderBy();
 $orderBy->setFieldName('createdOn');
