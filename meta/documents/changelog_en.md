@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.17 (2021-06-21)
+
+### Fixed
+- Additional filter for orders, no longer than 3 months was added, so that IDs do not get duplicated.
+
 ## v2.0.16 (2021-02-26)
 
 ### Fixed
