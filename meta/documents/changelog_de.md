@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.18 (2022-06-10)
+
+### Fixed
+- Update SDK to latest version.
+
 ## v2.0.17 (2021-06-21)
 
 ### Fixed
