@@ -52,16 +52,6 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
     }
 
     /**
-     * Returns the path to the payment method's icon.
-     *
-     * @return string
-     */
-    public function getIcon(): string
-    {
-        return $this->getImagePath('sofort-banking.svg');
-    }
-
-    /**
      * Returns the payment method's description.
      *
      * @return string
@@ -73,6 +63,21 @@ class SofortBankingPaymentMethod extends AbstractPaymentMethod
             return $title;
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Returns the payment method's description.
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        $iconUrl = $this->configRepo->get('wallee.sofortbanking_icon_url');
+        if (!empty($iconUrl)) {
+            return $iconUrl;
+        } else {
+            return $this->getImagePath('sofort-banking.svg');
         }
     }
 }

@@ -52,16 +52,6 @@ class CashuPaymentMethod extends AbstractPaymentMethod
     }
 
     /**
-     * Returns the path to the payment method's icon.
-     *
-     * @return string
-     */
-    public function getIcon(): string
-    {
-        return $this->getImagePath('cashu.svg');
-    }
-
-    /**
      * Returns the payment method's description.
      *
      * @return string
@@ -73,6 +63,21 @@ class CashuPaymentMethod extends AbstractPaymentMethod
             return $title;
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Returns the payment method's description.
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        $iconUrl = $this->configRepo->get('wallee.cashu_icon_url');
+        if (!empty($iconUrl)) {
+            return $iconUrl;
+        } else {
+            return $this->getImagePath('cashu.svg');
         }
     }
 }

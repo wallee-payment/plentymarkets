@@ -52,16 +52,6 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
     }
 
     /**
-     * Returns the path to the payment method's icon.
-     *
-     * @return string
-     */
-    public function getIcon(): string
-    {
-        return $this->getImagePath('przelewy24.svg');
-    }
-
-    /**
      * Returns the payment method's description.
      *
      * @return string
@@ -73,6 +63,21 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
             return $title;
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Returns the payment method's description.
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        $iconUrl = $this->configRepo->get('wallee.przelewy24_icon_url');
+        if (!empty($iconUrl)) {
+            return $iconUrl;
+        } else {
+            return $this->getImagePath('przelewy24.svg');
         }
     }
 }

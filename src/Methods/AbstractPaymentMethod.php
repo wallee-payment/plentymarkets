@@ -67,4 +67,5 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
     {
         return false;
     }
+
 }

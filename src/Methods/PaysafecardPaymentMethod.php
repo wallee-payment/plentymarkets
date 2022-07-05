@@ -52,16 +52,6 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
     }
 
     /**
-     * Returns the path to the payment method's icon.
-     *
-     * @return string
-     */
-    public function getIcon(): string
-    {
-        return $this->getImagePath('paysafecard.svg');
-    }
-
-    /**
      * Returns the payment method's description.
      *
      * @return string
@@ -73,6 +63,21 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
             return $title;
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Returns the payment method's description.
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        $iconUrl = $this->configRepo->get('wallee.paysafecard_icon_url');
+        if (!empty($iconUrl)) {
+            return $iconUrl;
+        } else {
+            return $this->getImagePath('paysafecard.svg');
         }
     }
 }

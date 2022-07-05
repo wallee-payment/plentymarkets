@@ -52,16 +52,6 @@ class EpsPaymentMethod extends AbstractPaymentMethod
     }
 
     /**
-     * Returns the path to the payment method's icon.
-     *
-     * @return string
-     */
-    public function getIcon(): string
-    {
-        return $this->getImagePath('eps.svg');
-    }
-
-    /**
      * Returns the payment method's description.
      *
      * @return string
@@ -73,6 +63,21 @@ class EpsPaymentMethod extends AbstractPaymentMethod
             return $title;
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Returns the payment method's description.
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        $iconUrl = $this->configRepo->get('wallee.eps_icon_url');
+        if (!empty($iconUrl)) {
+            return $iconUrl;
+        } else {
+            return $this->getImagePath('eps.svg');
         }
     }
 }
