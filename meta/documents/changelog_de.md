@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.22 (2022-07-12)
+
+### Fixed
+- translations for label
+
 ## v2.0.21 (2022-07-05)
 
 ### Fixed
