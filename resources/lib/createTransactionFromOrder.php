@@ -55,15 +55,21 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
     foreach ($itemAttributes as $itemAttribute) {
         $itemAttributeLabel = $itemAttribute['label'];
         $itemAttributeValue = $itemAttribute['value'];
+
         if (empty($itemAttributeLabel) && !empty($itemAttributeValue)) {
             $itemAttributeLabel = $itemAttributeValue;
-        } else if (empty($itemAttributeLabel) || empty($itemAttributeValue)) {
+        }
+
+        $itemAttributeLabel = mb_substr($itemAttributeLabel, 0, 512, "UTF-8");
+        $itemAttributeValue = mb_substr($itemAttributeValue, 0, 512, "UTF-8");
+
+        if (empty($itemAttributeLabel) || empty($itemAttributeValue)) {
             continue;
         }
 
         $attribute = new LineItemAttributeCreate();
-        $attribute->setLabel(mb_substr($itemAttributeLabel, 0, 512, "UTF-8"));
-        $attribute->setValue(mb_substr($itemAttributeValue, 0, 512, "UTF-8"));
+        $attribute->setLabel($itemAttributeLabel);
+        $attribute->setValue($itemAttributeValue);
         $attributes['property_' . $itemAttribute['key']] = $attribute;
     }
     if (! empty($attributes)) {
