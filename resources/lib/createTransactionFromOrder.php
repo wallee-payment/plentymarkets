@@ -27,14 +27,14 @@ function getItemAmount($orderItem) {
     return $orderItem['amounts'][0];
 }
 
-function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces, $itemAttributes)
+function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces, $itemAttributes, $prefixIfDuplicated)
 {
     $itemAmount = getItemAmount($orderItem);
     
     $lineItem = new LineItemCreate();
-    $lineItem->setUniqueId($uniqueId);
-    $lineItem->setSku($sku);
-    $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 150, "UTF-8"));
+    $lineItem->setUniqueId($uniqueId . $prefixIfDuplicated);
+    $lineItem->setSku($sku . $prefixIfDuplicated);
+    $lineItem->setName(mb_substr($orderItem['orderItemName'] . $prefixIfDuplicated, 0, 150, "UTF-8"));
     $lineItem->setQuantity((int) $orderItem['quantity']);
     if ($basketNetPrices) {
         $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($itemAmount['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));
@@ -87,6 +87,16 @@ function getOrderAmount($order) {
     return $order['amounts'][0];
 }
 
+function checkForDuplicatePrefix($id, $array) {
+	if(!in_array($id, $array)) {
+		return '';
+	}
+
+	$valuesOfDuplicates = array_count_values($array);
+
+	return '_duplicate_' . $valuesOfDuplicates[$id];
+}
+
 function collectTransactionData($transactionRequest, $client)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
@@ -120,26 +130,29 @@ function collectTransactionData($transactionRequest, $client)
     $netPrices = $orderAmount['isNet'];
     $itemAttributes = SdkRestApi::getParam('itemAttributes');
     $lineItems = [];
+    $arrayOfItemIdsInLoop = array_column($order['orderItems'], 'id');
+
     foreach ($order['orderItems'] as $orderItem) {
+        $prefixIfDuplicated = checkForDuplicatePrefix($orderItem['id'], $arrayOfItemIdsInLoop);
         $attributes = isset($itemAttributes[$orderItem['id']]) ? $itemAttributes[$orderItem['id']] : [];
         if ($orderItem['typeId'] == 1 || $orderItem['typeId'] == 2 || $orderItem['typeId'] == 3) {
-            // VARIANTION
-            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces, $attributes);
+            // VARIANTION 
+            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
             $lineItem->setShippingRequired(true);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 4 || $orderItem['typeId'] == 5) {
             // GIFT_CARD
-            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces, $attributes);
+            $lineItem = buildLineItem($orderItem, 'coupon-discount', 'coupon-discount', LineItemType::DISCOUNT, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 6) {
             // SHIPPING
-            $lineItems[] = buildLineItem($orderItem, 'shipping', 'shipping', LineItemType::SHIPPING, false, $currencyDecimalPlaces, $attributes);
+            $lineItems[] = buildLineItem($orderItem, 'shipping', 'shipping', LineItemType::SHIPPING, false, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
         } elseif ($orderItem['typeId'] == 7) {
             // PAYMENT SURCHARGE
-            $lineItems[] = buildLineItem($orderItem, 'payment-fee', 'payment-fee', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes);
+            $lineItems[] = buildLineItem($orderItem, 'payment-fee', 'payment-fee', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
         } elseif ($orderItem['typeId'] == 8) {
             // GIFT WRAP
-            $lineItems[] = buildLineItem($orderItem, 'gift-wrap', 'gift-wrap', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes);
+            $lineItems[] = buildLineItem($orderItem, 'gift-wrap', 'gift-wrap', LineItemType::FEE, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
         }
     }
 
