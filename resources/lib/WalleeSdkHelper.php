@@ -113,4 +113,18 @@ class WalleeSdkHelper
         $orderBy->setSorting($sortOrder);
         return $orderBy;
     }
+
+    /**
+     * @param $id
+     * @param $array
+     * @param $key
+     * @return string
+     */
+    public static function checkForDuplicatePrefix($id, $array, $key) {
+      if(!in_array($id, $array)) {
+        return '';
+      }
+
+      return '_duplicate_' . $key;
+    }
 }

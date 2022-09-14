@@ -33,8 +33,8 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
     
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId($uniqueId . $prefixIfDuplicated);
-    $lineItem->setSku($sku . $prefixIfDuplicated);
-    $lineItem->setName(mb_substr($orderItem['orderItemName'] . $prefixIfDuplicated, 0, 150, "UTF-8"));
+    $lineItem->setSku($sku);
+    $lineItem->setName(mb_substr($orderItem['orderItemName'], 0, 150, "UTF-8"));
     $lineItem->setQuantity((int) $orderItem['quantity']);
     if ($basketNetPrices) {
         $lineItem->setAmountIncludingTax(WalleeSdkHelper::roundAmount($itemAmount['priceNet'] * $orderItem['quantity'], $currencyDecimalPlaces));
@@ -87,16 +87,6 @@ function getOrderAmount($order) {
     return $order['amounts'][0];
 }
 
-function checkForDuplicatePrefix($id, $array) {
-	if(!in_array($id, $array)) {
-		return '';
-	}
-
-	$valuesOfDuplicates = array_count_values($array);
-
-	return '_duplicate_' . $valuesOfDuplicates[$id];
-}
-
 function collectTransactionData($transactionRequest, $client)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
@@ -130,10 +120,12 @@ function collectTransactionData($transactionRequest, $client)
     $netPrices = $orderAmount['isNet'];
     $itemAttributes = SdkRestApi::getParam('itemAttributes');
     $lineItems = [];
-    $arrayOfItemIdsInLoop = array_column($order['orderItems'], 'id');
+    $arrayOfItemIdsInLoop = [];
 
-    foreach ($order['orderItems'] as $orderItem) {
-        $prefixIfDuplicated = checkForDuplicatePrefix($orderItem['id'], $arrayOfItemIdsInLoop);
+    foreach ($order['orderItems'] as $key => $orderItem) {
+        $prefixIfDuplicated = WalleeSdkHelper::checkForDuplicatePrefix($orderItem['itemVariationId'], $arrayOfItemIdsInLoop, $key);
+        $arrayOfItemIdsInLoop[] = $orderItem['itemVariationId'];
+
         $attributes = isset($itemAttributes[$orderItem['id']]) ? $itemAttributes[$orderItem['id']] : [];
         if ($orderItem['typeId'] == 1 || $orderItem['typeId'] == 2 || $orderItem['typeId'] == 3) {
             // VARIANTION 

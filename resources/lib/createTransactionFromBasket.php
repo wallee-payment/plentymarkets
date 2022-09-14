@@ -49,10 +49,14 @@ function collectTransactionData($transactionRequest, $client)
 
     $basketNetPrices = $basketForTemplate['basketAmountNet'] == $basketForTemplate['basketAmount'];
     $lineItems = [];
+    $arrayOfItemIdsInLoop = [];
     $maxTaxRate = 0;
-    foreach (SdkRestApi::getParam('basketItems') as $basketItem) {
+    foreach (SdkRestApi::getParam('basketItems') as $key => $basketItem) {
+        $prefixIfDuplicated = WalleeSdkHelper::checkForDuplicatePrefix($basketItem['plenty_basket_row_item_variation_id'], $arrayOfItemIdsInLoop, $key);
+        $arrayOfItemIdsInLoop[] = $basketItem['plenty_basket_row_item_variation_id'];
+
         $lineItem = new LineItemCreate();
-        $lineItem->setUniqueId($basketItem['plenty_basket_row_item_variation_id']);
+        $lineItem->setUniqueId($basketItem['plenty_basket_row_item_variation_id'] . $prefixIfDuplicated);
         $lineItem->setSku($basketItem['itemId']);
         $lineItem->setName(mb_substr($basketItem['name'], 0, 150, "UTF-8"));
         $lineItem->setQuantity((int) $basketItem['quantity']);
