@@ -105,6 +105,7 @@ class WalleeServiceProvider extends ServiceProvider
 
         $walleeServiceProviderHelper->addPaymentMethodContentEventListener();
         $walleeServiceProviderHelper->addExecutePaymentContentEventListener();
+        $walleeServiceProviderHelper->createWebhook();
 
         $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }
