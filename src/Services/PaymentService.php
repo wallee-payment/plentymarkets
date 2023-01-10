@@ -168,6 +168,8 @@ class PaymentService
      */
     public function getPaymentContent(Basket $basket, array $basketForTemplate, PaymentMethod $paymentMethod): array
     {
+        $this->createWebhook();
+
         $parameters = [
             'transactionId' => $this->session->getPlugin()->getValue('walleeTransactionId'),
             'basket' => $basket,
@@ -207,6 +209,18 @@ class PaymentService
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
         ];
+    }
+
+    private function createWebhook()
+    {
+        /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);
+        /** @var \Plenty\Modules\System\Models\WebstoreConfiguration $webstoreConfig */
+        $webstoreConfig = $webstoreHelper->getCurrentWebstoreConfiguration();
+        $this->sdkService->call('createWebhook', [
+            'storeId' => $webstoreConfig->webstoreId,
+            'notificationUrl' => $webstoreConfig->domainSsl . '/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : '')
+        ]);
     }
 
     /**

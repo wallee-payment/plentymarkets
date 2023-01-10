@@ -90,34 +90,12 @@ class PaymentNotificationController extends Controller
             'transactioninvoice',
             'refund'
         ])) {
-            $this->processWebhook($webhookRequest);
+            $this->webhookRepository->registerWebhook([
+                'listenerEntityTechnicalName' => $webhookRequest->listenerEntityTechnicalName,
+                'entityId' => $webhookRequest->entityId,
+                'spaceId' => $webhookRequest->spaceId
+            ]);
         }
         return "OK";
-    }
-
-    protected function processWebhook($webhook)
-    {
-        $transactionId = $webhook->entityId;
-        try {
-            // this makes a call to whatever the listenerEntityTechnicalName is e.g. getTransaction
-            $transaction = $this->sdkService->call('get' . ucfirst($webhook->listenerEntityTechnicalName), [
-                'id' => $transactionId,
-                'spaceId' => $webhook->spaceId
-            ]);
-
-        } catch (Exception $e) {
-            $this->getLogger(__METHOD__)->error('Error calling SDK service' . $e->getMessage());
-        }
-
-        if (empty($transaction)) {
-            $this->getLogger(__METHOD__)->error('The ' . $webhook->listenerEntityTechnicalName . ' was not found.', $transactionId);
-            return true;
-        }
-
-        if (is_array($transaction) && isset($transaction['error'])) {
-            throw new \Exception($transaction['error_msg']);
-        }
-
-        return $this->paymentHelper->updatePlentyPayment($transaction);
     }
 }
