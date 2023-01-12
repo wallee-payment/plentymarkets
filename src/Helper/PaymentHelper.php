@@ -159,18 +159,8 @@ class PaymentHelper
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
 
         $state = $this->mapTransactionState($transaction['state']);
-// testcomment
-        foreach ($payments as $payment) {
-            /* @var Payment $payment */
-            if ($payment->status != $state) {
-                $payment->status = $state;
-                if ($state == Payment::STATUS_CAPTURED) {
-                    $payment->unaccountable = 0;
-                    $payment->updateOrderPaymentStatus = true;
-                }
-                $this->paymentRepository->updatePayment($payment);
-            }
-        }
+
+        $this->markPaymentsCaptured($state, $payments);
         
         return true;
     }
@@ -193,19 +183,37 @@ class PaymentHelper
         }
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transactionInvoice['completion']['lineItemVersion']['transaction']['id']);
+        $this->markPaymentsCaptured($state, $payments);
+        
+        return true;
+    }
+
+    /**
+     * Mark payments as captured if they are moving forwards in state.
+     *
+     * @param string $state
+     * @param array $payments
+     */
+    private function markPaymentsCaptured($state, $payments) 
+    {
         foreach ($payments as $payment) {
             /* @var Payment $payment */
             if ($payment->status != $state) {
-                $payment->status = $state;
-                if ($state == Payment::STATUS_CAPTURED) {
+                // ensure payment state can only move forward
+                if ($payment->status < $state) {
+                    $payment->status = $state;
+                } else {
+                    return;
+                }
+                // checking unaccountable to ensure that the payment hasn't been assigned twice
+                // unaccountable = An unassigned payment. Unassigned payments have the value 1.
+                if ($state == Payment::STATUS_CAPTURED && $payment->unaccountable == 1) {
                     $payment->unaccountable = 0;
                     $payment->updateOrderPaymentStatus = true;
                 }
                 $this->paymentRepository->updatePayment($payment);
             }
         }
-        
-        return true;
     }
 
     public function updateRefund($refund)

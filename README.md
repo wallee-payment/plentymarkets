@@ -13,8 +13,8 @@ This repository contains the plentymarkets extension that enables to process pay
 
 ## Documentation
 
-* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.0.32/docs/en/documentation.html)
+* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.0.33/docs/en/documentation.html)
 
 ## License
 
-Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.0.32/LICENSE) for more information.
+Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.0.33/LICENSE) for more information.
