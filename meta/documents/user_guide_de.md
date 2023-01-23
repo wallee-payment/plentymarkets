@@ -1,11 +1,10 @@
-# Verbinden Sie Ihren Plentymarket Shops mit wallee
+# Verbinden Sie Ihren plentymarkets Shop mit wallee
 
-wallee bietet Ihnen als PSP / E-Commerce hub direkten Zugang zu einer grossen Auswahl an Zahlungsverarbeitern und
-Zahlungsmethoden via eine standardisierte API. Mit anderen Worten lösen wir mit diesem produkt
-Ihre Zahlungsprobleme auf einen Schlag in Ihrem Webshop. Sobald Sie das Plugin in Ihrem Shop installiert haben,
-können Sie aus einem der integrierten <a href="https://app-wallee.com/en/processors" target="_blank">Verarbeitern</a> auswählen für die
-Verarbeitung Ihrer Zahlung. Damit wird die Verarbeitung via Kreditkarten aber auch jede weitere Form alternativen
-Zahlungsarten ermöglicht. Sie können zudem auch Rechnungen Verarbeiten (Für Schweizer Kunden sogar mit Einzahlungsschein).
+wallee bietet Ihnen als PSP / E-Commerce hub direkten Zugang zu einer großen Auswahl an Zahlungsverarbeitern und
+Zahlungsmethoden via eine standardisierte API. Mit anderen Worten lösen wir mit diesem Produkt
+Ihre Zahlungsprobleme auf einen Schlag in Ihrem Webshop. Sobald Sie das Plugin in Ihrem Shop installiert haben, 
+können Sie für die Verarbeitung Ihrer Zahlung aus einem der integrierten <a href="https://app-wallee.com/en/processors" target="_blank">Verarbeitern</a> auswählen. Damit wird die Verarbeitung via Kreditkarten aber auch jede weitere Form alternativer Zahlungsarten ermöglicht.
+Sie können zudem auch Rechnungen verarbeiten (Für Schweizer Kunden sogar mit Einzahlungsschein).
 Daneben können Sie Ihre Kunden auch mittels selbst-konfigurierbaren Mahnläufen mahnen u.v.m.
  
 Für die Zahlungsabwicklung wird der Kunde auf die wallee payment page weitergeleitet, welche Sie vollständig selber gestalten können. 
@@ -16,9 +15,9 @@ Neben der Zahlungsverarbeitung löst Ihnen wallee auch noch zahlreiche weitere P
 * Sie können Ihre eigenen Rechnungsdokumente erstellen und den Kunden zustellen oder drucken via Cloud
 * Dokumente können über die Cloud auf Ihrem Drucker gedruckt oder archiviert werden
 * Definieren Sie Ihre Mahnläufe für Rechnungen die Sie selber verarbeiten
-* Versenden Sie automatisch Erinnerungen und Mahnungen an Ihre Kudnen. 
+* Versenden Sie automatisch Erinnerungen und Mahnungen an Ihre Kunden. 
 
-Dies und vieles Mehr steht Ihnen ab sofort mit einer direkten Integration zur Verfügung. 
+Dies und vieles mehr steht Ihnen ab sofort mit einer direkten Integration zur Verfügung. 
 
 
 ## Voraussetzungen
@@ -31,15 +30,15 @@ Damit Sie wallee nutzen können müssen Sie folgende Voraussetzungen erfüllen:
  
 ## Plugin configuration
  
-Das Plugin kann einfach in Ihrem Shop installiert und Konfiguriert werden.
+Das Plugin kann einfach in Ihrem Shop installiert und konfiguriert werden.
 
-* Erstellen Sie Ihr Konto und den Application User inkl. User ID, Secret und Space ID. Dieses tragen Sie unter Plugins > Konfiguraiton ein.
+* Erstellen Sie Ihr Konto und den Application User inkl. User ID, Secret und Space ID. Dieses tragen Sie unter Plugins > Konfiguration ein.
 * Aktivieren Sie die Zahlungsmethoden, welche Sie im Space aktiv haben
 
  
 ### Anpassen der E-Mail, Payment Page und Dokumente
 
-Für die Verarbeitung der Zahlugn werden Sie auf die Zahlungsseite von wallee weitergeleitet. Diese Seite können Sie mit Hilfe der TWIG Templates komplett selber gestalten. Mehr informationen finden Sie in der <a href="https://app-wallee.com/de-ch/doc/document-handling" target="_blank">Dokumentation</a>.
+Für die Verarbeitung der Zahlung werden Sie auf die Zahlungsseite von wallee weitergeleitet. Diese Seite können Sie mit Hilfe der TWIG Templates komplett selber gestalten. Mehr Informationen finden Sie in der <a href="https://app-wallee.com/de-ch/doc/document-handling" target="_blank">Dokumentation</a>.
  
  
 ### Gutschriften
@@ -58,10 +57,10 @@ Sie können nun entweder Gutschriften oder Retouren direkt in der Bestellung anl
 3. Verschieben Sie den Status der Bestellung in den initialen Status der Ereignisaktion, welche Sie oben definiert haben. Dies führt automatisch dazu,
 dass die Bestellung mit wallee synchronisiert wird. 
 
-## Further reading
+## Weitere Informationen
 
 Für mehr Informationen verweisen wir Sie auf unsere extensive <a href="https://app-wallee.com/de-ch/doc" target="_blank">Dokumentation</a>.
-Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser <a href="supportUrl" target="_blank">Support</a> ebenfalls zur Verfügung. 
+Bei Fragen zum Produkt oder zur Konfiguration steht Ihnen sonst unser <a href="https://wallee.com/ueber-wallee/support?_ga=2.171642464.1523640132.1674037856-1834608674.1611572458" target="_blank">Support</a> ebenfalls zur Verfügung. 
  
 ## Lizenz
  

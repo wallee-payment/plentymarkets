@@ -1,10 +1,72 @@
 # Release Notes for wallee
 
+## v2.0.34 (2023-01-23)
+
+### Fixed
+- Make the latest version of the plugin available on the marketplace
+
+## v2.0.33 (2023-01-12)
+
+### Fixed
+- Improvement of the function updatePlentyPayment() to check the property *unaccountable* before updating property *updateOrderPaymentStatus*
+- Improvement of the function updateInvoice() to check the property *unaccountable* before updating property *updateOrderPaymentStatus*
+
+## v2.0.32 (2023-01-10)
+
+### Fixed
+- Rolling back webhook creation improvements
+
+## v2.0.31 (2022-12-13)
+
+### Added
+- Further Improvement on WalleeServiceProviderHelper leading to more stable and faster response times by moving webhook creation into boot function
+- Added header for API tracking
+- Added French and Italian languages
+
+## v2.0.30 (2022-11-29)
+
+### Fixed
+- Improvement on WalleeServiceProvider leading to more stable and faster response times
+
+## v2.0.29 (2022-10-07)
+
+### Fixed
+- Adjust documentation (remove setup assistant)
+
+## v2.0.28 (2022-09-14)
+
+### Fixed
+- fixed duplicate of unique line items
+
+## v2.0.27 (2022-09-13)
+
+### Fixed
+- fixed duplicate of unique line items
+
+## v2.0.26 (2022-09-01)
+
+### Fixed
+- fix empty line item attribute label (improved)
+
+## v2.0.25 (2022-09-01)
+
+### Fixed
+- fix empty line item attribute label
+
+## v2.0.24 (2022-08-19)
+
+### Fixed
+- fix for incorrect constant
+
+## v2.0.23 (2022-08-18)
+
+### Fixed
+- fix for invoice capture not synchronising
+
 ## v2.0.22 (2022-07-12)
 
 ### Fixed
 - translations for label
-
 
 ## v2.0.21 (2022-07-05)
 
@@ -213,5 +275,5 @@
 ## v1.0.2 (2017-09-05)
 
 ### Added
-- Updated Descirptions and Screenshots
+- Updated Descriptions and Screenshots
 - Updated URL for processing

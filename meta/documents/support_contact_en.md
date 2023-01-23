@@ -1,6 +1,6 @@
 ## Web page
  
-For more information or support please <a href="supportUrl" target="_blank">contact us</a>. 
+For more information or support please <a href="https://en.wallee.com/about-wallee/support?_ga=2.171642464.1523640132.1674037856-1834608674.1611572458" target="_blank">contact us</a>. 
 
 In case you do already have a wallee account please use the support form in the application.
  

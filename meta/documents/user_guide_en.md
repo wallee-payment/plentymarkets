@@ -6,7 +6,7 @@ Once the plugin is installed you can easily select the payment processors of you
 processing payments.  wallee is PCI certified. The connectivity allows you to process payments via credit cards as well as 
 any other form of alternative payments. You can also process invoices, 
 wallee creates the invoices and you are able to also create your dunning flow and processes. 
-An extensive list of all integrated payment processors can be foundon our <a href="https://app-wallee.com/en/processors" target="_blank">payment processor page</a>.
+An extensive list of all integrated payment processors can be found on our <a href="https://app-wallee.com/en/processors" target="_blank">payment processor page</a>.
  
 Your client will be redirected to the wallee payment page at the end of the process. The payment page can be fully styled according your needs.
 
@@ -31,7 +31,7 @@ If you want to start using the plugin you will have to make sure that you fulfil
  
 ## Plugin configuration
  
- The plugin configuraiton is easy. Just follow the steps:
+ The plugin configuration is easy. Just follow the steps:
 
 * Create an application user and enter the application user id, the secret that is displayed in the backend and the space id.
 * Activate the plugin and go to Plugins > Configuration. 
@@ -49,21 +49,22 @@ be found on the <a href="https://app-wallee.com/en/doc/document-handling" target
 Set the status ID for Refunds in the configuration. Once the order is moved into that state the refund will be triggered. 
 In order to do that please follow the steps below:
 
-1. Create an "Ereignisaktion" for a state change. Give it a name and select the State change that should trigger the action.
-2. Select the action and under the folder "Plugin" you should find an action called refund of the wallee payment.
+1. Create an "Group Function", in Order > Orders > Group Function,  for a state change. Give it a name and select the State change that should trigger the action.
+2. Select the group function and under the folder "Plugin" you should find an action called "Refund" of the wallee payment.
 3. Store the configuration.
 
 You have the option between refund and return:
 
-1. Open the order and select the action either create refund or create return.
-2. Select the products that you want to return.
-3. Move the state of the return into the state selected above for the "Ereignisaktion". This will now automatically synchronize
+1. Open the order and select the action either "Create refund" or "Create return".
+2. Select the items that you want to refund or return.
+3. Move the state of the return into the state selected above for the "Group Function". This will now automatically synchronize
 the items with wallee.
 
 
 ## Further reading
 
 More Information about the features in wallee can be found in our extensive <a href="https://app-wallee.com/en/doc" target="_blank">documentation</a>.
+If you have any questions about the product or the configuration, our <a href="https://en.wallee.com/about-wallee/support?_ga=2.171642464.1523640132.1674037856-1834608674.1611572458" target="_blank">support</a> is also available
  
 ## License
  
