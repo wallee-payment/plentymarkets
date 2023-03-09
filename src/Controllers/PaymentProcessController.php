@@ -200,6 +200,7 @@ class PaymentProcessController extends Controller
         return $twig->render('wallee::Failure', [
             'transaction' => $transaction,
             'payment' => $payment,
+            'bodyClasses' => ['page-confirmation'],
             'orderData' => $order,
             'totals' => pluginApp(OrderTotalsService::class)->getAllTotals($order->order),
             'currentPaymentMethodId' => $paymentMethodId,
