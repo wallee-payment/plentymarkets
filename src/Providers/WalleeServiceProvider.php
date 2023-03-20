@@ -68,7 +68,8 @@ class WalleeServiceProvider extends ServiceProvider
         PaymentMethodContainer $payContainer,
         EventProceduresService $eventProceduresService,
         CronContainer $cronContainer,
-        WalleeServiceProviderHelper $walleeServiceProviderHelper
+        WalleeServiceProviderHelper $walleeServiceProviderHelper,
+        PaymentService $paymentService
     ) {
         $this->registerPaymentMethod($payContainer, 1457546097615, AlipayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097602, BankTransferPaymentMethod::class);
@@ -103,8 +104,8 @@ class WalleeServiceProvider extends ServiceProvider
             'en' => 'Refund the wallee payment'
         ], 'Wallee\Procedures\RefundEventProcedure@run');
 
-        $walleeServiceProviderHelper->addPaymentMethodContentEventListener();
         $walleeServiceProviderHelper->addExecutePaymentContentEventListener();
+        $paymentService->createWebhook();
 
         $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }

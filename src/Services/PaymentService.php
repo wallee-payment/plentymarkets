@@ -158,60 +158,7 @@ class PaymentService
         $this->orderRepository = $orderRepository;
     }
 
-    /**
-     * Returns the payment method's content.
-     *
-     * @param Basket $basket
-     * @param array $basketForTemplate
-     * @param PaymentMethod $paymentMethod
-     * @return string[]
-     */
-    public function getPaymentContent(Basket $basket, array $basketForTemplate, PaymentMethod $paymentMethod): array
-    {
-        $this->createWebhook();
-
-        $parameters = [
-            'transactionId' => $this->session->getPlugin()->getValue('walleeTransactionId'),
-            'basket' => $basket,
-            'basketForTemplate' => $basketForTemplate,
-            'paymentMethod' => $paymentMethod,
-            'basketItems' => $this->getBasketItems($basket),
-            'billingAddress' => $this->getAddress($this->getBasketBillingAddress($basket)),
-            'shippingAddress' => $this->getAddress($this->getBasketShippingAddress($basket)),
-            'language' => $this->session->getLocaleSettings()->language,
-            'successUrl' => $this->getSuccessUrl(),
-            'failedUrl' => $this->getFailedUrl(),
-            'checkoutUrl' => $this->getCheckoutUrl()
-        ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
-
-        $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
-        if (is_array($transaction) && isset($transaction['error'])) {
-            $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
-            return [
-                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => $transaction['error_msg']
-            ];
-        }
-
-        $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
-
-        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
-            'transactionId' => $transaction['id']
-        ]);
-        if (! $hasPossiblePaymentMethods) {
-            return [
-                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => 'The selected payment method is not available.'
-            ];
-        }
-
-        return [
-            'type' => GetPaymentMethodContent::RETURN_TYPE_CONTINUE
-        ];
-    }
-
-    private function createWebhook()
+    public function createWebhook()
     {
         /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
         $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);

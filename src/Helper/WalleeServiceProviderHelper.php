@@ -2,7 +2,6 @@
 namespace Wallee\Helper;
 
 use IO\Services\BasketService;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
@@ -22,11 +21,6 @@ class WalleeServiceProviderHelper
      * @var $paymentHelper
      */
     private $paymentHelper;
-    
-    /**
-     * @var $basketRepository
-     */
-    private $basketRepository;
     
     /**
      * @var $orderRepository
@@ -49,7 +43,6 @@ class WalleeServiceProviderHelper
      *
      * @param  Dispatcher $eventDispatcher
      * @param  PaymentHelper $paymentHelper
-     * @param  BasketRepositoryContract $basketRepository
      * @param  OrderRepositoryContract $orderRepository
      * @param  PaymentService $paymentService
      * @param  PaymentMethodRepositoryContract $paymentMethodService
@@ -57,35 +50,15 @@ class WalleeServiceProviderHelper
     public function __construct(
         Dispatcher $eventDispatcher,
         PaymentHelper $paymentHelper,
-        BasketRepositoryContract $basketRepository,
         OrderRepositoryContract $orderRepository,
         PaymentService $paymentService,
         PaymentMethodRepositoryContract $paymentMethodService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->paymentHelper = $paymentHelper;
-        $this->basketRepository = $basketRepository;
         $this->orderRepository = $orderRepository;
         $this->paymentService = $paymentService;
         $this->paymentMethodService = $paymentMethodService;
-    }
-
-    /**
-     * Adds the payment content event listener
-     * @return never
-     */
-    public function addPaymentMethodContentEventListener() {
-        $this->eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) {
-            if ($this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                $result = $this->paymentService->getPaymentContent(
-                    $this->basketRepository->load(),
-                    pluginApp(BasketService::class)->getBasketForTemplate(),
-                    $this->paymentMethodService->findByPaymentMethodId($event->getMop())
-                );
-                $event->setValue(isset($result['content']) ? $result['content'] : null);
-                $event->setType(isset($result['type']) ? $result['type'] : '');
-            }
-        });
     }
 
     /**

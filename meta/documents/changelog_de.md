@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.35 (2023-03-10)
+
+### Fixed
+- Unnötigen Code entfernt
+
 ## v2.0.34 (2023-01-23)
 
 ### Fixed
