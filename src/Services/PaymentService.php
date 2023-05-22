@@ -179,6 +179,7 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
+        $start = microtime(true);
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [
@@ -194,6 +195,9 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
+        
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-1: '. ($end - $start));
         $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
@@ -201,6 +205,8 @@ class PaymentService
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
         ]);
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-2: '. ($end - $start));
         if (is_array($existingTransaction) && $existingTransaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
             return [
@@ -240,13 +246,22 @@ class PaymentService
                 'content' => $transaction['error_msg']
             ];
         }
-
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-3: '. ($end - $start));
+        
         $payment = $this->paymentHelper->createPlentyPayment($transaction);
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-4: '. ($end - $start));
         $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-5: '. ($end - $start));
 
         $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
             'transactionId' => $transaction['id']
         ]);
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-6: '. ($end - $start));
+        
         if (! $hasPossiblePaymentMethods) {
             return [
                 'transactionId' => $transaction['id'],
@@ -258,6 +273,9 @@ class PaymentService
         $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
             'id' => $transaction['id']
         ]);
+        $end = microtime(true);
+        $this->getLogger(__METHOD__)->error('ExectutePayment-Step-7: '. ($end - $start));
+        
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
             $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
             return [
