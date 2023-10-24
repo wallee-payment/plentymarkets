@@ -1,6 +1,16 @@
 # Release Notes for wallee
 
-## v2.0.35 (2023-03-10)
+## v2.0.37 (2023-10-24)
+
+### Fixed
+- Aktivieren Sie die Konfiguration der Zahlungsmethodenkorrektur, um den Checkout zu beschleunigen
+
+## v2.0.356(2023-09-28)
+
+### Added
+- Fügen Sie Debug-Protokolle hinzu, um den Zeitpunkt von API-Aufrufen anzuzeigen
+
+## v2.0.35 (2023-03-09)
 
 ### Fixed
 - Unnötigen Code entfernt

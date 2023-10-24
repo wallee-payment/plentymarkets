@@ -255,18 +255,22 @@ class PaymentService
 
         $timingLogs["createPlentyPayment"] = microtime(true) - $time_start;
 
-        $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
-            'transactionId' => $transaction['id']
-        ]);
-        if (! $hasPossiblePaymentMethods) {
-            return [
-                'transactionId' => $transaction['id'],
-                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
-                'content' => 'The selected payment method is not available.'
-            ];
-        }
+        $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
-        $timingLogs["hasPossiblePaymentMethods"] = microtime(true) - $time_start;
+        if ($isFetchPossiblePaymentMethodsEnabled === "true") {
+            $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+                'transactionId' => $transaction['id']
+            ]);
+            if (! $hasPossiblePaymentMethods) {
+                return [
+                    'transactionId' => $transaction['id'],
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => 'The selected payment method is not available.'
+                ];
+            }
+
+            $timingLogs["hasPossiblePaymentMethods"] = microtime(true) - $time_start;
+        }
 
         $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
             'id' => $transaction['id']

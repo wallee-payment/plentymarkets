@@ -54,6 +54,14 @@
                         "defaultValue": "11.3"
                     }
                 },
+                "enable_payment_fetch": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.enablePaymentFetch",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
                 "confirmation_invoice": {
                     "type": "checkBox",
                     "required": false,
