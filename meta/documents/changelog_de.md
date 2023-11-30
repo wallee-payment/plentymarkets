@@ -1,5 +1,12 @@
 # Release Notes for wallee
 
+## v2.0.38 (2023-11-28)
+
+### Fixed
+- Verschieben Sie die Webhook-Erstellung auf die Plugin-Bereitstellung, um Aufrufe zu minimieren
+
+# Release Notes for wallee
+
 ## v2.0.37 (2023-10-24)
 
 ### Fixed

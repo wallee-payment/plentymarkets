@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.38 (2023-11-28)
+
+### Fixed
+- Defer webhook creation to plugin deployment to minimize calls
+
 ## v2.0.37 (2023-10-24)
 
 ### Fixed
