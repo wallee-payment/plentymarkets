@@ -31,7 +31,7 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class)
 
-        $title = $translator->trans('wallee::Payment.PaymentAliPay');
+        $title = $translator->trans('wallee::AliPay.AliPayTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -61,7 +61,8 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.alipay_description');
+        $translator = pluginApp(Translator::class)
+        $title = $translator->trans('wallee::AliPay.AliPayDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -76,7 +77,8 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.alipay_icon_url');
+        $translator = pluginApp(Translator::class)
+        $iconUrl = $translator->trans('wallee::AliPay.AliPayIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
