@@ -91,33 +91,11 @@
                         "defaultValue": true
                     }
                 },
-                "alipay_title": {
-                    "type": "inputText",
-                    "required": false,
-                    "label": "Config.alipayTitleLabel",
-                    "options": {
-                        "defaultValue": "Alipay"
-                    }
-                },
-                "alipay_description": {
-                    "type": "inputText",
-                    "required": false,
-                    "label": "Config.alipayDescriptionLabel",
-                    "options": {}
-                },
                 "alipay_fee": {
                     "type": "inputText",
                     "required": false,
                     "label": "Config.alipayFeeLabel",
                     "options": {}
-                },
-                "alipay_icon_url": {
-                    "type": "inputText",
-                    "required": false,
-                    "label": "Config.alipayIconUrlLabel",
-                    "options": {
-                        "defaultValue": ""
-                    }
                 }
             }
         },
