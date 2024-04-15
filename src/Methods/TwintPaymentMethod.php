@@ -33,7 +33,6 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $title = $translator->trans('wallee::Payment.TwintTitle', [], $lang);
-        return 'TWINT-'.$title;
         if (! empty($title)) {
             return $title;
         } else {
@@ -67,7 +66,6 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $title = $translator->trans('wallee::Payment.TwintDescription', [], $lang);
-        return $title.'-descr';
         if (! empty($title)) {
             return $title;
         } else {

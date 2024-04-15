@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class DaoPayPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,12 +27,12 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.DaoPayTitle');
+        $title = $translator->trans('wallee::Payment.DaoPayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -59,12 +60,12 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.DaoPayDescription');
+        $title = $translator->trans('wallee::Payment.DaoPayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -77,12 +78,12 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.DaoPayIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.DaoPayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

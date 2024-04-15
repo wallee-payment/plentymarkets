@@ -1,8 +1,12 @@
 <?php
 namespace Wallee\Methods;
 
+use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
+
 class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
 {
+    use Loggable;
 
     /**
      * Defines whether the payment method is active.
@@ -23,12 +27,12 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.CreditDebitCardTitle');
+        $title = $translator->trans('wallee::Payment.CreditDebitCardTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -56,12 +60,12 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.CreditDebitCardDescription');
+        $title = $translator->trans('wallee::Payment.CreditDebitCardDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -74,12 +78,12 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.CreditDebitCardIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.CreditDebitCardIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

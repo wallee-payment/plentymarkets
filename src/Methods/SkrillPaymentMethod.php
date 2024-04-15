@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class SkrillPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,12 +27,12 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.SkrillTitle');
+        $title = $translator->trans('wallee::Payment.SkrillTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -59,12 +60,12 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.SkrillDescription');
+        $title = $translator->trans('wallee::Payment.SkrillDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -77,12 +78,12 @@ class SkrillPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.SkrillIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.SkrillIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

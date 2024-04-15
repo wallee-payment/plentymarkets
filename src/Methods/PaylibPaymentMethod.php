@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class PaylibPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,12 +27,12 @@ class PaylibPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PaylibTitle');
+        $title = $translator->trans('wallee::Payment.PaylibTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -59,12 +60,12 @@ class PaylibPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PaylibDescription');
+        $title = $translator->trans('wallee::Payment.PaylibDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -77,12 +78,12 @@ class PaylibPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.PaylibIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.PaylibIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

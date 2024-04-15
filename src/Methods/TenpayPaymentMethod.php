@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class TenpayPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,12 +27,12 @@ class TenpayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.TenpayTitle');
+        $title = $translator->trans('wallee::Payment.TenpayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -59,12 +60,12 @@ class TenpayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.TenpayDescription');
+        $title = $translator->trans('wallee::Payment.TenpayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -77,12 +78,12 @@ class TenpayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.TenpayIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.TenpayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
