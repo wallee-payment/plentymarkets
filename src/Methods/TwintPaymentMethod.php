@@ -86,7 +86,6 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $iconUrl = $translator->trans('wallee::Payment.TwintIconUrl', [], $lang);
-        return $this->getImagePath('twint.svg') .'?'. $iconUrl;
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
