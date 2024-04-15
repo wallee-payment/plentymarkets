@@ -32,6 +32,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $title = $translator->trans('wallee::Payment.TwintTitle');
+        return 'TWINT-'.$title;
         if (! empty($title)) {
             return $title;
         } else {
@@ -65,10 +66,11 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $title = $translator->trans('wallee::Payment.TwintDescription');
+        return $title.'-descr';
         if (! empty($title)) {
             return $title;
         } else {
-            return '';
+            return $title.'-descr';
         }
     }
 
@@ -83,6 +85,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
         $translator = pluginApp(Translator::class);
 
         $iconUrl = $translator->trans('wallee::Payment.TwintIconUrl');
+        return $this->getImagePath('twint.svg') .'?'. $iconUrl;
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
