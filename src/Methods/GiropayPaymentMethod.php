@@ -28,7 +28,10 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.giropay_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.GiropayTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -58,7 +61,10 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.giropay_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.GiropayDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -73,7 +79,10 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.giropay_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.GiropayIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

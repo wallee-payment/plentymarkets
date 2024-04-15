@@ -28,7 +28,10 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.daopay_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.DaoPayTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -58,7 +61,10 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.daopay_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.DaoPayDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -73,7 +79,10 @@ class DaoPayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.daopay_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.DaoPayIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

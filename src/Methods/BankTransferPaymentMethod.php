@@ -28,7 +28,10 @@ class BankTransferPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.banktransfer_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.BankTransferTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -58,7 +61,10 @@ class BankTransferPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.banktransfer_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.BankTransferDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -73,7 +79,10 @@ class BankTransferPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.banktransfer_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.BankTransferIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

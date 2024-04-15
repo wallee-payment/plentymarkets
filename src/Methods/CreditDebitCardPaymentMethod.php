@@ -25,7 +25,10 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.creditcard_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.CreditDebitCardTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -55,7 +58,10 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.creditcard_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.CreditDebitCardDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -70,7 +76,10 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.creditcard_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.CreditDebitCardIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

@@ -28,7 +28,10 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.przelewy24_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.Przelewy24Title');
         if (! empty($title)) {
             return $title;
         } else {
@@ -58,7 +61,10 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.przelewy24_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.Przelewy24Description');
         if (! empty($title)) {
             return $title;
         } else {
@@ -73,7 +79,10 @@ class Przelewy24PaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.przelewy24_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.Przelewy24IconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

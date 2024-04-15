@@ -25,7 +25,10 @@ class InvoicePaymentMethod extends AbstractPaymentMethod
      */
     public function getName(): string
     {
-        $title = $this->configRepo->get('wallee.invoice_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.InvoiceTitle');
         if (! empty($title)) {
             return $title;
         } else {
@@ -55,7 +58,10 @@ class InvoicePaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(): string
     {
-        $title = $this->configRepo->get('wallee.invoice_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.InvoiceDescription');
         if (! empty($title)) {
             return $title;
         } else {
@@ -70,7 +76,10 @@ class InvoicePaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(): string
     {
-        $iconUrl = $this->configRepo->get('wallee.invoice_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.InvoiceIconUrl');
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
