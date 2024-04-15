@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class TwintPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,12 +27,12 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.TwintTitle');
+        $title = $translator->trans('wallee::Payment.TwintTitle', [], $lang);
         return 'TWINT-'.$title;
         if (! empty($title)) {
             return $title;
@@ -60,12 +61,12 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.TwintDescription');
+        $title = $translator->trans('wallee::Payment.TwintDescription', [], $lang);
         return $title.'-descr';
         if (! empty($title)) {
             return $title;
@@ -79,12 +80,12 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.TwintIconUrl');
+        $iconUrl = $translator->trans('wallee::Payment.TwintIconUrl', [], $lang);
         return $this->getImagePath('twint.svg') .'?'. $iconUrl;
         if (!empty($iconUrl)) {
             return $iconUrl;
