@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class AlipayPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,9 +27,12 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
-        $title = $this->configRepo->get('wallee.alipay_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::AliPay.AliPayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -56,9 +60,10 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
-        $title = $this->configRepo->get('wallee.alipay_description');
+        $translator = pluginApp(Translator::class);
+        $title = $translator->trans('wallee::AliPay.AliPayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -71,9 +76,10 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
-        $iconUrl = $this->configRepo->get('wallee.alipay_icon_url');
+        $translator = pluginApp(Translator::class);
+        $iconUrl = $translator->trans('wallee::AliPay.AliPayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {

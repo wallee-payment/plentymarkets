@@ -2,6 +2,7 @@
 namespace Wallee\Methods;
 
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class PaysafecardPaymentMethod extends AbstractPaymentMethod
 {
@@ -26,9 +27,12 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(string $lang = 'de'): string
     {
-        $title = $this->configRepo->get('wallee.paysafecard_title');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.PaysafecardTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -56,9 +60,12 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(string $lang = 'de'): string
     {
-        $title = $this->configRepo->get('wallee.paysafecard_description');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $title = $translator->trans('wallee::Payment.PaysafecardDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -71,9 +78,12 @@ class PaysafecardPaymentMethod extends AbstractPaymentMethod
      *
      * @return string
      */
-    public function getIcon(): string
+    public function getIcon(string $lang = 'de'): string
     {
-        $iconUrl = $this->configRepo->get('wallee.paysafecard_icon_url');
+        /** @var Translator $translator */
+        $translator = pluginApp(Translator::class);
+
+        $iconUrl = $translator->trans('wallee::Payment.PaysafecardIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
