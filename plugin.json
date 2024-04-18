@@ -40,7 +40,7 @@
 		"php": ">=7.3 <8.1"
 	},
 	"dependencies": {
-		"wallee/sdk": "3.0.2"
+		"wallee/sdk": "4.1.0"
 	},
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods",
