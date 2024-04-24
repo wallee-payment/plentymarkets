@@ -74,11 +74,10 @@ class WalleeServiceProviderHelper
             $eventOrderId = $this->orderRepository->findById($event->getOrderId());
             $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
 
+            $this->getLogger(__METHOD__)->info('logExecutPaymentEventOrderId', $eventOrderId);
+            $this->getLogger(__METHOD__)->info('logExecutPaymentEventMop', $eventMop);
+
             if ($eventMop) {
-
-                $this->getLogger(__METHOD__)->info('logExecutPaymentEventOrderId', $eventOrderId);
-                $this->getLogger(__METHOD__)->info('logExecutPaymentEventMop', $eventMop);
-
                 $result = $this->paymentService->executePayment(
                     $eventOrderId,
                     $eventMop
