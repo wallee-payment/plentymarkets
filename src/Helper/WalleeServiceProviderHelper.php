@@ -7,11 +7,14 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
 use Plenty\Plugin\Events\Dispatcher;
+use Plenty\Plugin\Log\Loggable;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Services\PaymentService;
 
 class WalleeServiceProviderHelper
 {
+    use Loggable;
+    
     /**
      * @var $eventDispatcher
      */
@@ -68,9 +71,15 @@ class WalleeServiceProviderHelper
     public function addExecutePaymentContentEventListener() {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
             if ($this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
+                
+                $event['orderId'] = $this->orderRepository->findById($event->getOrderId());
+                $event['mop'] = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
+
+                $this->getLogger(__METHOD__)->info('logExecutPaymentEvent', $event);
+
                 $result = $this->paymentService->executePayment(
-                    $this->orderRepository->findById($event->getOrderId()), 
-                    $this->paymentMethodService->findByPaymentMethodId($event->getMop())
+                    $event['orderId'],
+                    $event['mop']
                 );
                 $event->setValue(isset($result['content']) ? $result['content'] : null);
                 $event->setType(isset($result['type']) ? $result['type'] : '');
