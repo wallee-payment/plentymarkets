@@ -70,17 +70,18 @@ class WalleeServiceProviderHelper
      */
     public function addExecutePaymentContentEventListener() {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
-            if ($this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                
-                $eventOrderId = $this->orderRepository->findById($event->getOrderId());
-                $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
+            
+            $eventOrderId = $this->orderRepository->findById($event->getOrderId());
+            $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
+
+            if ($eventMop) {
 
                 $this->getLogger(__METHOD__)->info('logExecutPaymentEventOrderId', $eventOrderId);
                 $this->getLogger(__METHOD__)->info('logExecutPaymentEventMop', $eventMop);
 
                 $result = $this->paymentService->executePayment(
                     $eventOrderId,
-                    $eventmop
+                    $eventMop
                 );
                 $event->setValue(isset($result['content']) ? $result['content'] : null);
                 $event->setType(isset($result['type']) ? $result['type'] : '');
