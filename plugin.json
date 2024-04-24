@@ -6,7 +6,7 @@
 	},
 	"namespace": "Wallee",
 	"type": "payment",
-	"version": "2.0.40",
+	"version": "2.0.41",
 	"license": " Apache License Version 2",
 	"isClosedSource": false,
 	"pluginIcon": "icon_plugin_md.png",
