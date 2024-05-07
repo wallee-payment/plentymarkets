@@ -95,7 +95,7 @@ class WalleeServiceProviderHelper
 
             $timingLogs["executePayment"] = microtime(true) - $time_start;
 
-            $this->getLogger(__METHOD__)->info('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
+            $this->getLogger(__METHOD__)->error('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
         });
     }
 }
