@@ -71,11 +71,18 @@ class WalleeServiceProviderHelper
     public function addExecutePaymentContentEventListener() {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
             
+            $time_start = microtime(true);
+            $timingLogs = [];
+
+            $timingLogs["execute_payment_start"] = microtime(true) - $time_start;
+
             $eventOrderId = $this->orderRepository->findById($event->getOrderId());
+
+            $timingLogs["eventOrderId"] = microtime(true) - $time_start;
+
             $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
 
-            $this->getLogger(__METHOD__)->info('logExecutPaymentEventOrderId', $eventOrderId);
-            $this->getLogger(__METHOD__)->info('logExecutPaymentEventMop', $eventMop);
+            $timingLogs["eventMop"] = microtime(true) - $time_start;
 
             if ($eventMop) {
                 $result = $this->paymentService->executePayment(
@@ -85,6 +92,10 @@ class WalleeServiceProviderHelper
                 $event->setValue(isset($result['content']) ? $result['content'] : null);
                 $event->setType(isset($result['type']) ? $result['type'] : '');
             }
+
+            $timingLogs["executePayment"] = microtime(true) - $time_start;
+
+            $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
         });
     }
 }
