@@ -7,11 +7,14 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
 use Plenty\Plugin\Events\Dispatcher;
+use Plenty\Plugin\Log\Loggable;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Services\PaymentService;
 
 class WalleeServiceProviderHelper
 {
+    use Loggable;
+    
     /**
      * @var $eventDispatcher
      */
@@ -67,14 +70,33 @@ class WalleeServiceProviderHelper
      */
     public function addExecutePaymentContentEventListener() {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
-            if ($this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
+            
+            $time_start = microtime(true);
+            $timingLogs = [];
+
+            $timingLogs["execute_payment_start"] = microtime(true) - $time_start;
+
+            $eventOrderId = $this->orderRepository->findById($event->getOrderId());
+
+            $timingLogs["eventOrderId"] = microtime(true) - $time_start;
+
+            $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
+
+            $timingLogs["eventMop"] = microtime(true) - $time_start;
+
+            if ($eventMop) {
+
                 $result = $this->paymentService->executePayment(
-                    $this->orderRepository->findById($event->getOrderId()), 
-                    $this->paymentMethodService->findByPaymentMethodId($event->getMop())
+                    $eventOrderId,
+                    $eventMop
                 );
                 $event->setValue(isset($result['content']) ? $result['content'] : null);
                 $event->setType(isset($result['type']) ? $result['type'] : '');
             }
+
+            $timingLogs["executePayment"] = microtime(true) - $time_start;
+
+            $this->getLogger(__METHOD__)->error('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
         });
     }
 }
