@@ -423,7 +423,7 @@
             }
         },
         "Config.PostfinancePayTab": {
-            "label": "Config.PostfinancePayTab",
+            "label": "Config.postfinancePayTab",
             "formFields": {
                 "postfinancepay_active": {
                     "type": "checkBox",

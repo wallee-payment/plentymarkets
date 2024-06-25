@@ -87,7 +87,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
-            return $this->getImagePath('postfinance_pay.svg');
+            return $this->getImagePath('pf_pay.svg');
         }
     }
 }
