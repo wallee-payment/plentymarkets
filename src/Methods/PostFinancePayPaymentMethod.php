@@ -15,7 +15,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.postfinanacepay_active') === "true") {
+        if ($this->configRepo->get('wallee.postfinancepay_active') === "true") {
             return true;
         } else {
             return false;
@@ -47,7 +47,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.postfinanacepay_fee');
+        $fee = $this->configRepo->get('wallee.postfinancepay_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
