@@ -31,6 +31,7 @@ use Wallee\Methods\PaylibPaymentMethod;
 use Wallee\Methods\PayPalPaymentMethod;
 use Wallee\Methods\PaysafecardPaymentMethod;
 use Wallee\Methods\PoliPaymentMethod;
+use Wallee\Methods\PostfinanacePayPaymentMethod;
 use Wallee\Methods\Przelewy24PaymentMethod;
 use Wallee\Methods\QiwiPaymentMethod;
 use Wallee\Methods\SkrillPaymentMethod;
