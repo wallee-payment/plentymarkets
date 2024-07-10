@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.0.41 (2024-07-10)
+
+## Fixed
+- Corrected language settings during redirection to ensure proper localization.
+
 ## v2.0.38 (2023-11-28)
 
 ### Fixed

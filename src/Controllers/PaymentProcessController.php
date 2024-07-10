@@ -172,8 +172,12 @@ class PaymentProcessController extends Controller
         $transaction = $this->sdkService->call('getTransaction', [
             'id' => $id
         ]);
+        // Get the current language from session storage
+        $lang = $this->sessionStorage->getLang();
+
         if (is_array($transaction) && isset($transaction['error'])) {
-            return $this->response->redirectTo('confirmation');
+            $confirmUrl = sprintf('%s/confirmation', $lang);
+            return $this->response->redirectTo($confirmUrl);
         }
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
@@ -205,7 +209,8 @@ class PaymentProcessController extends Controller
             'totals' => pluginApp(OrderTotalsService::class)->getAllTotals($order->order),
             'currentPaymentMethodId' => $paymentMethodId,
             'allowSwitchPaymentMethod' => $this->allowSwitchPaymentMethod($order->order->id),
-            'paymentMethodListForSwitch' => $this->getPaymentMethodListForSwitch($paymentMethodId, $order->order->id)
+            'paymentMethodListForSwitch' => $this->getPaymentMethodListForSwitch($paymentMethodId, $order->order->id),
+            'payOrderFormUrl' => sprintf('/%s/wallee/pay-order/', $lang)
         ]);
     }
 
@@ -223,6 +228,8 @@ class PaymentProcessController extends Controller
 
         $this->switchPaymentMethodForOrder($order, $paymentMethodId);
         $result = $this->paymentService->executePayment($order, $this->paymentMethodService->findByPaymentMethodId($paymentMethodId));
+        // Get the current language from session storage
+        $lang = $this->sessionStorage->getLang();
 
         if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
             return $this->response->redirectTo($result['content']);
@@ -230,9 +237,12 @@ class PaymentProcessController extends Controller
             if (isset($result['content'])) {
                 $this->frontendSession->getPlugin()->setValue('walleePayErrorMessage', $result['content']);
             }
-            return $this->response->redirectTo('wallee/fail-transaction/' . $result['transactionId']);
+            // Construct the URL with the language
+            $failUrl = sprintf('%s/wallee/fail-transaction/%s', $lang, $result['transactionId']);
+            return $this->response->redirectTo($failUrl);
         } else {
-            return $this->response->redirectTo('confirmation');
+            $confirmUrl = sprintf('%s/confirmation', $lang);
+            return $this->response->redirectTo($confirmUrl);
         }
     }
 

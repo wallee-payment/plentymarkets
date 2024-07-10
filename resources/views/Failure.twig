@@ -124,7 +124,7 @@
                 </div>
                 
                 {% if allowSwitchPaymentMethod %}
-                	<form action="/wallee/pay-order/" method="POST">
+                	<form action="{{ payOrderFormUrl | default('/wallee/pay-order/') }}" method="POST">
                 		<input type="hidden" name="orderId" value="{{ orderData.order.id }}" />
                     	<div class="card small" style="margin-top: 20px;">
                     		<div class="card-body">
