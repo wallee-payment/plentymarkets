@@ -461,7 +461,9 @@ class PaymentService
      */
     private function getSuccessUrl(): string
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/confirmation';
+        $lang = $this->session->getLocaleSettings()->language;
+        $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+        return sprintf('%s/%s/confirmation', $domain, $lang);
     }
 
     /**
@@ -470,7 +472,9 @@ class PaymentService
      */
     private function getFailedUrl(): string
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/wallee/fail-transaction';
+        $lang = $this->session->getLocaleSettings()->language;
+        $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+        return sprintf('%s/%s/wallee/fail-transaction', $domain, $lang);
     }
 
     /**
@@ -479,7 +483,9 @@ class PaymentService
      */
     private function getCheckoutUrl(): string
     {
-        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/checkout';
+        $lang = $this->session->getLocaleSettings()->language;
+        $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+        return sprintf('%s/%s/checkout', $domain, $lang);
     }
 
     /**
