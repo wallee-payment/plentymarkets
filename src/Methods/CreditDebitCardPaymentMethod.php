@@ -34,9 +34,9 @@ class CreditDebitCardPaymentMethod extends AbstractPaymentMethod
 
         $title = $translator->trans('wallee::Payment.CreditDebitCardTitle', [], $lang);
         if (! empty($title)) {
-            return $title;
+            return $title . ' asd ';
         } else {
-            return 'Credit / Debit Card';
+            return 'Credit / Debit Card 123';
         }
     }
 
