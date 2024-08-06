@@ -185,6 +185,8 @@ class PaymentService
         $time_start = microtime(true);
         $timingLogs = [];
 
+        $this->createWebhook();
+
         $timingLogs["start"] = microtime(true) - $time_start;
 
         $parameters = [
