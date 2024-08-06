@@ -164,6 +164,7 @@ class PaymentService
         $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);
         /** @var \Plenty\Modules\System\Models\WebstoreConfiguration $webstoreConfig */
         $webstoreConfig = $webstoreHelper->getCurrentWebstoreConfiguration();
+        $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_webhook_creation', $parameters);
         $this->sdkService->call('createWebhook', [
             'storeId' => $webstoreConfig->webstoreId,
             'notificationUrl' => $webstoreConfig->domainSsl . '/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : '')
