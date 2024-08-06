@@ -6,7 +6,7 @@
 	},
 	"namespace": "Wallee",
 	"type": "payment",
-	"version": "2.0.51",
+	"version": "2.0.52",
 	"license": " Apache License Version 2",
 	"isClosedSource": false,
 	"pluginIcon": "icon_plugin_md.png",
@@ -45,6 +45,7 @@
 	"runOnBuild": [
 		"Wallee\\Migrations\\AddPaymentMethods",
 		"Wallee\\Migrations\\CreatePaymentMethods",
+		"Wallee\\Migrations\\CreatePaymentMethods2",
 		"Wallee\\Migrations\\CreateWebhooks",
 		"Wallee\\Migrations\\CreateWebhookTable",
 		"Wallee\\Migrations\\UpdateWebhookSpaceId"
