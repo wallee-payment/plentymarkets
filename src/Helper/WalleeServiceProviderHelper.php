@@ -78,9 +78,13 @@ class WalleeServiceProviderHelper
 
             $eventOrderId = $this->orderRepository->findById($event->getOrderId());
 
+            $timingLogs["eventID"] = $eventOrderId;
+
             $timingLogs["eventOrderId"] = microtime(true) - $time_start;
 
             $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
+
+            $timingLogs["eventMopID"] = $eventMop;
 
             $timingLogs["eventMop"] = microtime(true) - $time_start;
 
