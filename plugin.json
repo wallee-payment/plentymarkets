@@ -46,7 +46,6 @@
 		"Wallee\\Migrations\\AddPaymentMethods",
 		"Wallee\\Migrations\\CreatePaymentMethods",
 		"Wallee\\Migrations\\CreateWebhooks",
-		"Wallee\\Migrations\\CreateWebhooks2",
 		"Wallee\\Migrations\\CreateWebhookTable",
 		"Wallee\\Migrations\\UpdateWebhookSpaceId"
 	],
