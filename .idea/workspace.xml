@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7243adf8-805b-49ba-b541-afa85f307364" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Methods/PostFinancePayPaymentMethod.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Methods/PostFinancePayPaymentMethod.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
