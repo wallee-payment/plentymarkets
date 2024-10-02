@@ -5,138 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7243adf8-805b-49ba-b541-afa85f307364" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/bak/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/base.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/base.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/highlight.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/jquery.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/monokai-sublime.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/scrollspy.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/assets/sticky-kit.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/documentation.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/event_procedure_payment.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/new_order_from_online_store.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/plentyMarkets-refund-event-procedure.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/plentyMarkets-refund.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/state_graph.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/docs/en/resource/state_graph_payment_status.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/changelog_de.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/changelog_en.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/support_contact_de.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/support_contact_en.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/user_guide_de.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/documents/user_guide_en.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_author_md.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_author_sm.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_author_xs.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_plugin_md.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_plugin_sm.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/icon_plugin_xs.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/preview_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/meta/images/preview_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/plugin.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/de/Config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/de/Payment.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/de/Template.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/de/debug.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/en/Config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/en/Payment.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/en/Template.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/en/debug.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/fr/Config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/fr/Payment.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/fr/Template.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/fr/debug.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/it/Config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/it/Payment.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/it/Template.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lang/it/debug.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/WalleeSdkHelper.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/buildPaymentPageUrl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/createRefund.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/createTransactionFromBasket.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/createTransactionFromOrder.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/createWebhook.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getInvoiceDocument.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getPackingSlip.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getRefund.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getTransaction.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getTransactionByMerchantReference.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/getTransactionInvoice.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/lib/hasPossiblePaymentMethods.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/views/Failure.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/resources/views/PaymentInformation.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Contracts/WebhookRepositoryContract.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Controllers/PaymentNotificationController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Controllers/PaymentProcessController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Controllers/PaymentTransactionController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Helper/OrderHelper.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Helper/PaymentHelper.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Helper/WalleeServiceProviderHelper.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/AbstractPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/AlipayPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/BankTransferPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/CashuPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/CreditDebitCardPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/DaoPayPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/DirectDebitSepaPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/DirectDebitUkPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/EpsPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/GiropayPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/IDealPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/InvoicePaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/MasterPassPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/OnlineBankingPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PayPalPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PayboxPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PaydirektPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PaylibPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PaysafecardPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PoliPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/PostFinancePayPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/Przelewy24PaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/QiwiPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/SkrillPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/SofortBankingPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/TenpayPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/TrustlyPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Methods/TwintPaymentMethod.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Migrations/CreatePaymentMethods.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Migrations/CreateWebhookTable.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Migrations/CreateWebhooks.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Migrations/UpdateWebhookSpaceId.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Models/Webhook.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Procedures/RefundEventProcedure.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Providers/DataProvider/PaymentInformation.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Providers/WalleeRouteServiceProvider.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Providers/WalleeServiceProvider.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Repositories/WebhookRepository.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Services/PaymentService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Services/WalleeSdkService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/src/Services/WebhookCronHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bak/translation.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/en/documentation.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/en/documentation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin.json" beforeDir="false" afterPath="$PROJECT_DIR$/plugin.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/de/Config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/de/Config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/de/debug.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/de/debug.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/en/Config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/en/Config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/en/Payment.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/en/Payment.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/en/debug.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/en/debug.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/fr/Config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/fr/Config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/fr/debug.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/fr/debug.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/it/Config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/it/Config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/lang/it/debug.properties" beforeDir="false" afterPath="$PROJECT_DIR$/resources/lang/it/debug.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Helper/WalleeServiceProviderHelper.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Helper/WalleeServiceProviderHelper.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Methods/PostFinancePayPaymentMethod.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Methods/PostFinancePayPaymentMethod.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Migrations/AddPaymentMethods.php" beforeDir="false" afterPath="$PROJECT_DIR$/bak/src/Migrations/AddPaymentMethods.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Migrations/CreatePaymentMethods.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Migrations/CreatePaymentMethods.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Services/PaymentService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Services/PaymentService.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,5 +35,13 @@
     &quot;last_opened_file_path&quot;: &quot;/Users/edgarastkacenka/projects/github/plentymarkets&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/bak" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
 </project>
