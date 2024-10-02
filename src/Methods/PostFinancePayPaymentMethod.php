@@ -15,7 +15,6 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        return true;
         if ($this->configRepo->get('wallee.postfinancepay_active') == "true") {
             return true;
         } else {
