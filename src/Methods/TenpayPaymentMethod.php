@@ -15,7 +15,7 @@ class TenpayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.tenpay_active') === "true") {
+        if ($this->configRepo->get('wallee.tenpay_active') == "true") {
             return true;
         } else {
             return false;

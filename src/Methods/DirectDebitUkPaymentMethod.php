@@ -15,7 +15,7 @@ class DirectDebitUkPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.directdebituk_active') === "true") {
+        if ($this->configRepo->get('wallee.directdebituk_active') == "true") {
             return true;
         } else {
             return false;

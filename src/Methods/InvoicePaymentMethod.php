@@ -15,7 +15,7 @@ class InvoicePaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.invoice_active') === "true") {
+        if ($this->configRepo->get('wallee.invoice_active') == "true") {
             return true;
         } else {
             return false;

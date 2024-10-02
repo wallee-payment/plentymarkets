@@ -15,7 +15,7 @@ class GiropayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.giropay_active') === "true") {
+        if ($this->configRepo->get('wallee.giropay_active') == "true") {
             return true;
         } else {
             return false;

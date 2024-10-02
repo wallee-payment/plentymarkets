@@ -34,8 +34,8 @@ class PaymentInformation
                             'order' => $order,
                             'transaction' => $transaction,
                             'payment' => $payment,
-                            'downloadInvoice' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_invoice') === "true",
-                            'downloadPackingSlip' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_packing_slip') === "true"
+                            'downloadInvoice' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_invoice') == "true",
+                            'downloadPackingSlip' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_packing_slip') == "true"
                         ]);
                     }
                 } else {
