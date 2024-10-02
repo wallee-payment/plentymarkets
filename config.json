@@ -423,9 +423,9 @@
             }
         },
         "Config.PostfinancePayTab": {
-            "label": "Config.postfinancePayTab",
+            "label": "Config.PostfinancePayTab",
             "formFields": {
-                "postfinancepay_active": {
+                "postfinanacepay_active": {
                     "type": "checkBox",
                     "required": false,
                     "label": "Config.postfinancePayActiveLabel",
@@ -433,7 +433,7 @@
                         "defaultValue": true
                     }
                 },
-                "postfinancepay_fee": {
+                "postfinanacepay_fee": {
                     "type": "inputText",
                     "required": false,
                     "label": "Config.postfinancePayFeeLabel",

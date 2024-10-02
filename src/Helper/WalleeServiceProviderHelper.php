@@ -78,13 +78,9 @@ class WalleeServiceProviderHelper
 
             $eventOrderId = $this->orderRepository->findById($event->getOrderId());
 
-            $timingLogs["eventID"] = $eventOrderId;
-
             $timingLogs["eventOrderId"] = microtime(true) - $time_start;
 
             $eventMop = $this->paymentMethodService->findByPaymentMethodId($event->getMop());
-
-            $timingLogs["eventMopID"] = $eventMop;
 
             $timingLogs["eventMop"] = microtime(true) - $time_start;
 
@@ -100,7 +96,7 @@ class WalleeServiceProviderHelper
 
             $timingLogs["executePayment"] = microtime(true) - $time_start;
 
-            $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
+            $this->getLogger(__METHOD__)->error('wallee::debug.wallee_timing_serviceprovider', $timingLogs);
         });
     }
 }
