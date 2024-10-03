@@ -422,6 +422,25 @@
                 }
             }
         },
+        "Config.PostfinancePayTab": {
+            "label": "Config.PostfinancePayTab",
+            "formFields": {
+                "postfinancepay_active": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.postfinancePayActiveLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "postfinanacepay_fee": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.postfinancePayFeeLabel",
+                    "options": {}
+                }
+            }
+        },
         "Config.POLiTab": {
             "label": "Config.POLiTab",
             "formFields": {

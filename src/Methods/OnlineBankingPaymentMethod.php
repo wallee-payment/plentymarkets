@@ -15,7 +15,7 @@ class OnlineBankingPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.onlinebanking_active') === "true") {
+        if ($this->configRepo->get('wallee.onlinebanking_active') == "true") {
             return true;
         } else {
             return false;

@@ -4,7 +4,7 @@ namespace Wallee\Methods;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\Translation\Translator;
 
-class MasterPassPaymentMethod extends AbstractPaymentMethod
+class PostFinancePayPaymentMethod extends AbstractPaymentMethod
 {
     use Loggable;
 
@@ -15,11 +15,31 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.masterpass_active') == "true") {
+        if ($this->configRepo->get('wallee.postfinancepay_active') == "true") {
             return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Check if this payment method should be searchable in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendSearchable(): bool
+    {
+        return true;
+    }
+    
+    /**
+     * Check if this payment method should be active in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendActive(): bool
+    {
+        return true;
     }
 
     /**
@@ -32,11 +52,11 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.MasterPassTitle', [], $lang);
+        $title = $translator->trans('wallee::Payment.PostfinancePayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
-            return 'MasterPass';
+            return 'Postfinance Pay';
         }
     }
 
@@ -47,7 +67,7 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.masterpass_fee');
+        $fee = $this->configRepo->get('wallee.postfinancepay_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -65,7 +85,7 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.MasterPassDescription', [], $lang);
+        $title = $translator->trans('wallee::Payment.PostfinancePayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -83,11 +103,11 @@ class MasterPassPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.MasterPassIconUrl', [], $lang);
+        $iconUrl = $translator->trans('wallee::Payment.PostfinancePayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
-            return $this->getImagePath('masterpass.svg');
+            return $this->getImagePath('pf_pay.svg');
         }
     }
 }

@@ -15,7 +15,7 @@ class TwintPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.twint_active') === "true") {
+        if ($this->configRepo->get('wallee.twint_active') == "true") {
             return true;
         } else {
             return false;

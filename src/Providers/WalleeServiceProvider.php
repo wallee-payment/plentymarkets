@@ -31,6 +31,7 @@ use Wallee\Methods\PaylibPaymentMethod;
 use Wallee\Methods\PayPalPaymentMethod;
 use Wallee\Methods\PaysafecardPaymentMethod;
 use Wallee\Methods\PoliPaymentMethod;
+use Wallee\Methods\PostFinancePayPaymentMethod;
 use Wallee\Methods\Przelewy24PaymentMethod;
 use Wallee\Methods\QiwiPaymentMethod;
 use Wallee\Methods\SkrillPaymentMethod;
@@ -90,6 +91,7 @@ class WalleeServiceProvider extends ServiceProvider
         $this->registerPaymentMethod($payContainer, 1457546097613, PayPalPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097612, PaysafecardPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097618, PoliPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1689233132073, PostFinancePayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097617, Przelewy24PaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097616, QiwiPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097614, SkrillPaymentMethod::class);

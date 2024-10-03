@@ -15,7 +15,7 @@ class EpsPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.eps_active') === "true") {
+        if ($this->configRepo->get('wallee.eps_active') == "true") {
             return true;
         } else {
             return false;

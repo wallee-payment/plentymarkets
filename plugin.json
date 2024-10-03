@@ -6,7 +6,7 @@
 	},
 	"namespace": "Wallee",
 	"type": "payment",
-	"version": "2.0.41",
+	"version": "2.1.0",
 	"license": " Apache License Version 2",
 	"isClosedSource": false,
 	"pluginIcon": "icon_plugin_md.png",
@@ -40,7 +40,7 @@
 		"php": ">=7.3 <8.1"
 	},
 	"dependencies": {
-		"wallee/sdk": "4.2.0"
+		"wallee/sdk": "4.4.0"
 	},
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods",
