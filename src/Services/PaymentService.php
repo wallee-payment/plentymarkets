@@ -184,7 +184,8 @@ class PaymentService
         $timingLogs = [];
 
         $timingLogs["start"] = microtime(true) - $time_start;
-
+        
+        $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment');
         $parameters = [
             'transactionId' => $transactionId,
             'order' => $order,
@@ -231,6 +232,7 @@ class PaymentService
             ])) {
                 // Ok, continue.
             } else {
+                $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment2');
                 return [
                     'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
                     'content' => $this->getSuccessUrl()
