@@ -185,7 +185,6 @@ class PaymentService
 
         $timingLogs["start"] = microtime(true) - $time_start;
         
-        $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment');
         $parameters = [
             'transactionId' => $transactionId,
             'order' => $order,
@@ -210,6 +209,7 @@ class PaymentService
         $timingLogs["getTransactionByMerchantReference"] = microtime(true) - $time_start;
 
         if (is_array($existingTransaction) && $existingTransaction['error']) {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 1');
             $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
             return [
                 'transactionId' => $transactionId,
@@ -217,10 +217,12 @@ class PaymentService
                 'content' => $existingTransaction['error_msg']
             ];
         } elseif (!empty($existingTransaction)) {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 2');
             if (in_array($existingTransaction['state'], [
                 'CONFIRMED',
                 'PROCESSING'
             ])) {
+                $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 3');
                 return [
                     'transactionId' => $transactionId,
                     'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -230,8 +232,10 @@ class PaymentService
                 'PENDING',
                 'FAILED'
             ])) {
+                $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 4');
                 // Ok, continue.
             } else {
+                $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 5');
                 $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment2');
                 return [
                     'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
@@ -242,6 +246,7 @@ class PaymentService
         
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 6');
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
                 'transactionId' => $transactionId,
@@ -264,6 +269,7 @@ class PaymentService
                 'transactionId' => $transaction['id']
             ]);
             if (! $hasPossiblePaymentMethods) {
+                $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 7');
                 return [
                     'transactionId' => $transaction['id'],
                     'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -281,6 +287,7 @@ class PaymentService
         $timingLogs["buildPaymentPageUrl"] = microtime(true) - $time_start;
 
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 8');
             $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
             return [
                 'transactionId' => $transaction['id'],
@@ -291,7 +298,7 @@ class PaymentService
 
         $timingLogs["finished"] = microtime(true) - $time_start;
         $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing', $timingLogs);
-
+        $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 9');
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'content' => $paymentPageUrl

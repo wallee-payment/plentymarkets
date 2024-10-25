@@ -233,6 +233,7 @@ class PaymentProcessController extends Controller
         $lang = $this->sessionStorage->getLang();
 
         if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 1');
             return $this->response->redirectTo($result['content']);
         } elseif (isset($result['transactionId'])) {
             if (isset($result['content'])) {
@@ -240,8 +241,10 @@ class PaymentProcessController extends Controller
             }
             // Construct the URL with the language
             $failUrl = sprintf('%s/wallee/fail-transaction/%s', $lang, $result['transactionId']);
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 2');
             return $this->response->redirectTo($failUrl);
         } else {
+            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 3');
             $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder');
             $confirmUrl = sprintf('%s/confirmation', $lang);
             return $this->response->redirectTo($confirmUrl);
