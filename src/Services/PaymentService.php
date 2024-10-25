@@ -287,7 +287,7 @@ class PaymentService
         $timingLogs["buildPaymentPageUrl"] = microtime(true) - $time_start;
 
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
-            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 8');
+            $this->getLogger(__METHOD__)->error('URL debugging: ', $paymentPageUrl);
             $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
             return [
                 'transactionId' => $transaction['id'],
