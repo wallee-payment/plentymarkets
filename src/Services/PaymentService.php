@@ -300,7 +300,7 @@ class PaymentService
         $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing', $timingLogs);
         $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentService::executePayment 9');
         
-        $this->getLogger(__METHOD__)->debug('DEBUGGING URL', $paymentPageUrl);
+        $this->getLogger(__METHOD__)->error('DEBUGGING URL', $paymentPageUrl);
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'content' => $paymentPageUrl
