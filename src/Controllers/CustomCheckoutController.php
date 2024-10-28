@@ -19,8 +19,8 @@ class CustomCheckoutController extends Controller
     public function customCheckoutAction(Request $request): Response
     {
         // Add custom logic here, for example, debugging or redirecting
-        echo "debugging"; // For testing purposes
-        exit;
+        //echo "debugging"; // For testing purposes
+        //exit;
         
         // Or handle checkout as per your requirement
         return $this->checkoutService->proceedToCheckout();

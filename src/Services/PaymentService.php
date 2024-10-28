@@ -179,7 +179,121 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
-        $this->getLogger(__METHOD__)->error('wallee::debug.wallee_timing_serviceprovider', ['debug' => 123]);
+        $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+        $time_start = microtime(true);
+        $timingLogs = [];
+
+        $timingLogs["start"] = microtime(true) - $time_start;
+
+        $parameters = [
+            'transactionId' => $transactionId,
+            'order' => $order,
+            'itemAttributes' => $this->getLineItemAttributes($order),
+            'paymentMethod' => $paymentMethod,
+            'billingAddress' => $this->getAddress($order->billingAddress),
+            'shippingAddress' => $this->getAddress($order->deliveryAddress),
+            'language' => $this->session->getLocaleSettings()->language,
+            'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
+            'successUrl' => $this->getSuccessUrl(),
+            'failedUrl' => $this->getFailedUrl(),
+            'checkoutUrl' => $this->getCheckoutUrl()
+        ];
+        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+
+        $this->session->getPlugin()->unsetKey('walleeTransactionId');
+
+        $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
+            'merchantReference' => $order->id
+        ]);
+
+        $timingLogs["getTransactionByMerchantReference"] = microtime(true) - $time_start;
+
+        if (is_array($existingTransaction) && $existingTransaction['error']) {
+            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
+            return [
+                'transactionId' => $transactionId,
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $existingTransaction['error_msg']
+            ];
+        } elseif (!empty($existingTransaction)) {
+            if (in_array($existingTransaction['state'], [
+                'CONFIRMED',
+                'PROCESSING'
+            ])) {
+                return [
+                    'transactionId' => $transactionId,
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => 'The payment is being processed.'
+                ];
+            } elseif (in_array($existingTransaction['state'], [
+                'PENDING',
+                'FAILED'
+            ])) {
+                // Ok, continue.
+            } else {
+                return [
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+                    'content' => $this->getSuccessUrl()
+                ];
+            }
+        }
+        
+        $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
+        if (is_array($transaction) && $transaction['error']) {
+            $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
+            return [
+                'transactionId' => $transactionId,
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $transaction['error_msg']
+            ];
+        }
+
+        $timingLogs["createTransactionFromOrder"] = microtime(true) - $time_start;
+
+        $payment = $this->paymentHelper->createPlentyPayment($transaction);
+        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+
+        $timingLogs["createPlentyPayment"] = microtime(true) - $time_start;
+
+        $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
+
+        if ($isFetchPossiblePaymentMethodsEnabled == "true") {
+            $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+                'transactionId' => $transaction['id']
+            ]);
+            if (! $hasPossiblePaymentMethods) {
+                return [
+                    'transactionId' => $transaction['id'],
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => 'The selected payment method is not available.'
+                ];
+            }
+
+            $timingLogs["hasPossiblePaymentMethods"] = microtime(true) - $time_start;
+        }
+
+        $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
+            'id' => $transaction['id']
+        ]);
+
+        $timingLogs["buildPaymentPageUrl"] = microtime(true) - $time_start;
+
+        if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
+            return [
+                'transactionId' => $transaction['id'],
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => $paymentPageUrl['error_msg']
+            ];
+        }
+
+        $timingLogs["finished"] = microtime(true) - $time_start;
+        $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing', $timingLogs);
+
+        return [
+            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+            'content' => $paymentPageUrl
+        ];
     }
 
     private function getLineItemAttributes(Order $order)
