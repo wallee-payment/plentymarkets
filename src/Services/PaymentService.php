@@ -198,9 +198,9 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->info('wallee::TransactionParameters', $parameters);
 
-        //$this->session->getPlugin()->unsetKey('walleeTransactionId');
+        $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
@@ -209,17 +209,19 @@ class PaymentService
         $timingLogs["getTransactionByMerchantReference"] = microtime(true) - $time_start;
 
         if (is_array($existingTransaction) && $existingTransaction['error']) {
-            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
+            $this->getLogger(__METHOD__)->info('wallee::debug1', $parameters);
             return [
                 'transactionId' => $transactionId,
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
                 'content' => $existingTransaction['error_msg']
             ];
         } elseif (!empty($existingTransaction)) {
+            $this->getLogger(__METHOD__)->info('wallee::debug2', $parameters);
             if (in_array($existingTransaction['state'], [
                 'CONFIRMED',
                 'PROCESSING'
             ])) {
+                $this->getLogger(__METHOD__)->info('wallee::debug3', $parameters);
                 return [
                     'transactionId' => $transactionId,
                     'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -229,17 +231,20 @@ class PaymentService
                 'PENDING',
                 'FAILED'
             ])) {
+                $this->getLogger(__METHOD__)->info('wallee::debug4', $parameters);
                 // Ok, continue.
             } else {
+                $this->getLogger(__METHOD__)->info('wallee::debug5', $parameters);
                 return [
                     'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
                     'content' => $this->getSuccessUrl()
                 ];
             }
         }
-        
+        $this->getLogger(__METHOD__)->info('wallee::debug6', $parameters);
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
+            $this->getLogger(__METHOD__)->info('wallee::debug7', $parameters);
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
                 'transactionId' => $transactionId,
@@ -256,12 +261,14 @@ class PaymentService
         $timingLogs["createPlentyPayment"] = microtime(true) - $time_start;
 
         $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
-
+        $this->getLogger(__METHOD__)->info('wallee::debug8', $parameters);
         if ($isFetchPossiblePaymentMethodsEnabled == "true") {
+            $this->getLogger(__METHOD__)->info('wallee::debug9', $parameters);
             $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
                 'transactionId' => $transaction['id']
             ]);
             if (! $hasPossiblePaymentMethods) {
+                $this->getLogger(__METHOD__)->info('wallee::debug10', $parameters);
                 return [
                     'transactionId' => $transaction['id'],
                     'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -279,6 +286,7 @@ class PaymentService
         $timingLogs["buildPaymentPageUrl"] = microtime(true) - $time_start;
 
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+            $this->getLogger(__METHOD__)->info('wallee::debug11', $parameters);
             $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
             return [
                 'transactionId' => $transaction['id'],
@@ -289,7 +297,7 @@ class PaymentService
 
         $timingLogs["finished"] = microtime(true) - $time_start;
         $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing', $timingLogs);
-
+        $this->getLogger(__METHOD__)->info('wallee::debug12', $parameters);
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'content' => $paymentPageUrl
@@ -463,7 +471,7 @@ class PaymentService
     {
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-        return sprintf('%s/%s/confirmation2', $domain, $lang);
+        return sprintf('%s/%s/confirmation', $domain, $lang);
     }
 
     /**
