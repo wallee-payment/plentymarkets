@@ -175,10 +175,10 @@ class PaymentProcessController extends Controller
         // Get the current language from session storage
         $lang = $this->sessionStorage->getLang();
 
-//        if (is_array($transaction) && isset($transaction['error'])) {
-//            $confirmUrl = sprintf('%s/confirmation', $lang);
-//            return $this->response->redirectTo($confirmUrl);
-//        }
+        if (is_array($transaction) && isset($transaction['error'])) {
+            $confirmUrl = sprintf('%s/checkout', $lang);
+            return $this->response->redirectTo($confirmUrl);
+        }
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
         $payment = $payments[0];
@@ -241,7 +241,7 @@ class PaymentProcessController extends Controller
             $failUrl = sprintf('%s/wallee/fail-transaction/%s', $lang, $result['transactionId']);
             return $this->response->redirectTo($failUrl);
         } else {
-            $confirmUrl = sprintf('%s/confirmation', $lang);
+            $confirmUrl = sprintf('%s/checkout', $lang);
             return $this->response->redirectTo($confirmUrl);
         }
     }
