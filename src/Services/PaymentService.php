@@ -200,7 +200,7 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
-        $this->session->getPlugin()->unsetKey('walleeTransactionId');
+        //$this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
@@ -233,7 +233,7 @@ class PaymentService
             } else {
                 return [
                     'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
-                    'content' => $this->getCheckoutUrl()
+                    'content' => $this->getSuccessUrl()
                 ];
             }
         }
@@ -463,7 +463,7 @@ class PaymentService
     {
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-        return sprintf('%s/%s/checkout', $domain, $lang);
+        return sprintf('%s/%s/confirmation', $domain, $lang);
     }
 
     /**
