@@ -463,7 +463,7 @@ class PaymentService
     {
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-        return sprintf('%s/%s/confirmation', $domain, $lang);
+        return sprintf('%s/%s/checkout', $domain, $lang);
     }
 
     /**
