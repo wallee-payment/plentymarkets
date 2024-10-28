@@ -18,5 +18,6 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
         $router->post('wallee/pay-order', 'Wallee\Controllers\PaymentProcessController@payOrder');
         $router->get('wallee/download-invoice/{id}', 'Wallee\Controllers\PaymentTransactionController@downloadInvoice')->where('id', '\d+');
         $router->get('wallee/download-packing-slip/{id}', 'Wallee\Controllers\PaymentTransactionController@downloadPackingSlip')->where('id', '\d+');
+        $router->get('/checkout', 'Wallee\Controllers\CustomCheckoutController@customCheckoutAction');
     }
 }
