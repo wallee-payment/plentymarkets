@@ -175,11 +175,10 @@ class PaymentProcessController extends Controller
         // Get the current language from session storage
         $lang = $this->sessionStorage->getLang();
 
-        if (is_array($transaction) && isset($transaction['error'])) {
-            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::failTransaction');
-            $confirmUrl = sprintf('%s/confirmation', $lang);
-            return $this->response->redirectTo($confirmUrl);
-        }
+//        if (is_array($transaction) && isset($transaction['error'])) {
+//            $confirmUrl = sprintf('%s/confirmation', $lang);
+//            return $this->response->redirectTo($confirmUrl);
+//        }
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
         $payment = $payments[0];
@@ -232,23 +231,19 @@ class PaymentProcessController extends Controller
         // Get the current language from session storage
         $lang = $this->sessionStorage->getLang();
 
-//        if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
-//            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 1');
-//            return $this->response->redirectTo($result['content']);
-//        } elseif (isset($result['transactionId'])) {
-//            if (isset($result['content'])) {
-//                $this->frontendSession->getPlugin()->setValue('walleePayErrorMessage', $result['content']);
-//            }
-//            // Construct the URL with the language
-//            $failUrl = sprintf('%s/wallee/fail-transaction/%s', $lang, $result['transactionId']);
-//            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 2');
-//            return $this->response->redirectTo($failUrl);
-//        } else {
-//            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder 3');
-//            $this->getLogger(__METHOD__)->error('debugging confirmation redirect: ', 'PaymentProcessController::payOrder');
-//            $confirmUrl = sprintf('%s/confirmation', $lang);
-//            return $this->response->redirectTo($confirmUrl);
-//        }
+        if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
+            return $this->response->redirectTo($result['content']);
+        } elseif (isset($result['transactionId'])) {
+            if (isset($result['content'])) {
+                $this->frontendSession->getPlugin()->setValue('walleePayErrorMessage', $result['content']);
+            }
+            // Construct the URL with the language
+            $failUrl = sprintf('%s/wallee/fail-transaction/%s', $lang, $result['transactionId']);
+            return $this->response->redirectTo($failUrl);
+        } else {
+            $confirmUrl = sprintf('%s/confirmation', $lang);
+            return $this->response->redirectTo($confirmUrl);
+        }
     }
 
     private function switchPaymentMethodForOrder(Order $order, $paymentMethodId)
