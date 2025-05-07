@@ -3,6 +3,9 @@ namespace Wallee\Providers;
 
 use Plenty\Plugin\RouteServiceProvider;
 use Plenty\Plugin\Routing\Router;
+use Wallee\Controllers\PaymentNotificationController;
+use Wallee\Controllers\PaymentProcessController;
+use Wallee\Controllers\PaymentTransactionController;
 
 class WalleeRouteServiceProvider extends RouteServiceProvider
 {
@@ -13,10 +16,10 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
      */
     public function map(Router $router)
     {
-        $router->post('wallee/update-transaction', 'Wallee\Controllers\PaymentNotificationController@updateTransaction');
-        $router->get('wallee/fail-transaction/{id}', 'Wallee\Controllers\PaymentProcessController@failTransaction')->where('id', '\d+');
-        $router->post('wallee/pay-order', 'Wallee\Controllers\PaymentProcessController@payOrder');
-        $router->get('wallee/download-invoice/{id}', 'Wallee\Controllers\PaymentTransactionController@downloadInvoice')->where('id', '\d+');
-        $router->get('wallee/download-packing-slip/{id}', 'Wallee\Controllers\PaymentTransactionController@downloadPackingSlip')->where('id', '\d+');
+        $router->post('wallee/update-transaction', 'PaymentNotificationController@updateTransaction');
+        $router->get('wallee/fail-transaction/{id}', 'PaymentProcessController@failTransaction')->where('id', '\d+');
+        $router->post('wallee/pay-order', 'PaymentProcessController@payOrder');
+        $router->get('wallee/download-invoice/{id}', 'PaymentTransactionController@downloadInvoice')->where('id', '\d+');
+        $router->get('wallee/download-packing-slip/{id}', 'PaymentTransactionController@downloadPackingSlip')->where('id', '\d+');
     }
 }
