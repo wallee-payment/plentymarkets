@@ -103,7 +103,7 @@ function getTransactionInvoice($apiClient, $spaceId, $transactionId)
 
     $invoiceService = new \Wallee\Sdk\Service\TransactionInvoiceService($apiClient);
 
-    $this->getLogger(__METHOD__)->debug('wallee::RefundQuery', $parameters);
+    Loggable::->getLogger(__METHOD__)->debug('wallee::RefundQuery', $query);
 
     $result = $invoiceService->search($spaceId, $query);
     if (! empty($result)) {
