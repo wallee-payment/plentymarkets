@@ -103,7 +103,7 @@ function getTransactionInvoice($apiClient, $spaceId, $transactionId)
 
     $invoiceService = new \Wallee\Sdk\Service\TransactionInvoiceService($apiClient);
 
-    $queryString = $query->__toString();
+    // $queryString = $query->__toString();
 
     $result = $invoiceService->search($spaceId, $query);
     if (! empty($result)) {
