@@ -511,7 +511,11 @@ class PaymentService
                 throw new \Exception($refund['error_msg']);
             }
 
-            $this->getLogger(__METHOD__)->error('wallee::TransactionId', $transactionId);
+            $this->getLogger(__METHOD__)->error('wallee::RefundData', [
+                'transactionId' => $transactionId,
+                'refundOrder' => $refundOrder,
+                'order' => $order
+            ]);
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
             $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $refundOrder->id);
