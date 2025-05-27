@@ -508,6 +508,10 @@ class PaymentService
             ]);
 
             if (is_array($refund) && $refund['error']) {
+                    $this->getLogger(__METHOD__)->error('wallee::RefundAmountData', [
+                    'transactionId' => $transactionId,
+                    'refundAmount' => $refund['authorizationAmount']
+                ]);
                 throw new \Exception($refund['error_msg']);
             }
 
