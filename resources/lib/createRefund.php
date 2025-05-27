@@ -3,6 +3,7 @@ use Wallee\Sdk\Model\LineItemReductionCreate;
 use Wallee\Sdk\Model\RefundCreate;
 use Wallee\Sdk\Service\RefundService;
 use Wallee\Sdk\ApiClient;
+use Plenty\Plugin\Log\Loggable;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
@@ -101,6 +102,9 @@ function getTransactionInvoice($apiClient, $spaceId, $transactionId)
     $query->setNumberOfEntities(1);
 
     $invoiceService = new \Wallee\Sdk\Service\TransactionInvoiceService($apiClient);
+
+    $this->getLogger(__METHOD__)->debug('wallee::RefundQuery', $parameters);
+
     $result = $invoiceService->search($spaceId, $query);
     if (! empty($result)) {
         return $result[0];
