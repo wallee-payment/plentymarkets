@@ -210,7 +210,7 @@ $refundOrder = SdkRestApi::getParam('refundOrder');
 
 $refundRequest = new RefundCreate();
 
-$transactionId = SdkRestApi::getParam('transactionId');
+$transactionId = 355149507;
 $refundRequest->setTransaction($transactionId);
 
 $refundRequest->setExternalId($refundOrder['id']);
