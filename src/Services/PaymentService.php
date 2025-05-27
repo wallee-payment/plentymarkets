@@ -513,7 +513,7 @@ class PaymentService
 
             $this->getLogger(__METHOD__)->error('wallee::RefundData', [
                 'transactionId' => $transactionId,
-                'refundOrder' => $refund
+                'refundAmount' => $refund['authorizationAmount']
             ]);
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
