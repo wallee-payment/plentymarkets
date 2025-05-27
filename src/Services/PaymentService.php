@@ -519,6 +519,7 @@ class PaymentService
             $this->orderRepository->updateOrder([
                 'statusId' => $this->getRefundSuccessfulStatus()
             ], $refundOrder->id);
+            $this->getLogger(__METHOD__)->error('wallee::TransactionId', "refund status = " . $this->getRefundSuccessfulStatus());
         } catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('The refund failed.', $e);
 
