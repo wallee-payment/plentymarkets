@@ -513,8 +513,8 @@ class PaymentService
 
             $this->getLogger(__METHOD__)->error('wallee::TransactionId', $transactionId);
 
-            // $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
-            // $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $refundOrder->id);
+            $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
+            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $refundOrder->id);
 
             $this->orderRepository->updateOrder([
                 'statusId' => $this->getRefundSuccessfulStatus()
