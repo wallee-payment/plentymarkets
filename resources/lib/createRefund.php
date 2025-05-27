@@ -103,13 +103,13 @@ function getTransactionInvoice($apiClient, $spaceId, $transactionId)
 
     $invoiceService = new \Wallee\Sdk\Service\TransactionInvoiceService($apiClient);
 
-    Loggable::getLogger(__METHOD__)->debug('wallee::RefundQuery', $query);
+    $queryString = $query->__toString();
 
     $result = $invoiceService->search($spaceId, $query);
     if (! empty($result)) {
         return $result[0];
     } else {
-        throw new Exception('The transaction invoice could not be found.');
+        throw new Exception('The transaction invoice could not be found.' . $queryString);
     }
 }
 
