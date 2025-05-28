@@ -21,7 +21,7 @@ class RefundEventProcedure
 
         $this->getLogger(__METHOD__)->error('wallee::RefundData', [
                 'refundId' => $refund->id,
-                'refundKeys' => array_keys($refund)
+                'refundAmount' => $refund->amount,
             ]);
 
         // only sales orders and credit notes are allowed order types to refund
