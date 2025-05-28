@@ -506,6 +506,7 @@ class PaymentService
                     $this->getLogger(__METHOD__)->error('wallee::RefundErrorData', [
                         'transactionId' => $transactionId,
                         'refundId' => $refund['id'],
+                        'refundId' => $refund['amount'],
                         'refundKeys' => array_keys($refund)
                     ]);
                 throw new \Exception($refund['error_msg']);
