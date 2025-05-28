@@ -503,22 +503,23 @@ class PaymentService
             ]);
 
             if (is_array($refund) && $refund['error']) {
-                    $this->getLogger(__METHOD__)->error('wallee::RefundErrorData', [
-                        'transactionId' => $transactionId,
-                        'refundId' => $refund['id'],
-                        'refundAmount' => $refund['amount'],
-                        'refundReductions' => $refund['reductions'],
-                        'refundKeys' => array_keys($refund)
-                    ]);
+                    // $this->getLogger(__METHOD__)->error('wallee::RefundErrorData', [
+                    //     'transactionId' => $transactionId,
+                    //     'refundId' => $refund['id'],
+                    //     'refundAmount' => $refund['amount'],
+                    //     'refundReductions' => $refund['reductions'],
+                    //     'refundSettledAmount' => $refund['totalSettledAmount'],
+                    //     'refundKeys' => array_keys($refund)
+                    // ]);
                 throw new \Exception($refund['error_msg']);
             }
 
-            $this->getLogger(__METHOD__)->error('wallee::RefundData', [
-                'transactionId' => $transactionId,
-                // 'refundAmount' => $refund['amount'],
-                'refundId' => $refund['id'],
-                'refundKeys' => array_keys($refund)
-            ]);
+            // $this->getLogger(__METHOD__)->error('wallee::RefundData', [
+            //     'transactionId' => $transactionId,
+            //     // 'refundAmount' => $refund['amount'],
+            //     'refundId' => $refund['id'],
+            //     'refundKeys' => array_keys($refund)
+            // ]);
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
             $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $refundOrder->id);
