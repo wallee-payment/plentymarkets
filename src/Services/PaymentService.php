@@ -508,7 +508,7 @@ class PaymentService
             ]);
 
             if (is_array($refund) && $refund['error']) {
-                    $this->getLogger(__METHOD__)->error('wallee::RefundAmountData', [
+                    $this->getLogger(__METHOD__)->error('wallee::RefundErrorData', [
                         'transactionId' => $transactionId,
                         'refundId' => $refund['id'],
                         'refundKeys' => array_keys($refund)
