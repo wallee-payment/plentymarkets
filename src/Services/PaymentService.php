@@ -509,16 +509,17 @@ class PaymentService
 
             if (is_array($refund) && $refund['error']) {
                     $this->getLogger(__METHOD__)->error('wallee::RefundAmountData', [
-                    'transactionId' => $transactionId,
-                    'refundAmount' => $refund['authorizationAmount']
-                ]);
+                        'transactionId' => $transactionId,
+                        'refundAmount' => $refund['authorizationAmount']
+                    ]);
                 throw new \Exception($refund['error_msg']);
             }
 
             $this->getLogger(__METHOD__)->error('wallee::RefundData', [
                 'transactionId' => $transactionId,
-                'refundAmount' => $refund['authorizationAmount'],
-                'refundId' => $refund['id']
+                // 'refundAmount' => $refund['amount'],
+                'refundId' => $refund['id'],
+                'refundKeys' => array_keys($refund);
             ]);
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
