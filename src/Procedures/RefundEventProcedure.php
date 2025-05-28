@@ -21,7 +21,6 @@ class RefundEventProcedure
 
         $this->getLogger(__METHOD__)->error('wallee::RefundProcedureData', [
                 'refundId' => $refund->id,
-                'refundKeys' => get_class_vars($refund),
                 'type' => gettype($refund)
             ]);
 
