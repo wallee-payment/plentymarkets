@@ -519,7 +519,7 @@ class PaymentService
                 'transactionId' => $transactionId,
                 // 'refundAmount' => $refund['amount'],
                 'refundId' => $refund['id'],
-                'refundKeys' => array_keys($refund);
+                'refundKeys' => array_keys($refund)
             ]);
 
             $payment = $this->paymentHelper->createRefundPlentyPayment($refund);
