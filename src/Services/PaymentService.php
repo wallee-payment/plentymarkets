@@ -180,10 +180,6 @@ class PaymentService
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
-        $time_start = microtime(true);
-        $timingLogs = [];
-
-        $timingLogs["start"] = microtime(true) - $time_start;
 
         $parameters = [
             'transactionId' => $transactionId,
@@ -205,8 +201,6 @@ class PaymentService
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
         ]);
-
-        $timingLogs["getTransactionByMerchantReference"] = microtime(true) - $time_start;
 
         if (is_array($existingTransaction) && $existingTransaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
@@ -248,12 +242,8 @@ class PaymentService
             ];
         }
 
-        $timingLogs["createTransactionFromOrder"] = microtime(true) - $time_start;
-
         $payment = $this->paymentHelper->createPlentyPayment($transaction);
         $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
-
-        $timingLogs["createPlentyPayment"] = microtime(true) - $time_start;
 
         $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
@@ -268,15 +258,11 @@ class PaymentService
                     'content' => 'The selected payment method is not available.'
                 ];
             }
-
-            $timingLogs["hasPossiblePaymentMethods"] = microtime(true) - $time_start;
         }
 
         $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
             'id' => $transaction['id']
         ]);
-
-        $timingLogs["buildPaymentPageUrl"] = microtime(true) - $time_start;
 
         if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
             $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
@@ -286,9 +272,6 @@ class PaymentService
                 'content' => $paymentPageUrl['error_msg']
             ];
         }
-
-        $timingLogs["finished"] = microtime(true) - $time_start;
-        $this->getLogger(__METHOD__)->debug('wallee::debug.wallee_timing', $timingLogs);
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
