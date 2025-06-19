@@ -135,7 +135,7 @@ class PaymentHelper
         $payment = pluginApp(\Plenty\Modules\Payment\Models\Payment::class);
 
         $payment->mopId = (int) $refund['transaction']['metaData']['plentyPaymentMethodId'];
-        $payment->transactionType = Payment::TRANSACTION_TYPE_CREDIT_NOTE;
+        $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
         $payment->status = $this->mapRefundState($refund['state']);
         $payment->currency = $refund['transaction']['currency'];
         $payment->amount = $refund['amount'] < 0 ? - $refund['amount'] : $refund['amount'];
