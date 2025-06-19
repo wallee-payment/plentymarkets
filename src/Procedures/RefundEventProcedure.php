@@ -2,6 +2,7 @@
 namespace Wallee\Procedures;
 
 use Plenty\Modules\Order\Models\Order;
+use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
@@ -58,9 +59,12 @@ class RefundEventProcedure
         /** @var Payment[] $payment */
         $payments = $paymentContract->getPaymentsByOrderId($orderId);
 
+        // I think we need ot narrow it down so that we only ever get the parent payment in order to get the transaction id
+        // $payment->status == Payment::STATUS_CAPTURED
+
         /** @var Payment $payment */
         foreach ($payments as $payment) {
-            if ($paymentHelper->isWalleePaymentMopId($payment->mopId)) {
+            if ($paymentHelper->isWalleePaymentMopId($payment->mopId) && $payment->status == Payment::STATUS_CAPTURED) {
                 $transactionId = (int) $paymentHelper->getPaymentPropertyValue($payment, PaymentProperty::TYPE_TRANSACTION_ID);
                 if ($transactionId > 0) {
                     // refund the payment
