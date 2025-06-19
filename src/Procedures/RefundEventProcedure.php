@@ -2,7 +2,6 @@
 namespace Wallee\Procedures;
 
 use Plenty\Modules\Order\Models\Order;
-use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
@@ -64,7 +63,7 @@ class RefundEventProcedure
 
         /** @var Payment $payment */
         foreach ($payments as $payment) {
-            if ($paymentHelper->isWalleePaymentMopId($payment->mopId) && $payment->status == Payment::STATUS_CAPTURED) {
+            if ($paymentHelper->isWalleePaymentMopId($payment->mopId)) {
                 $transactionId = (int) $paymentHelper->getPaymentPropertyValue($payment, PaymentProperty::TYPE_TRANSACTION_ID);
                 if ($transactionId > 0) {
                     // refund the payment
