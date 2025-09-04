@@ -80,78 +80,78 @@
                 }
             }
         },
-        "Config.AlipayTab": {
-            "label": "Config.AlipayTab",
+        "Config.AliPayTab": {
+            "label": "Config.AliPayTab",
             "formFields": {
-                "alipay_active": {
+                "AliPay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.alipayActiveLabel",
+                    "label": "Config.AliPayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "alipay_fee": {
+                "AliPay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.alipayFeeLabel",
+                    "label": "Config.AliPayFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.BankBerweisungTab": {
-            "label": "Config.BankBerweisungTab",
+        "Config.BankTransferTab": {
+            "label": "Config.BankTransferTab",
             "formFields": {
-                "banktransfer_active": {
+                "BankTransfer_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.banktransferActiveLabel",
+                    "label": "Config.BankTransferActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "banktransfer_fee": {
+                "BankTransfer_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.banktransferFeeLabel",
+                    "label": "Config.BankTransferFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.CASHUTab": {
-            "label": "Config.CASHUTab",
+        "Config.CashuTab": {
+            "label": "Config.CashuTab",
             "formFields": {
-                "cashu_active": {
+                "Cashu_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.cashuActiveLabel",
+                    "label": "Config.CashuActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "cashu_fee": {
+                "Cashu_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.cashuFeeLabel",
+                    "label": "Config.CashuFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.KreditDebitkarteTab": {
-            "label": "Config.KreditDebitkarteTab",
+        "Config.CreditDebitCardTab": {
+            "label": "Config.CreditDebitCardTab",
             "formFields": {
-                "creditcard_active": {
+                "CreditDebitCard_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.creditcardActiveLabel",
+                    "label": "Config.CreditDebitCardActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "creditcard_fee": {
+                "CreditDebitCard_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.creditcardFeeLabel",
+                    "label": "Config.CreditDebitCardFeeLabel",
                     "options": {}
                 }
             }
@@ -159,75 +159,75 @@
         "Config.DaoPayTab": {
             "label": "Config.DaoPayTab",
             "formFields": {
-                "daopay_active": {
+                "DaoPay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.daopayActiveLabel",
+                    "label": "Config.DaoPayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "daopay_fee": {
+                "DaoPay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.daopayFeeLabel",
+                    "label": "Config.DaoPayFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.LastschriftSEPATab": {
-            "label": "Config.LastschriftSEPATab",
+        "Config.DirectDebitSepaTab": {
+            "label": "Config.DirectDebitSepaTab",
             "formFields": {
-                "directdebitsepa_active": {
+                "DirectDebitSepa_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.directdebitsepaActiveLabel",
+                    "label": "Config.DirectDebitSepaActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "directdebitsepa_fee": {
+                "DirectDebitSepa_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.directdebitsepaFeeLabel",
+                    "label": "Config.DirectDebitSepaFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.LastschriftUKTab": {
-            "label": "Config.LastschriftUKTab",
+        "Config.DirectDebitUkTab": {
+            "label": "Config.DirectDebitUkTab",
             "formFields": {
-                "directdebituk_active": {
+                "DirectDebitUk_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.directdebitukActiveLabel",
+                    "label": "Config.DirectDebitUkActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "directdebituk_fee": {
+                "DirectDebitUk_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.directdebitukFeeLabel",
+                    "label": "Config.DirectDebitUkFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.EPSTab": {
-            "label": "Config.EPSTab",
+        "Config.EpsTab": {
+            "label": "Config.EpsTab",
             "formFields": {
-                "eps_active": {
+                "Eps_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.epsActiveLabel",
+                    "label": "Config.EpsActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "eps_fee": {
+                "Eps_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.epsFeeLabel",
+                    "label": "Config.EpsFeeLabel",
                     "options": {}
                 }
             }
@@ -235,56 +235,56 @@
         "Config.GiropayTab": {
             "label": "Config.GiropayTab",
             "formFields": {
-                "giropay_active": {
+                "Giropay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.giropayActiveLabel",
+                    "label": "Config.GiropayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "giropay_fee": {
+                "Giropay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.giropayFeeLabel",
+                    "label": "Config.GiropayFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.iDealTab": {
-            "label": "Config.iDealTab",
+        "Config.IDealTab": {
+            "label": "Config.IDealTab",
             "formFields": {
-                "ideal_active": {
+                "IDeal_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.idealActiveLabel",
+                    "label": "Config.IDealActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "ideal_fee": {
+                "IDeal_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.idealFeeLabel",
+                    "label": "Config.IDealFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.RechnungTab": {
-            "label": "Config.RechnungTab",
+        "Config.InvoiceTab": {
+            "label": "Config.InvoiceTab",
             "formFields": {
-                "invoice_active": {
+                "Invoice_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.invoiceActiveLabel",
+                    "label": "Config.InvoiceActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "invoice_fee": {
+                "Invoice_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.invoiceFeeLabel",
+                    "label": "Config.InvoiceFeeLabel",
                     "options": {}
                 }
             }
@@ -292,18 +292,18 @@
         "Config.MasterPassTab": {
             "label": "Config.MasterPassTab",
             "formFields": {
-                "masterpass_active": {
+                "MasterPass_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.masterpassActiveLabel",
+                    "label": "Config.MasterPassActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "masterpass_fee": {
+                "MasterPass_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.masterpassFeeLabel",
+                    "label": "Config.MasterPassFeeLabel",
                     "options": {}
                 }
             }
@@ -311,37 +311,37 @@
         "Config.OnlineBankingTab": {
             "label": "Config.OnlineBankingTab",
             "formFields": {
-                "onlinebanking_active": {
+                "OnlineBanking_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.onlinebankingActiveLabel",
+                    "label": "Config.OnlineBankingActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "onlinebanking_fee": {
+                "OnlineBanking_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.onlinebankingFeeLabel",
+                    "label": "Config.OnlineBankingFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.payboxTab": {
-            "label": "Config.payboxTab",
+        "Config.PayboxTab": {
+            "label": "Config.PayboxTab",
             "formFields": {
-                "paybox_active": {
+                "Paybox_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.payboxActiveLabel",
+                    "label": "Config.PayboxActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "paybox_fee": {
+                "Paybox_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.payboxFeeLabel",
+                    "label": "Config.PayboxFeeLabel",
                     "options": {}
                 }
             }
@@ -349,18 +349,18 @@
         "Config.PaydirektTab": {
             "label": "Config.PaydirektTab",
             "formFields": {
-                "paydirekt_active": {
+                "Paydirekt_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.paydirektActiveLabel",
+                    "label": "Config.PaydirektActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "paydirekt_fee": {
+                "Paydirekt_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.paydirektFeeLabel",
+                    "label": "Config.PaydirektFeeLabel",
                     "options": {}
                 }
             }
@@ -368,18 +368,18 @@
         "Config.PaylibTab": {
             "label": "Config.PaylibTab",
             "formFields": {
-                "paylib_active": {
+                "Paylib_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.paylibActiveLabel",
+                    "label": "Config.PaylibActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "paylib_fee": {
+                "Paylib_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.paylibFeeLabel",
+                    "label": "Config.PaylibFeeLabel",
                     "options": {}
                 }
             }
@@ -387,37 +387,56 @@
         "Config.PayPalTab": {
             "label": "Config.PayPalTab",
             "formFields": {
-                "paypal_active": {
+                "PayPal_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.paypalActiveLabel",
+                    "label": "Config.PayPalActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "paypal_fee": {
+                "PayPal_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.paypalFeeLabel",
+                    "label": "Config.PayPalFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.paysafecardTab": {
-            "label": "Config.paysafecardTab",
+        "Config.PaysafecardTab": {
+            "label": "Config.PaysafecardTab",
             "formFields": {
-                "paysafecard_active": {
+                "Paysafecard_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.paysafecardActiveLabel",
+                    "label": "Config.PaysafecardActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "paysafecard_fee": {
+                "Paysafecard_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.paysafecardFeeLabel",
+                    "label": "Config.PaysafecardFeeLabel",
+                    "options": {}
+                }
+            }
+        },
+        "Config.PoliTab": {
+            "label": "Config.PoliTab",
+            "formFields": {
+                "Poli_active": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.PoliActiveLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "Poli_fee": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.PoliFeeLabel",
                     "options": {}
                 }
             }
@@ -425,37 +444,18 @@
         "Config.PostfinancePayTab": {
             "label": "Config.PostfinancePayTab",
             "formFields": {
-                "postfinancepay_active": {
+                "PostfinancePay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.postfinancePayActiveLabel",
+                    "label": "Config.PostfinancePayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "postfinanacepay_fee": {
+                "PostfinancePay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.postfinancePayFeeLabel",
-                    "options": {}
-                }
-            }
-        },
-        "Config.POLiTab": {
-            "label": "Config.POLiTab",
-            "formFields": {
-                "poli_active": {
-                    "type": "checkBox",
-                    "required": false,
-                    "label": "Config.poliActiveLabel",
-                    "options": {
-                        "defaultValue": true
-                    }
-                },
-                "poli_fee": {
-                    "type": "inputText",
-                    "required": false,
-                    "label": "Config.poliFeeLabel",
+                    "label": "Config.PostfinancePayFeeLabel",
                     "options": {}
                 }
             }
@@ -463,37 +463,37 @@
         "Config.Przelewy24Tab": {
             "label": "Config.Przelewy24Tab",
             "formFields": {
-                "przelewy24_active": {
+                "Przelewy24_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.przelewy24ActiveLabel",
+                    "label": "Config.Przelewy24ActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "przelewy24_fee": {
+                "Przelewy24_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.przelewy24FeeLabel",
+                    "label": "Config.Przelewy24FeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.QIWITab": {
-            "label": "Config.QIWITab",
+        "Config.QiwiTab": {
+            "label": "Config.QiwiTab",
             "formFields": {
-                "qiwi_active": {
+                "Qiwi_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.qiwiActiveLabel",
+                    "label": "Config.QiwiActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "qiwi_fee": {
+                "Qiwi_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.qiwiFeeLabel",
+                    "label": "Config.QiwiFeeLabel",
                     "options": {}
                 }
             }
@@ -501,37 +501,37 @@
         "Config.SkrillTab": {
             "label": "Config.SkrillTab",
             "formFields": {
-                "skrill_active": {
+                "Skrill_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.skrillActiveLabel",
+                    "label": "Config.SkrillActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "skrill_fee": {
+                "Skrill_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.skrillFeeLabel",
+                    "label": "Config.SkrillFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.SOFORTBankingTab": {
-            "label": "Config.SOFORTBankingTab",
+        "Config.SofortBankingTab": {
+            "label": "Config.SofortBankingTab",
             "formFields": {
-                "sofortbanking_active": {
+                "SofortBanking_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.sofortbankingActiveLabel",
+                    "label": "Config.SofortBankingActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "sofortbanking_fee": {
+                "SofortBanking_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.sofortbankingFeeLabel",
+                    "label": "Config.SofortBankingFeeLabel",
                     "options": {}
                 }
             }
@@ -539,18 +539,18 @@
         "Config.TenpayTab": {
             "label": "Config.TenpayTab",
             "formFields": {
-                "tenpay_active": {
+                "Tenpay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.tenpayActiveLabel",
+                    "label": "Config.TenpayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "tenpay_fee": {
+                "Tenpay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.tenpayFeeLabel",
+                    "label": "Config.TenpayFeeLabel",
                     "options": {}
                 }
             }
@@ -558,37 +558,37 @@
         "Config.TrustlyTab": {
             "label": "Config.TrustlyTab",
             "formFields": {
-                "trustly_active": {
+                "Trustly_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.trustlyActiveLabel",
+                    "label": "Config.TrustlyActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "trustly_fee": {
+                "Trustly_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.trustlyFeeLabel",
+                    "label": "Config.TrustlyFeeLabel",
                     "options": {}
                 }
             }
         },
-        "Config.TWINTTab": {
-            "label": "Config.TWINTTab",
+        "Config.TwintTab": {
+            "label": "Config.TwintTab",
             "formFields": {
-                "twint_active": {
+                "Twint_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.twintActiveLabel",
+                    "label": "Config.TwintActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "twint_fee": {
+                "Twint_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.twintFeeLabel",
+                    "label": "Config.TwintFeeLabel",
                     "options": {}
                 }
             }

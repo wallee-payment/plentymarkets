@@ -5,26 +5,35 @@ use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\ServiceProvider;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketCreate;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketChanged;
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
+use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
+use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
+use Plenty\Modules\EventProcedures\Services\EventProceduresService;
+use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
+use Plenty\Modules\Cron\Services\CronContainer;
+use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Helper\WalleeServiceProviderHelper;
+use Wallee\Procedures\RefundEventProcedure;
+use Wallee\Repositories\WebhookRepository;
 use Wallee\Services\PaymentService;
-use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
-use Wallee\Methods\CreditDebitCardPaymentMethod;
-use Wallee\Methods\InvoicePaymentMethod;
-use Wallee\Methods\OnlineBankingPaymentMethod;
-use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
+use Wallee\Services\WebhookCronHandler;
 use Wallee\Methods\AlipayPaymentMethod;
 use Wallee\Methods\BankTransferPaymentMethod;
-use Wallee\Methods\CashuPaymentMethod;
+use ;
+use Wallee\Methods\CreditDebitCardPaymentMethod;
 use Wallee\Methods\DaoPayPaymentMethod;
 use Wallee\Methods\DirectDebitSepaPaymentMethod;
 use Wallee\Methods\DirectDebitUkPaymentMethod;
 use Wallee\Methods\EpsPaymentMethod;
 use Wallee\Methods\GiropayPaymentMethod;
 use Wallee\Methods\IDealPaymentMethod;
+use Wallee\Methods\InvoicePaymentMethod;
 use Wallee\Methods\MasterPassPaymentMethod;
+use Wallee\Methods\OnlineBankingPaymentMethod;
 use Wallee\Methods\PayboxPaymentMethod;
 use Wallee\Methods\PaydirektPaymentMethod;
 use Wallee\Methods\PaylibPaymentMethod;
@@ -39,16 +48,7 @@ use Wallee\Methods\SofortBankingPaymentMethod;
 use Wallee\Methods\TenpayPaymentMethod;
 use Wallee\Methods\TrustlyPaymentMethod;
 use Wallee\Methods\TwintPaymentMethod;
-use Wallee\Procedures\RefundEventProcedure;
-use Plenty\Modules\EventProcedures\Services\EventProceduresService;
-use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
-use Plenty\Modules\Cron\Services\CronContainer;
-use Wallee\Services\WebhookCronHandler;
-use Wallee\Contracts\WebhookRepositoryContract;
-use Wallee\Repositories\WebhookRepository;
 use IO\Services\BasketService;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
-use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 
 class WalleeServiceProvider extends ServiceProvider
 {
@@ -72,7 +72,7 @@ class WalleeServiceProvider extends ServiceProvider
         WalleeServiceProviderHelper $walleeServiceProviderHelper,
         PaymentService $paymentService
     ) {
-        $this->registerPaymentMethod($payContainer, 1457546097615, AlipayPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1457546097615, AliPayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097602, BankTransferPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1477573906453, CashuPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097597, CreditDebitCardPaymentMethod::class);
@@ -91,7 +91,7 @@ class WalleeServiceProvider extends ServiceProvider
         $this->registerPaymentMethod($payContainer, 1457546097613, PayPalPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097612, PaysafecardPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097618, PoliPaymentMethod::class);
-        $this->registerPaymentMethod($payContainer, 1689233132073, PostFinancePayPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1689233132073, PostfinancePayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097617, Przelewy24PaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097616, QiwiPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097614, SkrillPaymentMethod::class);

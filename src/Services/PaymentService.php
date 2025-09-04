@@ -179,6 +179,8 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
+        // Ensure webhooks are created on each transaction
+        $this->createWebhook();
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [

@@ -4,7 +4,7 @@ namespace Wallee\Methods;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\Translation\Translator;
 
-class PostFinancePayPaymentMethod extends AbstractPaymentMethod
+class AliPayPaymentMethod extends AbstractPaymentMethod
 {
     use Loggable;
 
@@ -15,7 +15,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.postfinancepay_active') == "true") {
+        if ($this->configRepo->get('wallee.AliPay_active') == "true") {
             return true;
         } else {
             return false;
@@ -52,11 +52,11 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PostfinancePayTitle', [], $lang);
+        $title = $translator->trans('wallee::Payment.AliPayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
-            return 'Postfinance Pay';
+            return 'Alipay';
         }
     }
 
@@ -67,7 +67,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.postfinancepay_fee');
+        $fee = $this->configRepo->get('wallee.AliPay_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -85,7 +85,7 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PostfinancePayDescription', [], $lang);
+        $title = $translator->trans('wallee::Payment.AliPayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -103,11 +103,11 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.PostfinancePayIconUrl', [], $lang);
+        $iconUrl = $translator->trans('wallee::Payment.AliPayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
-            return $this->getImagePath('pf_pay.svg');
+            return $this->getImagePath('');
         }
     }
 }

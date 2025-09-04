@@ -55,6 +55,7 @@ class CreatePaymentMethods
         $this->createPaymentMethod(1457546097613, 'PayPal');
         $this->createPaymentMethod(1457546097612, 'paysafecard');
         $this->createPaymentMethod(1457546097618, 'POLi');
+        $this->createPaymentMethod(1689233132073, 'Post Finance Pay');
         $this->createPaymentMethod(1457546097617, 'Przelewy24');
         $this->createPaymentMethod(1457546097616, 'QIWI');
         $this->createPaymentMethod(1457546097614, 'Skrill');

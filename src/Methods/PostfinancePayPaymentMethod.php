@@ -4,7 +4,7 @@ namespace Wallee\Methods;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\Translation\Translator;
 
-class AlipayPaymentMethod extends AbstractPaymentMethod
+class PostfinancePayPaymentMethod extends AbstractPaymentMethod
 {
     use Loggable;
 
@@ -15,11 +15,31 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.alipay_active') == "true") {
+        if ($this->configRepo->get('wallee.PostfinancePay_active') == "true") {
             return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Check if this payment method should be searchable in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendSearchable(): bool
+    {
+        return true;
+    }
+    
+    /**
+     * Check if this payment method should be active in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendActive(): bool
+    {
+        return true;
     }
 
     /**
@@ -32,11 +52,11 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::AliPay.AliPayTitle', [], $lang);
+        $title = $translator->trans('wallee::Payment.PostfinancePayTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
-            return 'Alipay';
+            return 'Post Finance Pay';
         }
     }
 
@@ -47,7 +67,7 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.alipay_fee');
+        $fee = $this->configRepo->get('wallee.PostfinancePay_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -62,8 +82,10 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getDescription(string $lang = 'de'): string
     {
+        /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
-        $title = $translator->trans('wallee::AliPay.AliPayDescription', [], $lang);
+
+        $title = $translator->trans('wallee::Payment.PostfinancePayDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -78,12 +100,14 @@ class AlipayPaymentMethod extends AbstractPaymentMethod
      */
     public function getIcon(string $lang = 'de'): string
     {
+        /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
-        $iconUrl = $translator->trans('wallee::AliPay.AliPayIconUrl', [], $lang);
+
+        $iconUrl = $translator->trans('wallee::Payment.PostfinancePayIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
-            return $this->getImagePath('alipay.svg');
+            return $this->getImagePath('pf_pay.svg');
         }
     }
 }

@@ -15,11 +15,31 @@ class PoliPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.poli_active') == "true") {
+        if ($this->configRepo->get('wallee.Poli_active') == "true") {
             return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Check if this payment method should be searchable in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendSearchable(): bool
+    {
+        return true;
+    }
+    
+    /**
+     * Check if this payment method should be active in the back end.
+     *
+     * @return bool
+     */
+    public function isBackendActive(): bool
+    {
+        return true;
     }
 
     /**
@@ -47,7 +67,7 @@ class PoliPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.poli_fee');
+        $fee = $this->configRepo->get('wallee.Poli_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
