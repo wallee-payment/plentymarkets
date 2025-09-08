@@ -17,13 +17,9 @@ use Plenty\Modules\Cron\Services\CronContainer;
 use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Helper\WalleeServiceProviderHelper;
-use Wallee\Procedures\RefundEventProcedure;
-use Wallee\Repositories\WebhookRepository;
-use Wallee\Services\PaymentService;
-use Wallee\Services\WebhookCronHandler;
 use Wallee\Methods\AlipayPaymentMethod;
 use Wallee\Methods\BankTransferPaymentMethod;
-use ;
+use Wallee\Methods\CashuPaymentMethod;
 use Wallee\Methods\CreditDebitCardPaymentMethod;
 use Wallee\Methods\DaoPayPaymentMethod;
 use Wallee\Methods\DirectDebitSepaPaymentMethod;
@@ -48,6 +44,10 @@ use Wallee\Methods\SofortBankingPaymentMethod;
 use Wallee\Methods\TenpayPaymentMethod;
 use Wallee\Methods\TrustlyPaymentMethod;
 use Wallee\Methods\TwintPaymentMethod;
+use Wallee\Procedures\RefundEventProcedure;
+use Wallee\Repositories\WebhookRepository;
+use Wallee\Services\PaymentService;
+use Wallee\Services\WebhookCronHandler;
 use IO\Services\BasketService;
 
 class WalleeServiceProvider extends ServiceProvider
