@@ -1,5 +1,31 @@
 # Release Notes for wallee
 
+## v2.1.7 (2025-11-19)
+- Update documentation.
+
+## v2.1.6 (2025-10-30)
+- Updated SDK to include new CA Bundle
+
+## v2.1.5 (2025-09-24)
+- Updated plugin author
+- Further refined available payment methods
+
+## v2.1.4 (2025-09-08)
+- Refined available payment methods
+
+## v2.1.3 (2025-06-24)
+- Update documentation to indicate how to run partial refunds
+
+## v2.1.2 (2025-06-18)
+- Removed debugging timing log
+
+## v2.1.1 (2025-05-20)
+- Removed debugging timing log
+
+## v2.1.0 (2024-10-03)
+- Introduced PostFinance Pay payment method
+- Updated documentation
+
 ## v2.0.41 (2024-07-10)
 
 ## Fixed
