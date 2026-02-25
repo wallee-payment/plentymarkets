@@ -17,6 +17,7 @@ use Plenty\Modules\Payment\Method\Models\PaymentMethod;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Wallee\Helper\OrderHelper;
+use Wallee\Helper\OrderItemSkuHelper;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
 use Plenty\Modules\Order\RelationReference\Models\OrderRelationReference;
 use Plenty\Modules\Item\VariationProperty\Contracts\VariationPropertyValueRepositoryContract;
@@ -186,6 +187,7 @@ class PaymentService
         $parameters = [
             'transactionId' => $transactionId,
             'order' => $order,
+            'itemIdsByOrderItemId' => $this->getOrderItemItemIds($order),
             'itemAttributes' => $this->getLineItemAttributes($order),
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
@@ -233,7 +235,7 @@ class PaymentService
                 ];
             }
         }
-        
+
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
@@ -349,6 +351,117 @@ class PaymentService
             }
         }
         return $itemAttributes;
+    }
+
+    private function getOrderItemItemIds(Order $order): array
+    {
+        $itemIdsByOrderItemId = [];
+        $itemIdsByVariationId = [];
+        $unresolvedOrderItems = [];
+        $language = $this->session->getLocaleSettings()->language;
+        if (empty($language)) {
+            $language = 'de';
+        }
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+        foreach ($order->orderItems as $orderItem) {
+            if (! empty($orderItem->itemId)) {
+                $itemIdsByOrderItemId[$orderItem->id] = $orderItem->itemId;
+                continue;
+            }
+            $itemIdFromSku = OrderItemSkuHelper::resolveItemIdFromOrderItemModel($orderItem);
+            if (! empty($itemIdFromSku)) {
+                $itemIdsByOrderItemId[$orderItem->id] = $itemIdFromSku;
+                continue;
+            }
+            if (empty($orderItem->itemVariationId)) {
+                $unresolvedOrderItems[] = [
+                    'orderItemId' => $orderItem->id,
+                    'reason' => 'missingItemIdAndVariationId'
+                ];
+                continue;
+            }
+
+            $variationId = $orderItem->itemVariationId;
+            if (! array_key_exists($variationId, $itemIdsByVariationId)) {
+                try {
+                    $itemIdsByVariationId[$variationId] = $this->resolveItemIdByVariationId($variationId, $language, $authHelper);
+                } catch (\Exception $e) {
+                    $itemIdsByVariationId[$variationId] = null;
+                    $this->getLogger(__METHOD__)->error('wallee::debug.basic', [
+                        'logCode' => 'OrderVariationItemResolveFailed',
+                        'orderId' => $order->id,
+                        'variationId' => $variationId,
+                        'orderItemId' => $orderItem->id,
+                        'message' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            if (! empty($itemIdsByVariationId[$variationId])) {
+                $itemIdsByOrderItemId[$orderItem->id] = $itemIdsByVariationId[$variationId];
+            } else {
+                $unresolvedOrderItems[] = [
+                    'orderItemId' => $orderItem->id,
+                    'variationId' => $variationId,
+                    'reason' => 'missingItemIdForVariation'
+                ];
+            }
+        }
+
+        if (! empty($unresolvedOrderItems)) {
+            $this->getLogger(__METHOD__)->error('wallee::debug.basic', [
+                'logCode' => 'OrderItemIdResolutionIncomplete',
+                'orderId' => $order->id,
+                'unresolvedOrderItems' => $unresolvedOrderItems,
+                'resolvedItemIdsByOrderItemId' => $itemIdsByOrderItemId
+            ]);
+        }
+
+        return $itemIdsByOrderItemId;
+    }
+
+    private function resolveItemIdByVariationId($variationId, $preferredLanguage, AuthHelper $authHelper)
+    {
+        if (empty($variationId)) {
+            return null;
+        }
+
+        $languages = [];
+        if (! empty($preferredLanguage)) {
+            $languages[] = $preferredLanguage;
+        }
+        if (! in_array('de', $languages, true)) {
+            $languages[] = 'de';
+        }
+        if (! in_array('en', $languages, true)) {
+            $languages[] = 'en';
+        }
+
+        foreach ($languages as $language) {
+            try {
+                $variationRepository = $this->variationRepository;
+                $variation = $authHelper->processUnguarded(function () use ($variationId, $variationRepository, $language) {
+                    try {
+                        return $variationRepository->show($variationId, [
+                            'item'
+                        ], $language);
+                    } catch (\Throwable $firstException) {
+                        return $variationRepository->show($variationId, $language, [
+                            'item'
+                        ]);
+                    }
+                });
+                $itemId = OrderItemSkuHelper::extractItemIdFromVariation($variation);
+                if (! empty($itemId)) {
+                    return $itemId;
+                }
+            } catch (\Throwable $exception) {
+                continue;
+            }
+        }
+
+        return null;
     }
 
     /**

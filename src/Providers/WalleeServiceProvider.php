@@ -17,7 +17,7 @@ use Plenty\Modules\Cron\Services\CronContainer;
 use Wallee\Contracts\WebhookRepositoryContract;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Helper\WalleeServiceProviderHelper;
-use Wallee\Methods\AlipayPaymentMethod;
+use Wallee\Methods\AliPayPaymentMethod;
 use Wallee\Methods\BankTransferPaymentMethod;
 use Wallee\Methods\CashuPaymentMethod;
 use Wallee\Methods\CreditDebitCardPaymentMethod;
@@ -44,6 +44,9 @@ use Wallee\Methods\SofortBankingPaymentMethod;
 use Wallee\Methods\TenpayPaymentMethod;
 use Wallee\Methods\TrustlyPaymentMethod;
 use Wallee\Methods\TwintPaymentMethod;
+use Wallee\Methods\KlarnaPayNowPaymentMethod;
+use Wallee\Methods\KlarnaPayLaterPaymentMethod;
+use Wallee\Methods\KlarnaSliceItPaymentMethod;
 use Wallee\Procedures\RefundEventProcedure;
 use Wallee\Repositories\WebhookRepository;
 use Wallee\Services\PaymentService;
@@ -91,7 +94,7 @@ class WalleeServiceProvider extends ServiceProvider
         $this->registerPaymentMethod($payContainer, 1457546097613, PayPalPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097612, PaysafecardPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097618, PoliPaymentMethod::class);
-        $this->registerPaymentMethod($payContainer, 1689233132073, PostfinancePayPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1689233132073, PostFinancePayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097617, Przelewy24PaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097616, QiwiPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097614, SkrillPaymentMethod::class);
@@ -99,6 +102,9 @@ class WalleeServiceProvider extends ServiceProvider
         $this->registerPaymentMethod($payContainer, 1477574502344, TenpayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097619, TrustlyPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097639, TwintPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1864086284039, KlarnaPayNowPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1864086284619, KlarnaPayLaterPaymentMethod::class);
+        $this->registerPaymentMethod($payContainer, 1864086284016, KlarnaSliceItPaymentMethod::class);
 
         // Register Refund Event Procedure
         $eventProceduresService->registerProcedure('plentyWallee', ProcedureEntry::PROCEDURE_GROUP_ORDER, [

@@ -4,16 +4,16 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<meta name="keywords" value="wallee, plentymarkets, plentymarkets Extension, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the plentymarkets extension that enables processing payments with wallee.">		
+		<meta name="keywords" value="wallee, PlentyONE, PlentyONE Extension, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the PlentyONE extension that enables processing payments with wallee.">		
 		<link rel="canonical" href="https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/master/docs/en/documentation.html" />
-		<title>wallee plentymarkets</title>
+		<title>wallee PlentyONE</title>
 		<link href="assets/monokai-sublime.css" rel="stylesheet" />
 		<link href="assets/base.css" rel="stylesheet" />
 	</head>
 	<body class="documentation">
 		<div class="layout-wrapper">
 							<div class="layout-title">
-					<h1>wallee plentymarkets</h1>
+					<h1>wallee PlentyONE</h1>
 <h2>Documentation</h2>				</div>
 										<div class="layout-navigation">
 					<ul class="nav">
@@ -23,7 +23,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.1.7/">
+		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.1.8/">
 			Source
 		</a>
 	</li>
@@ -41,7 +41,7 @@
 					<div class="paragraph">
 <p>If you don&#8217;t already have one, create a <a href="https://app-wallee.com/user/signup/">wallee</a> account.</p>
 </div><div class="paragraph">
-<p>Please note in order to install this plugin you will have to use <a href="https://marketplace.plentymarkets.com/plugins/channels/online-shops/ceres_4697" target="_blank">Ceres</a> (the default template plugin for plentymarkets 7 online stores) and the <a href="https://marketplace.plentymarkets.com/plugins/channels/online-shops/io_4696" target="_blank">IO plugin</a> (required to run the plentymarkets Ceres plugin).</p>
+<p>Please note in order to install this plugin you will have to use <a href="https://marketplace.plentyone.com/plugins/channels/online-shops/ceres_4697" target="_blank">Ceres</a> (the default template plugin for PlentyONE 7 online stores) and the <a href="https://marketplace.plentyone.com/plugins/channels/online-shops/io_4696" target="_blank">IO plugin</a> (required to run the PlentyONE Ceres plugin).</p>
 </div>					</div>
 </div>	<div class="chapter" id="_installation">
 	<div class="chapter-title">
@@ -52,7 +52,7 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Install the plugin directly from the <a href="https://marketplace.plentymarkets.com/plugins/payment/wallee_5038" target="_blank">plentyMarketplace</a> or via <a href="https://github.com/wallee-payment/plentymarkets" target="_blank">GitHub</a>. Check out <a href="https://knowledge.plentymarkets.com/en/plugins/adding-plugins-system" target="_blank">plentyKnowledge</a> on how to install plugins.</p>
+<p>Install the plugin directly from the <a href="https://marketplace.plentyone.com/plugins/payment/wallee_5038" target="_blank">plentyMarketplace</a> or via <a href="https://github.com/wallee-payment/plentymarkets" target="_blank">GitHub</a>. Check out <a href="https://knowledge.plentyone.com/en-gb/manual/main/plugins/adding-plugins-system.html" target="_blank">plentyKnowledge</a> on how to install plugins.</p>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -60,14 +60,14 @@
 <div class="title">Note</div>
 </td>
 <td class="content">
-The advantage of installing the plugin via the github is that this version will always be up to date. The release pipeline through the official plentymarkets pipeline is generally slower.
+The advantage of installing the plugin via the github is that this version will always be up to date. The release pipeline through the official plentyone pipeline is generally slower.
 </td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>Log in to the backend of your plentymarkets store.</p>
+<p>Log in to the backend of your PlentyONE store.</p>
 </li>
 <li>
 <p>Navigate to Plugins. Search for the 'Not installed plugins' and click on the <code>Install</code> button of the plugin to install it.</p>
@@ -98,13 +98,13 @@ In case you need to update the plugin, see our <a href="#_faq">FAQ</a> about the
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Navigate to Plugins &gt; Installed plugins in your plentymarkets backend, click on the plugin to open the configuration and enter the wallee Space ID, User ID and Authentication Key that you can create an <a href="https://app-wallee.com/en-us/doc/permission-concept#_create_application_users" target="_blank">application user</a>.</p>
+<p>Navigate to Plugins &gt; Installed plugins in your PlentyONE backend, click on the plugin to open the configuration and enter the wallee Space ID, User ID and Authentication Key that you can create an <a href="https://app-wallee.com/en-us/doc/permission-concept#_create_application_users" target="_blank">application user</a>.</p>
 <div class="paragraph">
 <p>If your store is configured for multishop, you may use different spaces for each store to configure different behaviours.</p>
 </div>
 </li>
 <li>
-<p>Optionally disable downloading invoice and packing slip. These settings allow customers to download the documents from their order overview in the plentymarkets frontend.</p>
+<p>Optionally disable downloading invoice and packing slip. These settings allow customers to download the documents from their order overview in the PlentyONE frontend.</p>
 </li>
 <li>
 <p>After saving the configuration necessary webhooks are set up.</p>
@@ -118,7 +118,7 @@ In case you need to update the plugin, see our <a href="#_faq">FAQ</a> about the
 </td>
 <td class="content">
 Please note that state changes take time as
-plentymarkets is updating the order state every 15 mins only.
+PlentyONE is updating the order state every 15 mins only.
 </td>
 </tr>
 </table>
@@ -133,7 +133,7 @@ your customer groups.</p>
 </li>
 </ol>
 </div><div class="paragraph">
-<p>The main configuration is now finished. You should see the payment methods in your checkout. To view the payment methods configuration in the backend of plentymarkets go to Plugins &gt; wallee.</p>
+<p>The main configuration is now finished. You should see the payment methods in your checkout. To view the payment methods configuration in the backend of PlentyONE go to Plugins &gt; wallee.</p>
 </div>					</div>
 </div>	<div class="chapter" id="_payment_method_configuration">
 	<div class="chapter-title">
@@ -148,7 +148,7 @@ your customer groups.</p>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>Once you have added the payment methods and connectors in your wallee space, you simply need to activate them in your plentymarkets store backend under Plugins &gt; wallee.</p>
+<p>Once you have added the payment methods and connectors in your wallee space, you simply need to activate them in your PlentyONE store backend under Plugins &gt; wallee.</p>
 </div>					</div>
 </div>					<div class="section" id="_customization">
 	<div class="section-title">
@@ -157,7 +157,7 @@ your customer groups.</p>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>Due to limitations in Plentymarkets, the payment method icons are unable to be updated</p>
+<p>Due to limitations in PlentyONE, the payment method icons are unable to be updated</p>
 </div>					</div>
 </div>					<div class="section" id="_translations">
 	<div class="section-title">
@@ -252,10 +252,10 @@ your customer groups.</p>
 </div><div class="paragraph">
 <p>By following these steps, you can effectively update the payment method titles and descriptions to match your desired translations.</p>
 </div>					</div>
-</div>					<div class="section" id="_enabling_inactive_payment_methods_in_plentymarkets">
+</div>					<div class="section" id="_enabling_inactive_payment_methods_in_plentyone">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">4.4</span>Enabling Inactive Payment Methods in Plentymarkets					</h2>
+			<span class="title-number">4.4</span>Enabling Inactive Payment Methods in PlentyONE					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
@@ -271,7 +271,7 @@ your customer groups.</p>
 </div><div class="ulist">
 <ul>
 <li>
-<p><strong>Step 1</strong>: Log in to the <strong>Plentymarkets backend</strong>.</p>
+<p><strong>Step 1</strong>: Log in to the <strong>PlentyONE backend</strong>.</p>
 </li>
 <li>
 <p><strong>Step 2</strong>: Navigate to the top menu and click <strong>Setup</strong>.</p>
@@ -295,7 +295,7 @@ your customer groups.</p>
 </div><div class="ulist">
 <ul>
 <li>
-<p><strong>Step 1</strong>: In the <strong>Plentymarkets backend</strong>, click on <strong>Setup</strong> at the top.</p>
+<p><strong>Step 1</strong>: In the <strong>PlentyONE backend</strong>, click on <strong>Setup</strong> at the top.</p>
 </li>
 <li>
 <p><strong>Step 2</strong>: On the left side, select <strong>CRM</strong>.</p>
@@ -318,18 +318,18 @@ your customer groups.</p>
 	<div class="chapter-body">
 					<div class="paragraph">
 <p>The Payment Process of wallee is <strong>completely standardized for every payment method</strong> you can process. This gives you the ability to simply add
-a payment method or processor without changes inside of your plentymarkets configuration. An overview about the states and the payment processes of wallee
+a payment method or processor without changes inside of your PlentyONE configuration. An overview about the states and the payment processes of wallee
 can be found in the <a href="https://app-wallee.com/en-us/doc/payment/transaction-process" target="_blank">Payment Documentation</a>.</p>
 </div><div class="paragraph">
-<p>In the following section we provide you an overview about how the wallee states are mapped into the plentymarkets State graph for orders and payment states.</p>
-</div>							<div class="section" id="_state_mapping_of_plentymarkets_orders">
+<p>In the following section we provide you an overview about how the wallee states are mapped into the PlentyONE State graph for orders and payment states.</p>
+</div>							<div class="section" id="_state_mapping_of_plentyone_orders">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">5.1</span>State mapping of plentymarkets orders					</h2>
+			<span class="title-number">5.1</span>State mapping of PlentyONE orders					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>Below you find a diagram that shows the state machine of plentymarkets for orders including additional information for the state transitions.</p>
+<p>Below you find a diagram that shows the state machine of PlentyONE for orders including additional information for the state transitions.</p>
 </div><div class="imageblock">
 <div class="content">
 <img src="resource/state_graph.svg" alt="state graph"/>
@@ -337,14 +337,14 @@ can be found in the <a href="https://app-wallee.com/en-us/doc/payment/transactio
 </div><div class="olist glossary">
 <ol class="glossary">
 <li>
-<p>If the transaction is <code>pending</code> or <code>authorized</code>  in wallee, the plentymarkets order is marked as <code>[3] Waiting for payment</code>. Please note that the state changes can take up to 15 mins as plentymarkets is fechting the orders in
+<p>If the transaction is <code>pending</code> or <code>authorized</code>  in wallee, the PlentyONE order is marked as <code>[3] Waiting for payment</code>. Please note that the state changes can take up to 15 mins as PlentyONE is fechting the orders in
 this interval.</p>
 </li>
 <li>
-<p>If the transaction fails during the authorization process, the plentymarkets order is either marked as <code>[8] Canceled</code>.</p>
+<p>If the transaction fails during the authorization process, the PlentyONE order is either marked as <code>[8] Canceled</code>.</p>
 </li>
 <li>
-<p>If the transaction in wallee is marked as <code>fulfill</code>, the plentymarkets order is marked as <code>[5] Cleared for shipping</code>, indicating that it can now be fulfilled.</p>
+<p>If the transaction in wallee is marked as <code>fulfill</code>, the PlentyONE order is marked as <code>[5] Cleared for shipping</code>, indicating that it can now be fulfilled.</p>
 </li>
 <li>
 <p>If the transaction&#8217;s authorization is voided or the risk assessments indicate that the order should not be fulfilled, the order is marked as <code>[5] Canceled</code>.</p>
@@ -360,14 +360,14 @@ this interval.</p>
 <p>We recommend that you only change the order status to indicate that shipping has taken place. If you change it before the transaction has reached a final state in wallee, the plugin may changed the order status again. If you want different order statuses to be set, you can change the behaviour in the plugin configuration.</p>
 </div>					</div>
 </div>			</div>
-</div>					<div class="section" id="_state_mapping_of_plentymarkets_payment_status">
+</div>					<div class="section" id="_state_mapping_of_plentyone_payment_status">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">5.2</span>State mapping of plentymarkets payment status					</h2>
+			<span class="title-number">5.2</span>State mapping of PlentyONE payment status					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>Below you find a diagram that shows the state machine of plentymarkets for payment status including additional information for the state transitions.</p>
+<p>Below you find a diagram that shows the state machine of PlentyONE for payment status including additional information for the state transitions.</p>
 </div><div class="imageblock">
 <div class="content">
 <img src="resource/state_graph_payment_status.svg" alt="state graph payment status"/>
@@ -375,16 +375,16 @@ this interval.</p>
 </div><div class="olist glossary">
 <ol class="glossary">
 <li>
-<p>If the transaction in wallee is <code>authorized</code>, the payment status of the plentymarkets order is set to <code>awaiting confirmation</code>.</p>
+<p>If the transaction in wallee is <code>authorized</code>, the payment status of the PlentyONE order is set to <code>awaiting confirmation</code>.</p>
 </li>
 <li>
-<p>If the transaction fails during the authorization process, the payment status of the plentymarkets order is set to <code>canceled</code>.</p>
+<p>If the transaction fails during the authorization process, the payment status of the PlentyONE order is set to <code>canceled</code>.</p>
 </li>
 <li>
-<p>If the transaction&#8217;s authorization is voided, the payment status of the plentymarkets order is set to <code>canceled</code>.</p>
+<p>If the transaction&#8217;s authorization is voided, the payment status of the PlentyONE order is set to <code>canceled</code>.</p>
 </li>
 <li>
-<p>Once the invoice is paid, the payment status of the plentymarkets order is set to <code>Confirmed</code>. This also applies if the invoice is not traceable due to external administration.</p>
+<p>Once the invoice is paid, the payment status of the PlentyONE order is set to <code>Confirmed</code>. This also applies if the invoice is not traceable due to external administration.</p>
 </li>
 </ol>
 </div>					</div>
@@ -402,9 +402,9 @@ this interval.</p>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>This requires to set the status ID for refunds in the plentymarkets shop configuration. Once the order is moved into that status the refund will be triggered and synchronized with wallee.</p>
+<p>This requires to set the status ID for refunds in the PlentyONE shop configuration. Once the order is moved into that status the refund will be triggered and synchronized with wallee.</p>
 </div><div class="paragraph">
-<p>In order to do so please follow the steps below in the backend of your plentymarkets store:</p>
+<p>In order to do so please follow the steps below in the backend of your PlentyONE store:</p>
 </div><div class="paragraph">
 <p>First you have to create an <strong>Event procedure</strong> for a status change. This can be done under System settings &gt; Orders &gt; Events:</p>
 </div><div class="olist arabic">
@@ -477,10 +477,10 @@ this interval.</p>
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
-<p>As an order is being created in plentymarkets before the customer is redirected to the payment page, the <strong>order confirmation email</strong> should not be sent at the moment of the order creation.
+<p>As an order is being created in PlentyONE before the customer is redirected to the payment page, the <strong>order confirmation email</strong> should not be sent at the moment of the order creation.
 This should be done using an Event procedure that will automatically trigger the confirmation email once the order is fulfilled.</p>
 </div><div class="paragraph">
-<p>In order to do so please follow the steps below in the backend of your plentymarkets store:</p>
+<p>In order to do so please follow the steps below in the backend of your PlentyONE store:</p>
 </div><div class="paragraph">
 <p>First you have to deactivate the automatic email for order creation. This can be done under System settings &gt; Standard Shop &gt; Email &gt; Automatic:
 There you should set <strong>New order from online store</strong> to <strong>do not send</strong>.</p>
@@ -520,11 +520,11 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>To update the plugin in your plentymarkets store, simply follow the below steps:</p>
+<p>To update the plugin in your PlentyONE store, simply follow the below steps:</p>
 </div><div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Press the update button in your plentymarkets store backend under Plugins &gt; wallee.</p>
+<p>Press the update button in your PlentyONE store backend under Plugins &gt; wallee.</p>
 </li>
 <li>
 <p>Save and publish the plugin set.</p>
@@ -538,11 +538,11 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
-<p>You can configure the plentymarkets PayPal import to ignore wallee payments.</p>
+<p>You can configure the PlentyONE PayPal import to ignore wallee payments.</p>
 </div><div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>In the plentymarkets store backend, navigate to Setup &gt; Orders &gt; Payment &gt; Incoming.</p>
+<p>In the PlentyONE store backend, navigate to Setup &gt; Orders &gt; Payment &gt; Incoming.</p>
 </li>
 <li>
 <p>Set <strong>Ignore wallee PayPal transactions</strong> to <strong>Yes</strong>.</p>
@@ -603,9 +603,9 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 		<span class="item-title">Translations</span>
 			</a>
     </li>    		    			<li class="nav-level-2">
-	<a href="#_enabling_inactive_payment_methods_in_plentymarkets">
+	<a href="#_enabling_inactive_payment_methods_in_plentyone">
 		<span class="item-number">4.4</span>
-		<span class="item-title">Enabling Inactive Payment Methods in Plentymarkets</span>
+		<span class="item-title">Enabling Inactive Payment Methods in PlentyONE</span>
 			</a>
         	<ul  class="nav">
     		    			<li class="nav-level-3">
@@ -627,9 +627,9 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 			</a>
         	<ul  class="nav">
     		    			<li class="nav-level-2">
-	<a href="#_state_mapping_of_plentymarkets_orders">
+	<a href="#_state_mapping_of_plentyone_orders">
 		<span class="item-number">5.1</span>
-		<span class="item-title">State mapping of plentymarkets orders</span>
+		<span class="item-title">State mapping of PlentyONE orders</span>
 			</a>
         	<ul  class="nav">
     		    			<li class="nav-level-3">
@@ -639,9 +639,9 @@ There you should set <strong>New order from online store</strong> to <strong>do 
 			</a>
     </li>    		    	</ul>
     </li>    		    			<li class="nav-level-2">
-	<a href="#_state_mapping_of_plentymarkets_payment_status">
+	<a href="#_state_mapping_of_plentyone_payment_status">
 		<span class="item-number">5.2</span>
-		<span class="item-title">State mapping of plentymarkets payment status</span>
+		<span class="item-title">State mapping of PlentyONE payment status</span>
 			</a>
     </li>    		    	</ul>
     </li>					<li class="nav-level-1">

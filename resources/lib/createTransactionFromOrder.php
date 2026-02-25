@@ -13,6 +13,7 @@ use Wallee\Sdk\Model\Gender;
 use Wallee\Sdk\Model\TransactionPending;
 use Wallee\Sdk\Model\LineItemType;
 use Wallee\Sdk\Model\LineItemAttributeCreate;
+use Wallee\Helper\OrderItemSkuHelper;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
@@ -30,7 +31,7 @@ function getItemAmount($orderItem) {
 function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $currencyDecimalPlaces, $itemAttributes, $prefixIfDuplicated)
 {
     $itemAmount = getItemAmount($orderItem);
-    
+
     $lineItem = new LineItemCreate();
     $lineItem->setUniqueId($uniqueId . $prefixIfDuplicated);
     $lineItem->setSku($sku);
@@ -50,7 +51,7 @@ function buildLineItem($orderItem, $uniqueId, $sku, $type, $basketNetPrices, $cu
         ]);
     }
     $lineItem->setType($type);
-    
+
     $attributes = [];
     foreach ($itemAttributes as $itemAttribute) {
         $itemAttributeLabel = $itemAttribute['label'];
@@ -87,6 +88,28 @@ function getOrderAmount($order) {
     return $order['amounts'][0];
 }
 
+function resolveProductSku($orderItem, $itemIdsByOrderItemId)
+{
+    if (isset($orderItem['id']) && isset($itemIdsByOrderItemId[$orderItem['id']]) && ! empty($itemIdsByOrderItemId[$orderItem['id']])) {
+        return $itemIdsByOrderItemId[$orderItem['id']];
+    }
+    if (isset($orderItem['itemId']) && ! empty($orderItem['itemId'])) {
+        return $orderItem['itemId'];
+    }
+    $itemIdFromSku = null;
+    if (class_exists(OrderItemSkuHelper::class)) {
+        $itemIdFromSku = OrderItemSkuHelper::resolveItemIdFromOrderItemArray($orderItem);
+    }
+    if (! empty($itemIdFromSku)) {
+        return $itemIdFromSku;
+    }
+    if (isset($orderItem['itemVariationId']) && ! empty($orderItem['itemVariationId'])) {
+        return $orderItem['itemVariationId'];
+    }
+
+    return isset($orderItem['id']) ? $orderItem['id'] : 'product';
+}
+
 function collectTransactionData($transactionRequest, $client)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
@@ -119,6 +142,10 @@ function collectTransactionData($transactionRequest, $client)
 
     $netPrices = $orderAmount['isNet'];
     $itemAttributes = SdkRestApi::getParam('itemAttributes');
+    $itemIdsByOrderItemId = SdkRestApi::getParam('itemIdsByOrderItemId');
+    if (! is_array($itemIdsByOrderItemId)) {
+        $itemIdsByOrderItemId = [];
+    }
     $lineItems = [];
     $arrayOfItemIdsInLoop = [];
 
@@ -128,8 +155,10 @@ function collectTransactionData($transactionRequest, $client)
 
         $attributes = isset($itemAttributes[$orderItem['id']]) ? $itemAttributes[$orderItem['id']] : [];
         if ($orderItem['typeId'] == 1 || $orderItem['typeId'] == 2 || $orderItem['typeId'] == 3) {
-            // VARIANTION 
-            $lineItem = buildLineItem($orderItem, $orderItem['itemVariationId'], $orderItem['itemVariationId'], LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
+            // VARIATION
+            $lineItemUniqueId = $orderItem['itemVariationId'];
+            $lineItemSku = resolveProductSku($orderItem, $itemIdsByOrderItemId);
+            $lineItem = buildLineItem($orderItem, $lineItemUniqueId, $lineItemSku, LineItemType::PRODUCT, $netPrices, $currencyDecimalPlaces, $attributes, $prefixIfDuplicated);
             $lineItem->setShippingRequired(true);
             $lineItems[] = $lineItem;
         } elseif ($orderItem['typeId'] == 4 || $orderItem['typeId'] == 5) {
@@ -219,7 +248,7 @@ function collectTransactionData($transactionRequest, $client)
 
     $paymentMethod = SdkRestApi::getParam('paymentMethod');
     $paymentMethodId = (int) $paymentMethod['paymentKey'];
-    
+
     $metaData = $transactionRequest->getMetaData();
     if (!is_array($metaData)) {
         $metaData = [];

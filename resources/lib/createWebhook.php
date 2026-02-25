@@ -3,6 +3,7 @@ use Wallee\Sdk\Model\WebhookUrlCreate;
 use Wallee\Sdk\Model\WebhookListenerCreate;
 use Wallee\Sdk\Service\WebhookUrlService;
 use Wallee\Sdk\Service\WebhookListenerService;
+use Wallee\Sdk\Model\WebhookListenerUpdate;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
@@ -98,6 +99,16 @@ foreach ($webhookEntities as $webhookEntity) {
     foreach ($existingListeners as $existingListener) {
         if ($existingListener->getEntity() == $webhookEntity->getId()) {
             $exists = true;
+
+            if (!$existingListener->getEnablePayloadSignatureAndState()) {
+
+                $webhookListenerRequest = new WebhookListenerUpdate();
+                $webhookListenerRequest->setId($existingListener->getId());
+                $webhookListenerRequest->setVersion($existingListener->getVersion());
+                $webhookListenerRequest->setEnablePayloadSignatureAndState(true);
+
+                $webhookListenerService->update($spaceId, $webhookListenerRequest);
+            }
         }
     }
 

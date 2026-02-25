@@ -48,4 +48,13 @@ class WalleeSdkService
         }
         return $this->libCall->call('wallee::' . $method, $parameters);
     }
+
+    public function validateWebhook(int $spaceId, string $signature, string $payload)
+    {
+        return $this->call('WebhookService.validate', [
+            'spaceId' => $spaceId,
+            'signature' => $signature,
+            'payload' => $payload
+        ]);
+    }
 }

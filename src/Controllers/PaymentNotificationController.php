@@ -69,7 +69,15 @@ class PaymentNotificationController extends Controller
      * @param WalleeSdkService $sdkService
      * @param WebhookRepositoryContract $webhookRepository
      */
-    public function __construct(Request $request, Response $response, ConfigRepository $config, PaymentHelper $paymentHelper, PaymentService $paymentService, WalleeSdkService $sdkService, WebhookRepositoryContract $webhookRepository)
+    public function __construct(
+        Request $request,
+        Response $response,
+        ConfigRepository $config,
+        PaymentHelper $paymentHelper,
+        PaymentService $paymentService,
+        WalleeSdkService $sdkService,
+        WebhookRepositoryContract $webhookRepository
+    )
     {
         $this->request = $request;
         $this->response = $response;
@@ -82,6 +90,36 @@ class PaymentNotificationController extends Controller
 
     public function updateTransaction()
     {
+        $rawBody = $this->request->getContent();
+        $signature = $this->request->header('x-signature');
+
+        if (!$signature) {
+            $this->getLogger(__METHOD__)->error('Webhook without signature');
+            return $this->response->make('', 401);
+        }
+
+        try {
+            $decoded = json_decode($rawBody);
+
+            $this->sdkService->validateWebhook(
+                $decoded->spaceId,
+                $signature,
+                $rawBody
+            );
+
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error(
+                'Webhook signature validation failed',
+                [
+                    'exceptionMessage' => $e->getMessage(),
+                    'exceptionCode' => $e->getCode(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
+            );
+            return $this->response->make('', 403);
+        }
+
         $webhookRequest = json_decode($this->request->getContent());
         $this->getLogger(__METHOD__)->info('webhookRequest', $webhookRequest);
 

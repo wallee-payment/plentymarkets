@@ -4,7 +4,7 @@ namespace Wallee\Methods;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Plugin\Translation\Translator;
 
-class PostfinancePayPaymentMethod extends AbstractPaymentMethod
+class KlarnaPayLaterPaymentMethod extends AbstractPaymentMethod
 {
     use Loggable;
 
@@ -15,7 +15,7 @@ class PostfinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function isActive(): bool
     {
-        if ($this->configRepo->get('wallee.PostfinancePay_active') == "true") {
+        if ($this->configRepo->get('wallee.KlarnaPayLater_active') == "true") {
             return true;
         } else {
             return false;
@@ -52,11 +52,11 @@ class PostfinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PostfinancePayTitle', [], $lang);
+        $title = $translator->trans('wallee::Payment.KlarnaPayLaterTitle', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
-            return 'Post Finance Pay';
+            return 'Klarna Pay Later';
         }
     }
 
@@ -67,7 +67,7 @@ class PostfinancePayPaymentMethod extends AbstractPaymentMethod
      */
     public function getFee(): float
     {
-        $fee = $this->configRepo->get('wallee.PostfinancePay_fee');
+        $fee = $this->configRepo->get('wallee.KlarnaPayLater_fee');
         if (! empty($fee)) {
             return (float) $fee;
         } else {
@@ -85,7 +85,7 @@ class PostfinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $title = $translator->trans('wallee::Payment.PostfinancePayDescription', [], $lang);
+        $title = $translator->trans('wallee::Payment.KlarnaPayLaterDescription', [], $lang);
         if (! empty($title)) {
             return $title;
         } else {
@@ -103,11 +103,11 @@ class PostfinancePayPaymentMethod extends AbstractPaymentMethod
         /** @var Translator $translator */
         $translator = pluginApp(Translator::class);
 
-        $iconUrl = $translator->trans('wallee::Payment.PostfinancePayIconUrl', [], $lang);
+        $iconUrl = $translator->trans('wallee::Payment.KlarnaPayLaterIconUrl', [], $lang);
         if (!empty($iconUrl)) {
             return $iconUrl;
         } else {
-            return $this->getImagePath('pf_pay.svg');
+            return $this->getImagePath('klarna.svg');
         }
     }
 }

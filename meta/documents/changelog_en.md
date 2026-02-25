@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.1.8 (2026-02-25)
+- Separated sku from variant id in portal data (for documents)
+- Added support for webhook signatures
+- Fixed rounding on refunds
+
 ## v2.1.7 (2025-11-19)
 - Update documentation.
 

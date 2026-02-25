@@ -63,6 +63,9 @@ class CreatePaymentMethods
         $this->createPaymentMethod(1477574502344, 'Tenpay');
         $this->createPaymentMethod(1457546097619, 'Trustly');
         $this->createPaymentMethod(1457546097639, 'TWINT');
+        $this->createPaymentMethod(1864086284039, 'Klarna Pay Now');
+        $this->createPaymentMethod(1864086284619, 'Klarna Pay Later');
+        $this->createPaymentMethod(1864086284016, 'Klarna Slice It');
     }
 
     private function createPaymentMethod($id, $name)

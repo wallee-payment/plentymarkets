@@ -441,21 +441,21 @@
                 }
             }
         },
-        "Config.PostfinancePayTab": {
-            "label": "Config.PostfinancePayTab",
+        "Config.PostFinancePayTab": {
+            "label": "Config.PostFinancePayTab",
             "formFields": {
-                "PostfinancePay_active": {
+                "PostFinancePay_active": {
                     "type": "checkBox",
                     "required": false,
-                    "label": "Config.PostfinancePayActiveLabel",
+                    "label": "Config.PostFinancePayActiveLabel",
                     "options": {
                         "defaultValue": true
                     }
                 },
-                "PostfinancePay_fee": {
+                "PostFinancePay_fee": {
                     "type": "inputText",
                     "required": false,
-                    "label": "Config.PostfinancePayFeeLabel",
+                    "label": "Config.PostFinancePayFeeLabel",
                     "options": {}
                 }
             }
@@ -589,6 +589,63 @@
                     "type": "inputText",
                     "required": false,
                     "label": "Config.TwintFeeLabel",
+                    "options": {}
+                }
+            }
+        },
+        "Config.KlarnaPayNowTab": {
+            "label": "Config.KlarnaPayNowTab",
+            "formFields": {
+                "KlarnaPayNow_active": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.KlarnaPayNowActiveLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "KlarnaPayNow_fee": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.KlarnaPayNowFeeLabel",
+                    "options": {}
+                }
+            }
+        },
+        "Config.KlarnaPayLaterTab": {
+            "label": "Config.KlarnaPayLaterTab",
+            "formFields": {
+                "KlarnaPayLater_active": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.KlarnaPayLaterActiveLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "KlarnaPayLater_fee": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.KlarnaPayLaterFeeLabel",
+                    "options": {}
+                }
+            }
+        },
+        "Config.KlarnaSliceItTab": {
+            "label": "Config.KlarnaSliceItTab",
+            "formFields": {
+                "KlarnaSliceIt_active": {
+                    "type": "checkBox",
+                    "required": false,
+                    "label": "Config.KlarnaSliceItActiveLabel",
+                    "options": {
+                        "defaultValue": true
+                    }
+                },
+                "KlarnaSliceIt_fee": {
+                    "type": "inputText",
+                    "required": false,
+                    "label": "Config.KlarnaSliceItFeeLabel",
                     "options": {}
                 }
             }

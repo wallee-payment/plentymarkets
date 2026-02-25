@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.1.8 (2026-02-25)
+- Artikelnummer und Varianten-ID in Portaldaten (für Dokumente) getrennt
+- Unterstützung für Webhook-Signaturen hinzugefügt
+- Rundungsfehler bei Rückerstattungen behoben
+
 ## v2.1.7 (2025-11-19)
 - Änderungsprotokoll aktualisieren
 
