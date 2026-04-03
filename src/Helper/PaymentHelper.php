@@ -85,12 +85,58 @@ class PaymentHelper
         $paymentMethods = $this->paymentMethodRepository->allForPlugin('wallee');
         if (! is_null($paymentMethods)) {
             foreach ($paymentMethods as $paymentMethod) {
+                $allMethodsData[] = [
+                    'id' => $paymentMethod->id,
+                    'paymentKey' => $paymentMethod->paymentKey,
+                    'pluginKey' => $paymentMethod->pluginKey ?? 'null'
+                ];
+
                 if ($paymentMethod->id == $mopId) {
-                    return true;
+                    $this->getLogger(__METHOD__)->error('Wallee::isWalleePaymentMopId_TRUE', [
+                        'mopId' => $mopId,
+                        'paymentMethodId' => $paymentMethod->id,
+                        'areEqual' => ($paymentMethod->id == $mopId),
+                        'areIdentical' => ($paymentMethod->id === $mopId)
+                    ]);
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * Get VR Payment method object by MOP ID.
+     *
+     * @param int $mopId
+     * @return \Plenty\Modules\Payment\Method\Models\PaymentMethod|null
+     */
+    public function getWalleePaymentMethodByMopId($mopId)
+    {
+        $paymentMethods = $this->paymentMethodRepository->allForPlugin('wallee');
+
+        $methodIds = [];
+        if (! is_null($paymentMethods)) {
+            foreach ($paymentMethods as $paymentMethod) {
+                $methodIds[] = [
+                    'id' => $paymentMethod->id,
+                    'paymentKey' => $paymentMethod->paymentKey,
+                    'pluginKey' => $paymentMethod->pluginKey ?? 'null',
+                    'match' => ($paymentMethod->id === $mopId)
+                ];
+                if ($paymentMethod->id == $mopId) {
+                    $this->getLogger(__METHOD__)->error('Wallee::FoundPaymentMethod', [
+                        'mopId' => $mopId,
+                        'paymentMethod' => [
+                            'id' => $paymentMethod->id,
+                            'paymentKey' => $paymentMethod->paymentKey
+                        ]
+                    ]);
+                    return $paymentMethod;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
