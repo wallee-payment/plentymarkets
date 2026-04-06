@@ -84,7 +84,38 @@ class WalleeServiceProviderHelper
                 /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
                 $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
                 $selectedMethodId = $session->getPlugin()->getValue('walleeSelectedMethodId');
-                
+
+                $transactionId = $session->getPlugin()->getValue('walleeTransactionId');
+
+                $this->getLogger(__METHOD__)->error('FLOW::TransactionFromSession', [
+                    'transactionId' => $transactionId
+                ]);
+
+                // Link transaction and order
+                if ($transactionId) {
+                    try {
+                        /** @var \Wallee\Services\WalleeSdkService $sdkService */
+                        $sdkService = pluginApp(\Wallee\Services\WalleeSdkService::class);
+
+                        $sdkService->call('updateTransaction', [
+                            'id' => $transactionId,
+                            'merchantReference' => (string)$order->id
+                        ]);
+
+                        $this->getLogger(__METHOD__)->error('Wallee::TransactionLinked', [
+                            'transactionId' => $transactionId,
+                            'orderId' => $order->id
+                        ]);
+
+                    } catch (\Exception $e) {
+                        $this->getLogger(__METHOD__)->error('Wallee::TransactionLinkFailed', [
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    $this->getLogger(__METHOD__)->error('Wallee::NoTransactionInSession');
+                }
+
                 // Get Wallee Payment method object
                 $paymentMethod = $this->paymentHelper->getWalleePaymentMethodByMopId($order->methodOfPaymentId);
                 
