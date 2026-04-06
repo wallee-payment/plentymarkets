@@ -98,6 +98,7 @@ class PaymentHelper
                         'areEqual' => ($paymentMethod->id == $mopId),
                         'areIdentical' => ($paymentMethod->id === $mopId)
                     ]);
+                    return true;
                 }
             }
         }
