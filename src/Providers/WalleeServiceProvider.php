@@ -112,9 +112,9 @@ class WalleeServiceProvider extends ServiceProvider
             'en' => 'Refund the wallee payment'
         ], 'Wallee\Procedures\RefundEventProcedure@run');
 
+        $walleeServiceProviderHelper->addAfterOrderCreatedListener();
         $walleeServiceProviderHelper->addExecutePaymentContentEventListener();
         $walleeServiceProviderHelper->addGetPaymentMethodContentEventListener();
-        $walleeServiceProviderHelper->addAfterOrderCreatedListener();
 
         $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }

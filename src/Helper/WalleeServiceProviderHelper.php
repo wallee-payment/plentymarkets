@@ -66,9 +66,10 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds a listener to handle order creation and associate Wallee transaction
-     * @return never
+     * @return void
      */
-    public function addAfterOrderCreatedListener() {
+    public function addAfterOrderCreatedListener(): void
+    {
         // Listen to order creation events
         $this->eventDispatcher->listen('IO.Order.Created', function ($order) {
             try {
@@ -146,9 +147,10 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds the get payment method content event listener for PWA
-     * @return never
+     * @return void
      */
-    public function addGetPaymentMethodContentEventListener() {
+    public function addGetPaymentMethodContentEventListener(): void
+    {
         $this->eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) {
             
             try {
@@ -183,9 +185,10 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds the execute payment content event listener
-     * @return never
+     * @return void
      */
-    public function addExecutePaymentContentEventListener() {
+    public function addExecutePaymentContentEventListener(): void
+    {
         // Listen with high priority (runs before other handlers)
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
             
