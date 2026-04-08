@@ -193,6 +193,7 @@ class WalleeServiceProviderHelper
     {
         // Listen with high priority (runs before other handlers)
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
+            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', []);
 
             try {
                 // Get the basket to check what payment method the user actually selected
