@@ -171,6 +171,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFromBasket', []);
                 // Handle PWA basket-based payment
                 $result = $this->paymentService->executePaymentFromBasket($eventMop);
 
