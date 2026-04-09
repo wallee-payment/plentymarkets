@@ -312,6 +312,7 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod): array
     {
+        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
         // Ensure webhooks are created on each transaction
         $this->createWebhook();
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');

@@ -225,6 +225,7 @@ class WalleeServiceProviderHelper
 
                 // Check if order exists
                 $orderId = $event->getOrderId();
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEvent', ['orderId' => $orderId]);
 
                 if ($orderId == 0 || empty($orderId)) {
 
