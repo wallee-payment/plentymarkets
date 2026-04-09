@@ -206,6 +206,7 @@ class WalleeServiceProviderHelper
                 // Check if the selected payment method (from basket) is a Wallee Payment method
                 $isWallee = $this->paymentHelper->isWalleePaymentMopId($selectedPaymentMethodId);
 
+
                 if (!$isWallee) {
                     $this->getLogger(__METHOD__)->error('Wallee::NotWalleeMethod', [
                         'selectedPaymentMethodId' => $selectedPaymentMethodId

@@ -179,6 +179,9 @@ class PaymentService
      */
     public function executePaymentFromBasket(PaymentMethod $paymentMethod): array
     {
+        $this->getLogger(__METHOD__)->error('FLOW::executePaymentFromBasket', [
+            'paymentMethod' => $paymentMethod
+        ]);
         try {
             // Ensure webhooks are created
             $this->createWebhook();
