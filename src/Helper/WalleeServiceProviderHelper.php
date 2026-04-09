@@ -129,6 +129,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 // Execute payment using the existing order-based flow
                 $result = $this->paymentService->executePayment($order, $paymentMethod);
 
