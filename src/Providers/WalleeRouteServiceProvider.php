@@ -2,8 +2,7 @@
 namespace Wallee\Providers;
 
 use Plenty\Plugin\RouteServiceProvider;
-//use Plenty\Plugin\Routing\Router;
-use Plenty\Modules\Webshop\REST\Routing\Router;
+use Plenty\Plugin\Routing\Router;
 
 class WalleeRouteServiceProvider extends RouteServiceProvider
 {
