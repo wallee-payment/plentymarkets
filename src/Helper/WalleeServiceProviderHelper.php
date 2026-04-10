@@ -70,10 +70,9 @@ class WalleeServiceProviderHelper
      */
     public function addAfterOrderCreatedListener(): void
     {
-        $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEvent', []);
         // Listen to order creation events
         $this->eventDispatcher->listen('IO.Order.Created', function ($order) {
-            $this->getLogger(__METHOD__)->error('Wallee::IOEventFired', []);
+            $this->getLogger(__METHOD__)->error('Wallee::IOOrderCreatedEventFired', []);
             try {
                 if (!is_object($order) || !isset($order->id)) {
                     return;
