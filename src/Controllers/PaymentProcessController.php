@@ -259,62 +259,63 @@ class PaymentProcessController extends Controller
      */
     public function preparePayment(Request $request)
     {
-        $paymentMethodId = $request->get('paymentMethodId', '');
-        
-        $this->getLogger(__METHOD__)->error('Wallee::PreparePayment_CALLED', [
-            'paymentMethodId' => $paymentMethodId,
-            'requestData' => $request->all()
-        ]);
-        
-        try {
-            if (empty($paymentMethodId)) {
-                return $this->response->json([
-                    'type' => 'error',
-                    'value' => 'Payment method ID is required'
-                ]);
-            }
-            
-            // Get the payment method
-            $paymentMethod = $this->paymentMethodService->findByPaymentMethodId($paymentMethodId);
-            
-            if (!$paymentMethod) {
-                return $this->response->json([
-                    'type' => 'error',
-                    'value' => 'Payment method not found'
-                ]);
-            }
-            
-            // Check if this is a Wallee method
-            if (!$this->paymentHelper->isWalleePaymentMopId($paymentMethodId)) {
-                return $this->response->json([
-                    'type' => 'continue',
-                    'value' => ''
-                ]);
-            }
-            
-            // Execute payment from basket (PWA flow)
-            $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
-            
-            $this->getLogger(__METHOD__)->error('Wallee::PreparePaymentResult', [
-                'result' => $result
-            ]);
-            
-            return $this->response->json([
-                'type' => $result['type'] === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL ? 'redirect' : ($result['type'] === GetPaymentMethodContent::RETURN_TYPE_ERROR ? 'error' : 'continue'),
-                'value' => $result['content'] ?? ''
-            ]);
-            
-        } catch (\Exception $e) {
-            $this->getLogger(__METHOD__)->error('Wallee::PreparePaymentException', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return $this->response->json([
-                'type' => 'error',
-                'value' => 'An error occurred while preparing the payment'
-            ]);
-        }
+        $this->getLogger(__METHOD__)->error('Wallee::preparePayment', []);
+//        $paymentMethodId = $request->get('paymentMethodId', '');
+//
+//        $this->getLogger(__METHOD__)->error('Wallee::PreparePayment_CALLED', [
+//            'paymentMethodId' => $paymentMethodId,
+//            'requestData' => $request->all()
+//        ]);
+//
+//        try {
+//            if (empty($paymentMethodId)) {
+//                return $this->response->json([
+//                    'type' => 'error',
+//                    'value' => 'Payment method ID is required'
+//                ]);
+//            }
+//
+//            // Get the payment method
+//            $paymentMethod = $this->paymentMethodService->findByPaymentMethodId($paymentMethodId);
+//
+//            if (!$paymentMethod) {
+//                return $this->response->json([
+//                    'type' => 'error',
+//                    'value' => 'Payment method not found'
+//                ]);
+//            }
+//
+//            // Check if this is a Wallee method
+//            if (!$this->paymentHelper->isWalleePaymentMopId($paymentMethodId)) {
+//                return $this->response->json([
+//                    'type' => 'continue',
+//                    'value' => ''
+//                ]);
+//            }
+//
+//            // Execute payment from basket (PWA flow)
+//            $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
+//
+//            $this->getLogger(__METHOD__)->error('Wallee::PreparePaymentResult', [
+//                'result' => $result
+//            ]);
+//
+//            return $this->response->json([
+//                'type' => $result['type'] === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL ? 'redirect' : ($result['type'] === GetPaymentMethodContent::RETURN_TYPE_ERROR ? 'error' : 'continue'),
+//                'value' => $result['content'] ?? ''
+//            ]);
+//
+//        } catch (\Exception $e) {
+//            $this->getLogger(__METHOD__)->error('Wallee::PreparePaymentException', [
+//                'message' => $e->getMessage(),
+//                'trace' => $e->getTraceAsString()
+//            ]);
+//
+//            return $this->response->json([
+//                'type' => 'error',
+//                'value' => 'An error occurred while preparing the payment'
+//            ]);
+//        }
     }
 
     /**
