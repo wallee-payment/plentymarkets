@@ -10,6 +10,7 @@ use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Plugin\Log\Loggable;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Services\PaymentService;
+use Plenty\Modules\Order\Events\OrderCreated;
 
 class WalleeServiceProviderHelper
 {
@@ -71,8 +72,14 @@ class WalleeServiceProviderHelper
     public function addAfterOrderCreatedListener(): void
     {
         // Listen to order creation events
-        $this->eventDispatcher->listen('OrderCreated', function ($order) {
-            $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventFired', []);
+//        $this->eventDispatcher->listen('OrderCreated', function ($order) {
+        $this->eventDispatcher->listen(OrderCreated::class, function (OrderCreated $event) {
+//            $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventFired', []);
+            $order = $event->getOrder();
+            $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventFired', [
+                'orderId' => $order->id
+            ]);
+
             try {
                 if (!is_object($order) || !isset($order->id)) {
                     return;
