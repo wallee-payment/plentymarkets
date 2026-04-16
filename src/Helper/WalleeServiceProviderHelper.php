@@ -257,6 +257,7 @@ class WalleeServiceProviderHelper
                         return;
                     }
 
+                    $this->getLogger(__METHOD__)->error('Wallee::BeforeExecutePayment');
                     $result = $this->paymentService->executePayment(
                         $eventOrderId,
                         $eventMop
