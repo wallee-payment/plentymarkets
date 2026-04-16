@@ -137,7 +137,8 @@ class WalleeServiceProviderHelper
 
                 $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 // Execute payment using the existing order-based flow
-                $result = $this->paymentService->executePayment($order, $paymentMethod);
+//                $result = $this->paymentService->executePayment($order, $paymentMethod);
+                $result = $this->paymentService->executePaymentFromBasket($order, $paymentMethod);
 
                 // Store redirect URL in session for PWA plugin to pick up
                 if (isset($result['content']) && !empty($result['content'])) {
@@ -235,7 +236,7 @@ class WalleeServiceProviderHelper
 
                 // Check if order exists
                 $orderId = $event->getOrderId();
-                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEvent', ['orderId' => $orderId]);
+                $this->getLogger(__METHOD__)->error('Wallee::OrderExistExecutePaymentEvent', ['orderId' => $orderId]);
 
                 if ($orderId == 0 || empty($orderId)) {
 
