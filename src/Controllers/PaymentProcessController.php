@@ -343,25 +343,48 @@ class PaymentProcessController extends Controller
                     'orderId' => $orderId
                 ]);
                 
-                return $this->response->json([
-                    'redirectUrl' => $redirectUrl,
-                    'orderId' => $orderId
-                ]);
+//                return $this->response->json([
+//                    'redirectUrl' => $redirectUrl,
+//                    'orderId' => $orderId
+//                ]);
+                return $this->response->make(
+                    json_encode([
+                        'redirectUrl' => $redirectUrl,
+                        'orderId' => $orderId
+                    ]),
+                    200,
+                    ['Content-Type' => 'application/json']
+                );
             }
-            
-            return $this->response->json([
-                'redirectUrl' => null
-            ]);
+
+            return $this->response->make(
+                json_encode([
+                    'redirectUrl' => null
+                ]),
+                200,
+                ['Content-Type' => 'application/json']
+            );
+//            return $this->response->json([
+//                'redirectUrl' => null
+//            ]);
             
         } catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('Wallee::CheckRedirectException', [
                 'message' => $e->getMessage()
             ]);
             
-            return $this->response->json([
-                'redirect' => false,
-                'error' => $e->getMessage()
-            ]);
+//            return $this->response->json([
+//                'redirect' => false,
+//                'error' => $e->getMessage()
+//            ]);
+            return $this->response->make(
+                json_encode([
+                    'redirect' => false,
+                    'error' => $e->getMessage()
+                ]),
+                500,
+                ['Content-Type' => 'application/json']
+            );
         }
     }
 
