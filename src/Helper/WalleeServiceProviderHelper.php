@@ -138,6 +138,7 @@ class WalleeServiceProviderHelper
                 $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 // Execute payment using the existing order-based flow
                 $result = $this->paymentService->executePayment($order, $paymentMethod);
+                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', []);
 //                $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
 //                $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
 
