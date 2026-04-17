@@ -321,6 +321,9 @@ class WalleeServiceProviderHelper
                     'message' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
+
+                $event->setType('error');
+                $event->setValue('Payment failed: ' . $e->getMessage());
             }
         });
     }
