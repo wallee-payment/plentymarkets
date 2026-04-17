@@ -177,7 +177,15 @@ class WalleeServiceProviderHelper
                 // Get Wallee method object
                 $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
 
+//                if (!$eventMop) {
+//                    return;
+//                }
+                //do not return nothing if !eventMop, restore if needed
                 if (!$eventMop) {
+                    $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNull');
+
+                    $event->setType('continue');
+                    $event->setValue('');
                     return;
                 }
 
@@ -296,7 +304,8 @@ class WalleeServiceProviderHelper
 //                $event->setType($type);
 
                 // Store payment URL and transaction ID in session
-                if ($type === 'redirect' && !empty($result['content'])) {
+//                if ($type === 'redirect' && !empty($result['content'])) {
+                if ($type === 'redirectUrl' && !empty($result['content'])) {
                     /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
                     $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
                     $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
