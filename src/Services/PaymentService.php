@@ -336,6 +336,7 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
 
+        //TODO is this a problem for PWA?
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [

@@ -268,14 +268,27 @@ class WalleeServiceProviderHelper
                 }
 
                 // Map GetPaymentMethodContent types to ExecutePayment types for PWA compatibility
-                $type = isset($result['type']) ? $result['type'] : '';
+//                $type = isset($result['type']) ? $result['type'] : '';
+//                if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
+//                    $type = 'redirectUrl';
+//                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR || $type === 'error') {
+//                    $type = 'error';
+//                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_CONTINUE || $type === 'continue') {
+//                    $type = 'continue';
+//                }
+                $type = $result['type'] ?? '';
+                $content = $result['content'] ?? $result['redirectUrl'] ?? '';
+
                 if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
-                    $type = 'redirect';
+                    $type = 'redirectUrl';
                 } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR || $type === 'error') {
                     $type = 'error';
-                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_CONTINUE || $type === 'continue') {
+                } else {
                     $type = 'continue';
                 }
+
+                $event->setType($type);
+                $event->setValue($content);
 
                 // Set event values
                 $event->setValue(isset($result['content']) ? $result['content'] : null);
