@@ -290,9 +290,10 @@ class WalleeServiceProviderHelper
                 $event->setType($type);
                 $event->setValue($content);
 
+                // TODO Safe setters commented for testing
                 // Set event values
-                $event->setValue(isset($result['content']) ? $result['content'] : null);
-                $event->setType($type);
+//                $event->setValue(isset($result['content']) ? $result['content'] : null);
+//                $event->setType($type);
 
                 // Store payment URL and transaction ID in session
                 if ($type === 'redirect' && !empty($result['content'])) {
