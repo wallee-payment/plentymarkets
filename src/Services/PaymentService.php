@@ -414,7 +414,11 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentBeforePwaRedirectReturn', []);
+        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentBeforePwaRedirectReturn', [
+            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+            'redirectUrl' => $paymentPageUrl,
+//            'content' => $paymentPageUrl
+        ]);
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'redirectUrl' => $paymentPageUrl, // Additional field for PWA
