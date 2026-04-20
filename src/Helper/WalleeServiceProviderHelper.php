@@ -253,7 +253,7 @@ class WalleeServiceProviderHelper
                 $this->getLogger(__METHOD__)->error('Wallee::OrderExistExecutePaymentEvent', ['orderId' => $orderId]);
 
                 if ($orderId == 0 || empty($orderId)) {
-
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero', []);
                     // Store the selected Wallee Payment method in session
                     $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $selectedPaymentMethodId);
 
@@ -288,6 +288,11 @@ class WalleeServiceProviderHelper
 //                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_CONTINUE || $type === 'continue') {
 //                    $type = 'continue';
 //                }
+
+                $this->getLogger(__METHOD__)->error('Wallee::BeforeResultMap', [
+                    'result' => $result
+                ]);
+
                 $type = $result['type'] ?? '';
                 $content = $result['content'] ?? $result['redirectUrl'] ?? null;
 
