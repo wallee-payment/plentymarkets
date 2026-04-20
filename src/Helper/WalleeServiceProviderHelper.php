@@ -2,6 +2,7 @@
 namespace Wallee\Helper;
 
 use IO\Services\BasketService;
+use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
@@ -41,6 +42,11 @@ class WalleeServiceProviderHelper
      */
     private $paymentMethodService;
 
+    /**
+     *
+     * @var FrontendSessionStorageFactoryContract
+     */
+    private $session;
 
     /**
      * Construct the helper
@@ -50,19 +56,22 @@ class WalleeServiceProviderHelper
      * @param  OrderRepositoryContract $orderRepository
      * @param  PaymentService $paymentService
      * @param  PaymentMethodRepositoryContract $paymentMethodService
+     * @param  FrontendSessionStorageFactoryContract $session
      */
     public function __construct(
         Dispatcher $eventDispatcher,
         PaymentHelper $paymentHelper,
         OrderRepositoryContract $orderRepository,
         PaymentService $paymentService,
-        PaymentMethodRepositoryContract $paymentMethodService
+        PaymentMethodRepositoryContract $paymentMethodService,
+        FrontendSessionStorageFactoryContract $session
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->paymentHelper = $paymentHelper;
         $this->orderRepository = $orderRepository;
         $this->paymentService = $paymentService;
         $this->paymentMethodService = $paymentMethodService;
+        $this->session = $session;
     }
 
     /**
