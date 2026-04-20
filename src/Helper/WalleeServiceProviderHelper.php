@@ -169,7 +169,11 @@ class WalleeServiceProviderHelper
             try {
                 // Check if this is a Wallee Payment method
                 $isWallee = $this->paymentHelper->isWalleePaymentMopId($event->getMop());
-
+                $selectedPaymentMethodId = $event->getMop() ?? '';
+                $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNull', [
+                    'isWallee' => $isWallee,
+                    'selectedPaymentMethodId' => $selectedPaymentMethodId
+                ]);
                 if (!$isWallee) {
                     return;
                 }
@@ -285,7 +289,7 @@ class WalleeServiceProviderHelper
 //                    $type = 'continue';
 //                }
                 $type = $result['type'] ?? '';
-                $content = $result['content'] ?? $result['redirectUrl'] ?? '';
+                $content = $result['content'] ?? $result['redirectUrl'] ?? null;
 
                 if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
                     $type = 'redirectUrl';
@@ -294,6 +298,11 @@ class WalleeServiceProviderHelper
                 } else {
                     $type = 'continue';
                 }
+
+                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFiredPWACheck', [
+                    'type' => $type,
+                    'content' => $content
+                ]);
 
                 $event->setType($type);
                 $event->setValue($content);

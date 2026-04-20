@@ -334,7 +334,7 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl(),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         //TODO is this a problem for PWA?
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
