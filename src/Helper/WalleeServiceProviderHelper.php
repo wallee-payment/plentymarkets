@@ -256,12 +256,12 @@ class WalleeServiceProviderHelper
                     $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero', []);
                     // Store the selected Wallee Payment method in session
                     $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $selectedPaymentMethodId);
-
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero_AfterSessionSet', []);
                     $result = [
                         'type' => 'continue',
                         'content' => ''
                     ];
-
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero_AfterResultSet', []);
                 } else {
                     // Order exists: either traditional flow or PWA post-order-creation call
                     $eventOrderId = $this->orderRepository->findById($orderId);
