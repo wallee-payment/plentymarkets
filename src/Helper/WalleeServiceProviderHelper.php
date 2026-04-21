@@ -101,7 +101,7 @@ class WalleeServiceProviderHelper
 
                 /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
                 $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-                $selectedMethodId = $session->getPlugin()->getValue('walleeSelectedMethodId');
+                $selectedMethodId = $session->getPlugin()->getValue('walleePaymentSelectedMethodId');
 
                 $transactionId = $session->getPlugin()->getValue('walleeTransactionId');
 
@@ -146,10 +146,12 @@ class WalleeServiceProviderHelper
 
                 $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 // Execute payment using the existing order-based flow
-                $result = $this->paymentService->executePayment($order, $paymentMethod);
-                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', []);
+                // $result = $this->paymentService->executePayment($order, $paymentMethod);
+                $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
+                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
+                    'result' => $result
+                ]);
 //                $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
-//                $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
 
                 // Store redirect URL in session for PWA plugin to pick up
                 if (isset($result['content']) && !empty($result['content'])) {
