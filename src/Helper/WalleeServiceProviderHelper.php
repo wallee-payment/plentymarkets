@@ -179,13 +179,13 @@ class WalleeServiceProviderHelper
                     $type = 'continue';
                 }
 
-                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventTypeMatch', [
                     'type' => $type,
                     '$result[content]' => $result['content']
                 ]);
 
                 if ($type === 'redirect' && !empty($result['content'])) {
-                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventSessionSet', [
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventSessionSet', [
                         'result[content]' => $result['content']
                     ]);
                     // /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
@@ -304,6 +304,20 @@ class WalleeServiceProviderHelper
                     // Store the selected Wallee Payment method in session
                     $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $selectedPaymentMethodId);
                     $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero_AfterSessionSet', []);
+
+                    $redirectUrl = $this->session->getPlugin()->getValue('walleePendingRedirectUrl');
+
+                    if (!empty($redirectUrl)) {
+                        $orderId = $this->session->getPlugin()->getValue('walleeOrderId');
+                        $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');
+                        $this->session->getPlugin()->unsetKey('walleeOrderId');
+                        $event->setType('redirect');
+                        $event->setValue($redirectUrl);
+                        return;
+                    }
+
+
+
                     $result = [
                         'type' => 'continue',
                         'content' => ''
