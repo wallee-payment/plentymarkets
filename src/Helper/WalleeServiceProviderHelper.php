@@ -157,13 +157,40 @@ class WalleeServiceProviderHelper
 //                $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
 
                 // Store redirect URL in session for PWA plugin to pick up
-                if (isset($result['content']) && !empty($result['content'])) {
-                    $this->getLogger(__METHOD__)->error('Wallee::AfterOrderCreatedSessionSet', [
-                        'result[content]' => $result['content'],
-                        'orderId' => $order->id
+                // if (isset($result['content']) && !empty($result['content'])) {
+                //     $this->getLogger(__METHOD__)->error('Wallee::AfterOrderCreatedSessionSet', [
+                //         'result[content]' => $result['content'],
+                //         'orderId' => $order->id
+                //     ]);
+                //     // $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                //     // $session->getPlugin()->setValue('walleeOrderId', $order->id);
+                //     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                //     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
+                // }
+
+                $type = $result['type'] ?? '';
+                $content = $result['content'] ?? $result['redirectUrl'] ?? null;
+
+                if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
+                    $type = 'redirect';
+                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR || $type === 'error') {
+                    $type = 'error';
+                } else {
+                    $type = 'continue';
+                }
+
+                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
+                    'type' => $type,
+                    '$result[content]' => $result['content']
+                ]);
+
+                if ($type === 'redirect' && !empty($result['content'])) {
+                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventSessionSet', [
+                        'result[content]' => $result['content']
                     ]);
+                    // /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
+                    // $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
                     // $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
-                    // $session->getPlugin()->setValue('walleeOrderId', $order->id);
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
                 }
