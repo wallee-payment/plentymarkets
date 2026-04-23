@@ -99,11 +99,14 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
-                $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-                $selectedMethodId = $session->getPlugin()->getValue('walleePaymentSelectedMethodId');
+                // /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
+                // $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+                // $selectedMethodId = $session->getPlugin()->getValue('walleePaymentSelectedMethodId');
 
-                $transactionId = $session->getPlugin()->getValue('walleeTransactionId');
+                // $transactionId = $session->getPlugin()->getValue('walleeTransactionId');
+
+                $selectedMethodId = $this->session->getPlugin()->getValue('walleePaymentSelectedMethodId');
+                $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
                 $this->getLogger(__METHOD__)->error('FLOW::TransactionFromSession', [
                     'transactionId' => $transactionId
@@ -155,8 +158,14 @@ class WalleeServiceProviderHelper
 
                 // Store redirect URL in session for PWA plugin to pick up
                 if (isset($result['content']) && !empty($result['content'])) {
-                    $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
-                    $session->getPlugin()->setValue('walleeOrderId', $order->id);
+                    $this->getLogger(__METHOD__)->error('Wallee::AfterOrderCreatedSessionSet', [
+                        'result[content]' => $result['content'],
+                        'orderId' => $order->id
+                    ]);
+                    // $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    // $session->getPlugin()->setValue('walleeOrderId', $order->id);
+                    $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
                 }
 
             } catch (\Exception $e) {
@@ -331,13 +340,18 @@ class WalleeServiceProviderHelper
                 // Store payment URL and transaction ID in session
 //                if ($type === 'redirect' && !empty($result['content'])) {
                 if ($type === 'redirect' && !empty($result['content'])) {
-                    /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
-                    $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-                    $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventSessionSet', [
+                        'result[content]' => $result['content']
+                    ]);
+                    // /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
+                    // $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+                    // $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
 
                     // Store additional data that might help
                     if (isset($result['transactionId'])) {
-                        $session->getPlugin()->setValue('walleeTransactionId', $result['transactionId']);
+                        // $session->getPlugin()->setValue('walleeTransactionId', $result['transactionId']);
+                        // $this->session->getPlugin()->setValue('walleeTransactionId', $result['transactionId']);
                     }
 
                 }
