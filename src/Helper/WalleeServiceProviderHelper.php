@@ -146,8 +146,8 @@ class WalleeServiceProviderHelper
 
                 $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 // Execute payment using the existing order-based flow
-                // $result = $this->paymentService->executePayment($order, $paymentMethod);
-                $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
+                $result = $this->paymentService->executePayment($order, $paymentMethod);
+                // $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
                 $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
                     'result' => $result
                 ]);
@@ -308,7 +308,7 @@ class WalleeServiceProviderHelper
                 $content = $result['content'] ?? $result['redirectUrl'] ?? null;
 
                 if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
-                    $type = 'redirectUrl';
+                    $type = 'redirect';
                 } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR || $type === 'error') {
                     $type = 'error';
                 } else {
@@ -330,7 +330,7 @@ class WalleeServiceProviderHelper
 
                 // Store payment URL and transaction ID in session
 //                if ($type === 'redirect' && !empty($result['content'])) {
-                if ($type === 'redirectUrl' && !empty($result['content'])) {
+                if ($type === 'redirect' && !empty($result['content'])) {
                     /** @var \Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract $session */
                     $session = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
                     $session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
