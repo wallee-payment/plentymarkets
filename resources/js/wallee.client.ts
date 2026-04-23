@@ -2,6 +2,9 @@
  * wallee Client Plugin
  * Intercepts doExecutePayment to handle payment redirects
  */
+
+console.log('[wallee] PLUGIN LOADED');
+
 export default defineNuxtPlugin(() => {
   
   // Only run on client side
@@ -10,6 +13,7 @@ export default defineNuxtPlugin(() => {
   }
 
   function redirect(url: string) {
+    console.log('[wallee]: redirect url: ', url);
     sessionStorage.setItem('wallee_pending_redirect', url);
     localStorage.setItem('wallee_pending_redirect', url);
     if ((window as any).__wallee_should_redirect) {
@@ -39,13 +43,16 @@ export default defineNuxtPlugin(() => {
   }
 
   async function pollForRedirect() {
+    console.log('[wallee]: pollForRedirect ');
     for (let i = 0; i < 3; i++) {
+      console.log('[wallee]: pollForRedirect attempt: ', i);
       try {
         const res = await fetch('/rest/storefront/wallee/check-redirect', {
           credentials: 'include',
           headers: { Accept: 'application/json' },
         });
         const data = await res.json();
+        console.log('[wallee]: pollForRedirect data: ', data);
         if (data?.redirectUrl) {
           redirect(data.redirectUrl);
           return;
@@ -83,7 +90,7 @@ export default defineNuxtPlugin(() => {
               console.log('[wallee]: data=', data);
               
               if (data?.data?.type === 'redirect' && data?.data?.value) {
-
+                console.log('[wallee]: redirect');
                 redirect(data.data.value);
                 return;
                 
@@ -117,6 +124,7 @@ export default defineNuxtPlugin(() => {
               }
 
               const first = Array.isArray(data) ? data[0] : null;
+              console.log('[wallee]: first ', first);
               if (first?.orderId) {
                 setTimeout(pollForRedirect, 400);
               }
