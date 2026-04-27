@@ -559,8 +559,8 @@ class PaymentProcessController extends Controller
 
         if ($originUrl) {
             $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextSetToSession', []);
-            $this->session->getPlugin()->setValue('walleeOriginUrl', $originUrl);
-            $this->session->getPlugin()->setValue('walleeOriginLang', $lang);
+            $this->frontendSession->getPlugin()->setValue('walleeOriginUrl', $originUrl);
+            $this->frontendSession->getPlugin()->setValue('walleeOriginLang', $lang);
             return $this->response->json(['ok' => true]);
         }
         return $this->response->json(['ok' => false], 400);

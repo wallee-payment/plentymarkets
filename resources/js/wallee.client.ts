@@ -45,7 +45,7 @@ export default defineNuxtPlugin(() => {
   async function walleeRegisterReturnContext(originUrl: string, lang: string) {
     const sdk = useSdk() as any;
     await sdk.plentysystems.walleeRegisterReturnContext({
-      origin: originUrl,
+      originUrl: originUrl,
       lang: lang,
     });
   }
