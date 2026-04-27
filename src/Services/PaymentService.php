@@ -792,6 +792,9 @@ class PaymentService
     private function getSuccessUrl(?Order $order = null): string
     {
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
+            'originUrl' => $originUrl,
+        ]);
         if ($originUrl && $order) {
             $accessKey = $this->orderHelper->getOrderAccessKey($order);
             return sprintf('%s/confirmation/%d/%s', rtrim($origin, '/'), $order->id, $accessKey);
@@ -808,6 +811,10 @@ class PaymentService
     private function getFailedUrl(?int $transactionId = null): string
     {
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
+            'originUrl' => $originUrl,
+            'transactionId' => $transactionId,
+        ]);
         if ($originUrl && $transactionId) {
             $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($origin, '/'), $order->id, $accessKey);
             if ($transactionId) {
