@@ -546,6 +546,10 @@ class PaymentProcessController extends Controller
      */
     public function registerReturnContext(Request $request)
     {
+        $this->getLogger(__METHOD__)->error('Wallee::sessionDebug', [
+            'cookie_header' => $request->header('Cookie'),
+            'plenty_session_id' => session_id() ?: '(none)',
+        ]);
         $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextHit', [
             'request' => $request
         ]);

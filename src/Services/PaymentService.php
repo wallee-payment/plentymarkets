@@ -797,7 +797,7 @@ class PaymentService
         ]);
         if ($originUrl && $order) {
             $accessKey = $this->orderHelper->getOrderAccessKey($order);
-            return sprintf('%s/confirmation/%d/%s', rtrim($origin, '/'), $order->id, $accessKey);
+            return sprintf('%s/confirmation/%d/%s', rtrim($originUrl, '/'), $order->id, $accessKey);
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
@@ -816,7 +816,7 @@ class PaymentService
             'transactionId' => $transactionId,
         ]);
         if ($originUrl && $transactionId) {
-            $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($origin, '/'), $order->id, $accessKey);
+            $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'), $order->id, $accessKey);
             if ($transactionId) {
                 $url .= '&transactionId=' . urlencode((string) $transactionId);
             }
