@@ -42,15 +42,17 @@ export default defineNuxtPlugin(() => {
     throw new Error('wallee redirect initiated');
   }
 
-  async function pollForRedirect() {
+  async function pollForRedirect(baseUrl: string) {
     console.log('[wallee]: pollForRedirect ');
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       console.log('[wallee]: pollForRedirect attempt: ', i);
       try {
-        const res = await fetch('/rest/storefront/wallee/check-redirect', {
+        const res = await fetch(`${baseUrl}/rest/storefront/wallee/check-redirect`, {
           credentials: 'include',
           headers: { Accept: 'application/json' },
         });
+        console.log('[wallee]: pollForRedirect fullUrl: ', `${baseUrl}/rest/storefront/wallee/check-redirect`);
+        console.log('[wallee]: pollForRedirect res: ', res);
         const data = await res.json();
         console.log('[wallee]: pollForRedirect data: ', data);
         if (data?.redirectUrl) {
@@ -60,7 +62,7 @@ export default defineNuxtPlugin(() => {
       } catch (err) {
         console.error('[wallee] Error polling for redirect:', err);
       }
-      await new Promise(r => setTimeout(r, 300 * (i + 1)));
+      await new Promise(r => setTimeout(r, 500 * (i + 1)));
     }
     console.error('[wallee] Poll exhausted');
   }
@@ -72,6 +74,7 @@ export default defineNuxtPlugin(() => {
     
     XMLHttpRequest.prototype.open = function(this: XMLHttpRequest, method: string, url: string | URL, ...rest: any[]) {
       (this as any).__wallee_url = url.toString();
+      console.log('[wallee]: XMLHttpRequest=', url);
       return originalXHROpen.apply(this, [method, url, ...rest] as any);
     };
     
@@ -80,6 +83,8 @@ export default defineNuxtPlugin(() => {
       const url = (xhr as any).__wallee_url || '';
       
       if (url.toLowerCase().includes('doexecutepayment')) {
+        const urlObj = new URL(url, window.location.href);
+        const urlBase = `${urlObj.protocol}//${urlObj.host}`;
         
         // Use addEventListener with capture=true to run before other handlers
         xhr.addEventListener('readystatechange', function() {
@@ -88,6 +93,7 @@ export default defineNuxtPlugin(() => {
               const data = JSON.parse(xhr.responseText);
 
               console.log('[wallee]: data=', data);
+              console.log('[wallee]: url=', url);
               
               if (data?.data?.type === 'redirect' && data?.data?.value) {
                 console.log('[wallee]: redirect');
@@ -123,17 +129,46 @@ export default defineNuxtPlugin(() => {
                 // throw new Error('wallee redirect initiated');
               }
 
-              const first = Array.isArray(data) ? data[0] : null;
-              console.log('[wallee]: first ', first);
-              if (first?.orderId) {
-                setTimeout(pollForRedirect, 400);
+              if (data?.data?.type === 'continue') {
+                console.log('[wallee]: continue');
+                pollForRedirect(urlBase);
+                return;
               }
+
+              // const first = Array.isArray(data) ? data[0] : null;
+              // console.log('[wallee]: first ', first);
+              // if (first?.orderId) {
+              //   setTimeout(pollForRedirect, 400);
+              // }
 
             } catch (err) {
               console.error('[wallee] Error parsing XHR response:', err);
             }
           }
         }, true); // Use capture phase to run first
+      }
+
+      if (url.toLowerCase().includes('doplaceorder')) {
+        try {
+          const data = JSON.parse(body);
+          let payload: Record<string, any>;
+          if (data && typeof data === 'object' && !Array.isArray(data)) {
+            payload = data;
+          } else {
+            payload = {};
+          }
+          const originUrl = window.location.origin;
+          const lang = (document.documentElement.lang || 'en').slice(0, 2);
+
+          payload.walleeReturnContext = {
+            origin: originUrl,
+            lang: lang,
+          }
+          body = JSON.stringify(payload);
+
+        } catch (err) {
+          console.error('[wallee] Error parsing XHR response:', err);
+        }
       }
       
       return originalXHRSend.call(this, body);

@@ -330,8 +330,8 @@ class PaymentService
             'shippingAddress' => $this->getAddress($order->deliveryAddress),
             'language' => $this->session->getLocaleSettings()->language,
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
-            'successUrl' => $this->getSuccessUrl(),
-            'failedUrl' => $this->getFailedUrl(),
+            'successUrl' => $this->getSuccessUrl($order),
+            'failedUrl' => $this->getFailedUrl($transactionId),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
@@ -789,8 +789,13 @@ class PaymentService
      *
      * @return string
      */
-    private function getSuccessUrl(): string
+    private function getSuccessUrl(?Order $order = null): string
     {
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl && $order) {
+            $accessKey = $this->orderHelper->getOrderAccessKey($order);
+            return sprintf('%s/confirmation/%d/%s', rtrim($origin, '/'), $order->id, $accessKey);
+        }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/confirmation', $domain, $lang);
@@ -800,8 +805,16 @@ class PaymentService
      *
      * @return string
      */
-    private function getFailedUrl(): string
+    private function getFailedUrl(?int $transactionId = null): string
     {
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl && $transactionId) {
+            $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($origin, '/'), $order->id, $accessKey);
+            if ($transactionId) {
+                $url .= '&transactionId=' . urlencode((string) $transactionId);
+            }
+            return $url;
+        }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/wallee/fail-transaction', $domain, $lang);

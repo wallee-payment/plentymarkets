@@ -195,6 +195,20 @@ class WalleeServiceProviderHelper
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
                 }
 
+                $request = pluginApp(\Plenty\Plugin\Http\Request::class);
+                $returnContext = $request->input('walleeReturnContext');
+
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContext', [
+                    'request' => $request,
+                    'returnContext' => $returnContext
+                ]);
+
+                if (is_array($returnContext) && !empty($returnContext['origin'])) {
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContextPresent', []);
+                    $this->session->getPlugin()->setValue('walleeOriginUrl', $returnContext['origin']);
+                    $this->session->getPlugin()->setValue('walleeOriginLang', $returnContext['lang']);
+                }
+
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::AfterOrderCreatedException', [
                     'message' => $e->getMessage(),
