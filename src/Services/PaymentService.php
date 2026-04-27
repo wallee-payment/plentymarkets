@@ -792,6 +792,9 @@ class PaymentService
     private function getSuccessUrl(?Order $order = null): string
     {
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
+            'sid' => $this->session->getPlugin()->getSessionId(),
+        ]);
         $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
             'originUrl' => $originUrl,
         ]);
@@ -811,6 +814,9 @@ class PaymentService
     private function getFailedUrl(?int $transactionId = null): string
     {
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
+            'sid' => $this->session->getPlugin()->getSessionId(),
+        ]);
         $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
             'originUrl' => $originUrl,
             'transactionId' => $transactionId,
