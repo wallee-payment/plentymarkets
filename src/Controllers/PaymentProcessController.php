@@ -537,4 +537,26 @@ class PaymentProcessController extends Controller
             return false;
         }
     }
+
+    /**
+     * Register return url for PWA
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function registerReturnContext(Request $request)
+    {
+        $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextHit', [
+            'request' => $request
+        ]);
+        $originUrl = $request->input('originUrl');
+        $lang = $request->input('lang') ?: 'en';
+
+        if ($originUrl) {
+            $this->session->getPlugin()->setValue('walleeOriginUrl', $originUrl);
+            $this->session->getPlugin()->setValue('walleeOriginLang', $lang);
+            return $this->response->json(['ok' => true]);
+        }
+        return $this->response->json(['ok' => false], 400);
+    }
 }

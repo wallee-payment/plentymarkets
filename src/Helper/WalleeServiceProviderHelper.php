@@ -206,18 +206,18 @@ class WalleeServiceProviderHelper
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
                 }
 
-                $returnContext = $this->request->input('walleeReturnContext');
+                // $returnContext = $this->request->input('walleeReturnContext');
 
-                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContext', [
-                    'request' => $this->request,
-                    'returnContext' => $returnContext
-                ]);
+                // $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContext', [
+                //     'request' => $this->request,
+                //     'returnContext' => $returnContext
+                // ]);
 
-                if (is_array($returnContext) && !empty($returnContext['origin'])) {
-                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContextPresent', []);
-                    $this->session->getPlugin()->setValue('walleeOriginUrl', $returnContext['origin']);
-                    $this->session->getPlugin()->setValue('walleeOriginLang', $returnContext['lang']);
-                }
+                // if (is_array($returnContext) && !empty($returnContext['origin'])) {
+                //     $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContextPresent', []);
+                //     $this->session->getPlugin()->setValue('walleeOriginUrl', $returnContext['origin']);
+                //     $this->session->getPlugin()->setValue('walleeOriginLang', $returnContext['lang']);
+                // }
 
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::AfterOrderCreatedException', [

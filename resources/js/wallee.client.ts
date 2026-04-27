@@ -42,29 +42,12 @@ export default defineNuxtPlugin(() => {
     throw new Error('wallee redirect initiated');
   }
 
-  async function pollForRedirect(baseUrl: string) {
-    console.log('[wallee]: pollForRedirect ');
-    for (let i = 0; i < 5; i++) {
-      console.log('[wallee]: pollForRedirect attempt: ', i);
-      try {
-        const res = await fetch(`${baseUrl}/rest/storefront/wallee/check-redirect`, {
-          credentials: 'include',
-          headers: { Accept: 'application/json' },
-        });
-        console.log('[wallee]: pollForRedirect fullUrl: ', `${baseUrl}/rest/storefront/wallee/check-redirect`);
-        console.log('[wallee]: pollForRedirect res: ', res);
-        const data = await res.json();
-        console.log('[wallee]: pollForRedirect data: ', data);
-        if (data?.redirectUrl) {
-          redirect(data.redirectUrl);
-          return;
-        }
-      } catch (err) {
-        console.error('[wallee] Error polling for redirect:', err);
-      }
-      await new Promise(r => setTimeout(r, 500 * (i + 1)));
-    }
-    console.error('[wallee] Poll exhausted');
+  async function walleeRegisterReturnContext(originUrl: string, lang: string) {
+    const sdk = useSdk() as any;
+    await sdk.plentysystems.walleeRegisterReturnContext({
+      origin: originUrl,
+      lang: lang,
+    });
   }
   
   // Intercept XMLHttpRequest as well (in case PWA uses axios)
@@ -131,7 +114,7 @@ export default defineNuxtPlugin(() => {
 
               if (data?.data?.type === 'continue') {
                 console.log('[wallee]: continue');
-                pollForRedirect(urlBase);
+                //pollForRedirect(urlBase);
                 return;
               }
 
@@ -150,22 +133,9 @@ export default defineNuxtPlugin(() => {
 
       if (url.toLowerCase().includes('doplaceorder')) {
         try {
-          const data = JSON.parse(body);
-          let payload: Record<string, any>;
-          if (data && typeof data === 'object' && !Array.isArray(data)) {
-            payload = data;
-          } else {
-            payload = {};
-          }
           const originUrl = window.location.origin;
           const lang = (document.documentElement.lang || 'en').slice(0, 2);
-
-          payload.walleeReturnContext = {
-            origin: originUrl,
-            lang: lang,
-          }
-          body = JSON.stringify(payload);
-
+          walleeRegisterReturnContext(originUrl, lang);
         } catch (err) {
           console.error('[wallee] Error parsing XHR response:', err);
         }
