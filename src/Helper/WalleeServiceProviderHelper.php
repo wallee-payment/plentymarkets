@@ -8,6 +8,7 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
 use Plenty\Plugin\Events\Dispatcher;
+use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
 use Wallee\Helper\PaymentHelper;
 use Wallee\Services\PaymentService;
@@ -49,6 +50,12 @@ class WalleeServiceProviderHelper
     private $session;
 
     /**
+     *
+     * @var Request
+     */
+    private $request;
+
+    /**
      * Construct the helper
      *
      * @param  Dispatcher $eventDispatcher
@@ -57,6 +64,7 @@ class WalleeServiceProviderHelper
      * @param  PaymentService $paymentService
      * @param  PaymentMethodRepositoryContract $paymentMethodService
      * @param  FrontendSessionStorageFactoryContract $session
+     * @param  Request $request
      */
     public function __construct(
         Dispatcher $eventDispatcher,
@@ -64,7 +72,8 @@ class WalleeServiceProviderHelper
         OrderRepositoryContract $orderRepository,
         PaymentService $paymentService,
         PaymentMethodRepositoryContract $paymentMethodService,
-        FrontendSessionStorageFactoryContract $session
+        FrontendSessionStorageFactoryContract $session,
+        Request $request
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->paymentHelper = $paymentHelper;
@@ -72,6 +81,7 @@ class WalleeServiceProviderHelper
         $this->paymentService = $paymentService;
         $this->paymentMethodService = $paymentMethodService;
         $this->session = $session;
+        $this->request = $request;
     }
 
     /**
@@ -86,7 +96,8 @@ class WalleeServiceProviderHelper
 //            $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventFired', []);
             $order = $event->getOrder();
             $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventFired', [
-                'orderId' => $order->id
+                'orderId' => $order->id,
+                'event' => $event,
             ]);
 
             try {
@@ -195,11 +206,10 @@ class WalleeServiceProviderHelper
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
                 }
 
-                $request = pluginApp(\Plenty\Plugin\Http\Request::class);
-                $returnContext = $request->input('walleeReturnContext');
+                $returnContext = $this->request->input('walleeReturnContext');
 
                 $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventOriginContext', [
-                    'request' => $request,
+                    'request' => $this->request,
                     'returnContext' => $returnContext
                 ]);
 
