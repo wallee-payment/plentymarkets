@@ -794,8 +794,8 @@ class PaymentService
     private function getSuccessUrl(?Order $order = null): string
     {
         $request = pluginApp(\Plenty\Plugin\Http\Request::class);
-        // $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-        // $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+        $frontendOriginUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
             'cookie' => $request->header('Cookie'),
@@ -806,6 +806,7 @@ class PaymentService
             'originUrl' => $originUrl,
             'orderId' => $order->id,
             'orderProperties' => $order->properties,
+            'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl && $order) {
             $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrlIsPWA', []);
@@ -827,8 +828,8 @@ class PaymentService
     private function getFailedUrl(?Order $order = null): string
     {
         $request = pluginApp(\Plenty\Plugin\Http\Request::class);
-        // $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-        // $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+        $frontendOriginUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
             'cookie' => $request->header('Cookie'),
@@ -838,6 +839,7 @@ class PaymentService
         $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
             'originUrl' => $originUrl,
             'order' => $order,
+            'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
             $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
