@@ -330,7 +330,7 @@ class WalleeServiceProviderHelper
                     $this->getLogger(__METHOD__)->error('Wallee::OrderIdIsZero_AfterSessionSet', []);
 
                     $redirectUrl = $this->session->getPlugin()->getValue('walleePendingRedirectUrl');
-
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderExistExecutePaymentEventRedirectUrl', ['redirectUrl' => $redirectUrl]);
                     if (!empty($redirectUrl)) {
                         $orderId = $this->session->getPlugin()->getValue('walleeOrderId');
                         $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');

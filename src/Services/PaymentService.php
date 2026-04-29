@@ -843,11 +843,10 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
-            $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+            $failedUrl = sprintf('%s/checkout/wallee_failed', rtrim($originUrl, '/'));
             if ($order) {
-                $failedUrl .= '&orderId=' . $order->id;
+                $failedUrl .= '/' . $order->id;
             }
-            $failedUrl .= '&transactionId={transactionId}';
             return $failedUrl;
         }
         $lang = $this->session->getLocaleSettings()->language;
