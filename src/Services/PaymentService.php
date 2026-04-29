@@ -794,8 +794,9 @@ class PaymentService
     private function getSuccessUrl(?Order $order = null): string
     {
         $request = pluginApp(\Plenty\Plugin\Http\Request::class);
-        $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-        $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        // $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+        // $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
             'cookie' => $request->header('Cookie'),
             'sessionClass' => get_class($this->session),
@@ -826,8 +827,9 @@ class PaymentService
     private function getFailedUrl(?Order $order = null): string
     {
         $request = pluginApp(\Plenty\Plugin\Http\Request::class);
-        $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
-        $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        // $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+        // $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
             'cookie' => $request->header('Cookie'),
             'sessionClass' => get_class($this->session),
