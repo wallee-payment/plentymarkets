@@ -799,6 +799,8 @@ class PaymentService
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
             'originUrl' => $originUrl,
+            'orderId' => $order->id,
+            'orderProperties' => $order->properties,
         ]);
         if ($originUrl && $order) {
             $accessKey = $this->orderHelper->getOrderAccessKey($order);
