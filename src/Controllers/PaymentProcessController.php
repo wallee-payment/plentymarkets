@@ -547,7 +547,8 @@ class PaymentProcessController extends Controller
     public function registerReturnContext(Request $request)
     {
         $this->getLogger(__METHOD__)->error('Wallee::sessionSet', [
-            'sid' => $this->frontendSession->getPlugin()->getSessionId(),
+            'cookie' => $request->header('Cookie'),
+            'sessionClass' => get_class($this->frontendSession),
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextHit', [
             'request' => $request

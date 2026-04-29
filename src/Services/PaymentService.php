@@ -791,9 +791,11 @@ class PaymentService
      */
     private function getSuccessUrl(?Order $order = null): string
     {
+        $request = pluginApp(\Plenty\Plugin\Http\Request::class);
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
-            'sid' => $this->session->getPlugin()->getSessionId(),
+            'cookie' => $request->header('Cookie'),
+            'sessionClass' => get_class($this->session),
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
             'originUrl' => $originUrl,
@@ -813,9 +815,11 @@ class PaymentService
      */
     private function getFailedUrl(?int $transactionId = null): string
     {
+        $request = pluginApp(\Plenty\Plugin\Http\Request::class);
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
-            'sid' => $this->session->getPlugin()->getSessionId(),
+            'cookie' => $request->header('Cookie'),
+            'sessionClass' => get_class($this->session),
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
             'originUrl' => $originUrl,
