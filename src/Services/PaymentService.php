@@ -331,12 +331,13 @@ class PaymentService
             'language' => $this->session->getLocaleSettings()->language,
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
             'successUrl' => $this->getSuccessUrl($order),
-            'failedUrl' => $this->getFailedUrl($transactionId),
+            'failedUrl' => $this->getFailedUrl($order),
             'checkoutUrl' => $this->getCheckoutUrl()
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         //TODO is this a problem for PWA?
+        $this->session->getPlugin()->unsetKey('walleeOriginUrl');
         $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
@@ -819,7 +820,7 @@ class PaymentService
      *
      * @return string
      */
-    private function getFailedUrl(?int $transactionId = null): string
+    private function getFailedUrl(?Order $order = null): string
     {
         $request = pluginApp(\Plenty\Plugin\Http\Request::class);
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
@@ -829,12 +830,12 @@ class PaymentService
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
             'originUrl' => $originUrl,
-            'transactionId' => $transactionId,
+            'order' => $order,
         ]);
         if ($originUrl) {
             $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
-            if ($transactionId) {
-                $failedUrl .= '&transactionId=' . urlencode((string) $transactionId);
+            if ($order) {
+                $failedUrl .= '&orderId=' . $$order->id;
             }
             return $failedUrl;
         }
@@ -849,6 +850,11 @@ class PaymentService
      */
     private function getCheckoutUrl(): string
     {
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl) {
+            $failedUrl = sprintf('%s/checkout', rtrim($originUrl, '/'));
+            return $failedUrl;
+        }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/checkout', $domain, $lang);

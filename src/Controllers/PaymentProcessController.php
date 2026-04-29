@@ -28,6 +28,7 @@ use IO\Models\LocalizedOrder;
 use IO\Services\SessionStorageService;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
+use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
 
 class PaymentProcessController extends Controller
 {
@@ -125,6 +126,12 @@ class PaymentProcessController extends Controller
     private $config;
 
     /**
+     *
+     * @var BasketItemRepositoryContract
+     */
+    private $basketItemRepository;
+
+    /**
      * Constructor.
      *
      * @param Response $response
@@ -142,8 +149,9 @@ class PaymentProcessController extends Controller
      * @param SessionStorageService $sessionStorage
      * @param FrontendSessionStorageFactoryContract $frontendSession
      * @param ConfigRepository $config
+     * @param BasketItemRepositoryContract $basketItemRepository
      */
-    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession, ConfigRepository $config)
+    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession, ConfigRepository $config, BasketItemRepositoryContract $basketItemRepository)
     {
         parent::__construct();
         $this->response = $response;
@@ -161,6 +169,7 @@ class PaymentProcessController extends Controller
         $this->sessionStorage = $sessionStorage;
         $this->frontendSession = $frontendSession;
         $this->config = $config;
+        $this->basketItemRepository = $basketItemRepository;
     }
 
     /**
@@ -568,5 +577,50 @@ class PaymentProcessController extends Controller
             return $this->response->json(['ok' => true]);
         }
         return $this->response->json(['ok' => false], 400);
+    }
+
+    /**
+     * Restore cart for PWA
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function restoreCart(Request $request)
+    {
+        $orderId = $request->input('orderId');
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartOrderId', [
+            'orderId' => $orderId,
+        ]);
+        if (!$orderId) {
+            return $this->response->json(['ok' => false, 'reason' => 'no orderId'], 400);
+        }
+        $order = $this->orderRepository->findOrderById($orderId);
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartOrder', [
+            'order' => $order,
+        ]);
+        if (!$order) {
+            return $this->response->json(['ok' => false, 'reason' => 'no order found'], 400);
+        }
+        // $paymentMethodId = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::PAYMENT_METHOD);
+        // if (!$paymentMethodId || !$this->paymentHelper->isWalleePaymentMopId($paymentMethodId)) {
+        $isWalleePayment = $this->paymentHelper->isWalleePaymentMopId($order->methodOfPaymentId);
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartIsWalleePayment', [
+            'isWalleePayment' => $isWalleePayment,
+        ]);
+        if (!$isWalleePayment) {
+            return $this->response->json(['ok' => false, 'reason' => 'order does not belong to wallee payment method'], 403);
+        }
+
+        foreach ($order->orderItems as $item) {
+            if ($item->typeId !== 1) continue;
+            $this->basketItemRepository->addBasketItem([
+                'variationId' => $item->itemVariationId,
+                'quantity' => $item->quantity,
+            ]);
+        }
+
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', []);
+
+        return $this->response->json(['ok' => true]);
     }
 }
