@@ -847,6 +847,7 @@ class PaymentService
             if ($order) {
                 $failedUrl .= '&orderId=' . $order->id;
             }
+            $failedUrl .= '&transactionId={transactionId}';
             return $failedUrl;
         }
         $lang = $this->session->getLocaleSettings()->language;
