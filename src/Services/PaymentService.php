@@ -803,7 +803,11 @@ class PaymentService
             'orderProperties' => $order->properties,
         ]);
         if ($originUrl && $order) {
+            $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrlIsPWA', []);
             $accessKey = $this->orderRepository->generateAccessKey($order->id);
+            $this->getLogger(__METHOD__)->error('Wallee::accessKey', [
+                'accessKey' => $accessKey
+            ]);
             return sprintf('%s/confirmation/%d/%s', rtrim($originUrl, '/'), $order->id, $accessKey);
         }
         $lang = $this->session->getLocaleSettings()->language;
