@@ -835,7 +835,7 @@ class PaymentService
         if ($originUrl) {
             $failedUrl = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
             if ($order) {
-                $failedUrl .= '&orderId=' . $$order->id;
+                $failedUrl .= '&orderId=' . $order->id;
             }
             return $failedUrl;
         }
