@@ -843,7 +843,7 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
-            $failedUrl = sprintf('%s/checkout/wallee_failed', rtrim($originUrl, '/'));
+            $failedUrl = sprintf('%s/checkout/wallee-failed', rtrim($originUrl, '/'));
             if ($order) {
                 $failedUrl .= '/' . $order->id;
             }
