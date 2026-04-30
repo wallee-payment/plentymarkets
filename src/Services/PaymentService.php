@@ -843,11 +843,13 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
-            $failedUrl = sprintf('%s/checkout/wallee_failed', rtrim($originUrl, '/'));
-            if ($order) {
-                $failedUrl .= '/' . $order->id;
-            }
-            return $failedUrl;
+            // $failedUrl = sprintf('%s/checkout/wallee-failed', rtrim($originUrl, '/'));
+            // if ($order) {
+            //     $failedUrl .= '/' . $order->id;
+            // }
+            // return $failedUrl;
+            $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+            return sprintf('%s/rest/storefront/wallee/return-failed', rtrim($domain, '/'));
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;

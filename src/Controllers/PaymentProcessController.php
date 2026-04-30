@@ -260,6 +260,108 @@ class PaymentProcessController extends Controller
         return $twig->render('Wallee::Failure', $templateData);
     }
 
+
+    public function returnFailed(int $transactionId)
+    {
+        $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedHit', [
+            'transactionId' => $transactionId,
+        ]);
+
+        $transaction = $this->sdkService->call('getTransaction', [
+            'id' => $transactionId
+        ]);
+
+        if (is_array($transaction) && isset($transaction['error'])) {
+            $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedLookupFailed', [
+                'transactionId' => $transactionId,
+                'transaction' => $transaction,
+            ]);
+            return $this->redirectToCheckout();
+        }
+
+        // $state = $transaction['state'] ?? null;
+        // $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedState', [
+        //     'transactionId' => $transactionId,
+        //     'state' => $state,
+        // ]);
+
+        $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
+        $payment = !empty($payments) ? $payments[0] : null;
+
+        $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedPayments', [
+            'payments' => $payments,
+            'payment' => $payment,
+        ]);
+
+        $order = null;
+        $paymentMethodId = null;
+
+        if ($payment) {
+            $orderRelation = $this->paymentOrderRelationRepository->findOrderRelation($payment);
+            if ($orderRelation) {
+                $order = $this->orderRepository->findOrderById($orderRelation->orderId);
+            }
+        }
+
+        $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedOrderAfterFirstLookup', [
+            'order' => $order
+        ]);
+
+        if ($order) {
+            try {
+                $this->orderRepository->updateOrder(['statusId' => 8.0], $order->id);
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCanceled', [
+                    'orderId' => $order->id,
+                ]);
+            } catch (\Throwable $e) {
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCancelFailed', [
+                    'orderId' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $this->paymentHelper->updatePlentyPayment($transaction);
+
+        $this->getLogger(__METHOD__)->error('Wallee::OrderCanceledAfterPlentyPaymentUpdate', [
+           'transaction' => $transaction,
+        ]);
+
+        if (!empty($transaction['userFailureMessage'])) {
+            $this->getLogger(__METHOD__)->error('Wallee::OrderCanceledSetFailReason', [
+                'userFailureMessage' => $transaction['userFailureMessage'],
+            ]);
+            $this->frontendSession->getPlugin()->setValue(
+                'walleePayErrorMessage',
+                $transaction['userFailureMessage']
+            );
+        }
+        return $this->redirectToCheckout();
+    }
+
+    private function redirectToCheckout()
+    {
+        $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAHit', []);
+        $originUrl = $this->frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAOriginUrlCheck', [
+            'originUrl' => $originUrl,
+        ]);
+        if ($originUrl) {
+            $url = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+            $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutRedirectToPwa', [
+                'url' => $url,
+            ]);
+            return $this->response->redirectTo($url);
+        }
+        $lang = $this->sessionStorage->getLang();
+        $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+        $url = sprintf('%s/%s/checkout', $domain, $lang);
+        $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutRedirectToOG', [
+            'url' => $url,
+        ]);
+        return $this->response->redirectTo($url);
+    }
+
     /**
      * Prepare payment for PWA (before order is created)
      *
