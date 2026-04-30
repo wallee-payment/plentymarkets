@@ -1,6 +1,8 @@
 /**
  * wallee Client Plugin
  * Intercepts doExecutePayment to handle payment redirects
+ * 
+ * This file goes to "apps/web/app/plugins"
  */
 
 console.log('[wallee] PLUGIN LOADED');
@@ -10,6 +12,47 @@ export default defineNuxtPlugin(() => {
   // Only run on client side
   if (typeof window === 'undefined') {
     return;
+  }
+
+  const url = new URL(window.location.href);
+  console.log('[wallee]: url=', url);
+
+  if (url.pathname.endsWith('/checkout') && url.searchParams.get('wallee_failed') === '1') {
+    console.log('[wallee]: url.pathname.endsWith(/checkout) && url.searchParams.get(wallee_failed) === 1');
+    const orderId = url.searchParams.get('orderId');
+    if (orderId) {
+      try {
+        walleeRestoreCart(orderId);
+        console.log('[wallee] basket restored');
+      } catch (err) {
+        console.error('[wallee] basket restore failed: ', err);
+      }
+    } else {
+      console.warn('[wallee] OrderId is not present:');
+    }
+    try {
+      const { send } = (window as any).$nuxt?.$nuxt?.useNotification?.() ?? {};
+      if (send) {
+        send({ type: 'negative', message: 'Your payment could not be completed. Please try again.' });
+      } else {
+        showFallbackBanner();
+      }
+    } catch(err) {
+      showFallbackBanner();
+    }
+    url.searchParams.delete('wallee_failed');
+    url.searchParams.delete('orderId');
+    url.searchParams.delete('transactionId');
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  function showFallbackBanner() {
+    const banner = document.createElement('div');
+    banner.style.cssText =
+      'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fee;border:1px solid #f99;padding:12px 20px;border-radius:6px;z-index:99999;color:#900;';
+    banner.textContent = 'Your payment could not be completed. Please try again.';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 6000);
   }
 
   function redirect(url: string) {
@@ -49,6 +92,13 @@ export default defineNuxtPlugin(() => {
       lang: lang,
     });
   }
+
+  async function walleeRestoreCart(orderId: string) {
+    const sdk = useSdk() as any;
+    await sdk.plentysystems.walleeRestoreCart({
+      orderId: orderId
+    });
+  }
   
   // Intercept XMLHttpRequest as well (in case PWA uses axios)
   if (window.XMLHttpRequest) {
@@ -82,48 +132,14 @@ export default defineNuxtPlugin(() => {
                 console.log('[wallee]: redirect');
                 redirect(data.data.value);
                 return;
-                
-                // // Store in sessionStorage and localStorage as backup
-                // const redirectUrl = data.data.value;
-                // sessionStorage.setItem('wallee_pending_redirect', redirectUrl);
-                // localStorage.setItem('wallee_pending_redirect', redirectUrl);
-                
-                // // Stop any pending navigation
-                // if ((window as any).__wallee_should_redirect) {
-                //   return;
-                // }
-                // (window as any).__wallee_should_redirect = true;
-                
-                // // Create overlay to prevent interaction
-                // const overlay = document.createElement('div');
-                // overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-size:24px;';
-                // overlay.innerHTML = '<div>Redirecting to payment page...</div>';
-                // document.body.appendChild(overlay);
-                
-                // // Immediate synchronous redirect
-                // window.location.href = redirectUrl;
-                
-                // // If that didn't work, try other methods in rapid succession
-                // window.location.replace(redirectUrl);
-                // window.location.assign(redirectUrl);
-                // (window as any).location = redirectUrl;
-                
-                // // Prevent any code from continuing
-                // throw new Error('wallee redirect initiated');
               }
 
+              // Below if (data?.data?.type === 'continue') is never used
               if (data?.data?.type === 'continue') {
                 console.log('[wallee]: continue');
                 //pollForRedirect(urlBase);
                 return;
               }
-
-              // const first = Array.isArray(data) ? data[0] : null;
-              // console.log('[wallee]: first ', first);
-              // if (first?.orderId) {
-              //   setTimeout(pollForRedirect, 400);
-              // }
-
             } catch (err) {
               console.error('[wallee] Error parsing XHR response:', err);
             }
@@ -131,7 +147,7 @@ export default defineNuxtPlugin(() => {
         }, true); // Use capture phase to run first
       }
 
-      if (url.toLowerCase().includes('doplaceorder')) {
+      if (url.toLowerCase().includes('dopreparepayment')) {
         try {
           const originUrl = window.location.origin;
           const lang = (document.documentElement.lang || 'en').slice(0, 2);
@@ -140,48 +156,7 @@ export default defineNuxtPlugin(() => {
           console.error('[wallee] Error parsing XHR response:', err);
         }
       }
-      
       return originalXHRSend.call(this, body);
     };
   }
-  
-  // Intercept fetch globally to catch doExecutePayment responses
-  // if (window.fetch && !(window as any).__wallee_interceptor_installed) {
-  //   (window as any).__wallee_interceptor_installed = true;
-    
-  //   const originalFetch = window.fetch;
-    
-  //   window.fetch = function(input: RequestInfo | URL, init?: RequestInit) {
-  //     const url = input?.toString() || '';
-      
-  //     return originalFetch.call(this, input, init).then(async (response) => {
-  //       // Clone response so we can read it without consuming the original
-  //       const clonedResponse = response.clone();
-        
-  //       try {
-  //         // Check if this is the doExecutePayment endpoint (case-insensitive)
-  //         const urlLower = url.toLowerCase();
-          
-  //         if (urlLower.includes('doexecutepayment') || urlLower.includes('payment/execute') || urlLower.includes('executepayment')) {
-  //           const data = await clonedResponse.json();
-            
-  //           // Check for VR Payment redirect
-  //           if (data?.data?.type === 'redirect' && data?.data?.value) {
-  //             window.location.href = data.data.value;
-              
-  //             // Also try other methods in case location.href doesn't work
-  //             window.location.replace(data.data.value);
-              
-  //           }
-  //         }
-  //       } catch (err) {
-  //         // Silently fail if response is not JSON or can't be parsed
-  //         console.debug('[wallee] Could not parse response (might not be JSON):', err);
-  //       }
-        
-  //       return response;
-  //     });
-  //   };
-    
-  // }
 });
