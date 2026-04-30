@@ -849,7 +849,7 @@ class PaymentService
             // }
             // return $failedUrl;
             $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-            return sprintf('%s/rest/storefront/wallee/return-failed', rtrim($domain, '/'));
+            return sprintf('%s/wallee/return-failed', rtrim($domain, '/'));
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
