@@ -297,7 +297,11 @@ class PaymentProcessController extends Controller
         $paymentMethodId = null;
 
         if ($payment) {
+            $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedPaymentIsPresent', []);
             $orderRelation = $this->paymentOrderRelationRepository->findOrderRelation($payment);
+            $this->getLogger(__METHOD__)->error('Wallee::ReturnFailedPaymentOrderRelation', [
+                'orderRelation' => $orderRelation
+            ]);
             if ($orderRelation) {
                 $order = $this->orderRepository->findOrderById($orderRelation->orderId);
             }
