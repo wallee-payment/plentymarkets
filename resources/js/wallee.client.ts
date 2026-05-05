@@ -114,46 +114,38 @@ export default defineNuxtPlugin(() => {
     XMLHttpRequest.prototype.send = function(body?: any) {
       const xhr = this;
       const url = (xhr as any).__wallee_url || '';
-      
+
       if (url.toLowerCase().includes('doexecutepayment')) {
-        const urlObj = new URL(url, window.location.href);
-        const urlBase = `${urlObj.protocol}//${urlObj.host}`;
-        
-        // Use addEventListener with capture=true to run before other handlers
         xhr.addEventListener('readystatechange', function() {
           if (xhr.readyState === 4 && xhr.status === 200) {
             try {
               const data = JSON.parse(xhr.responseText);
 
-              console.log('[wallee]: data=', data);
-              console.log('[wallee]: url=', url);
-              
               if (data?.data?.type === 'redirect' && data?.data?.value) {
-                console.log('[wallee]: redirect');
                 redirect(data.data.value);
-                return;
-              }
-
-              // Below if (data?.data?.type === 'continue') is never used
-              if (data?.data?.type === 'continue') {
-                console.log('[wallee]: continue');
-                //pollForRedirect(urlBase);
-                return;
               }
             } catch (err) {
               console.error('[wallee] Error parsing XHR response:', err);
             }
           }
-        }, true); // Use capture phase to run first
+        }, true);
       }
 
       if (url.toLowerCase().includes('dopreparepayment')) {
         try {
           const originUrl = window.location.origin;
           const lang = (document.documentElement.lang || 'en').slice(0, 2);
-          walleeRegisterReturnContext(originUrl, lang);
+          
+          // Wait for context registration before sending the actual request
+          walleeRegisterReturnContext(originUrl, lang)
+            .catch((err: any) => console.error('[wallee] Context registration failed:', err))
+            .finally(() => {
+              originalXHRSend.call(xhr, body);
+            });
+          
+          return;
         } catch (err) {
-          console.error('[wallee] Error parsing XHR response:', err);
+          console.error('[wallee] Error in dopreparepayment interception:', err);
         }
       }
       return originalXHRSend.call(this, body);
