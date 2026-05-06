@@ -741,7 +741,7 @@ class PaymentProcessController extends Controller
 
         // Restore Guest Email
         $email = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::EMAIL);
-        if ($email && method_exists($checkoutRepository, 'setCustomerEmail')) {
+        if ($email) {
             $checkoutRepository->setCustomerEmail($email);
         }
 
