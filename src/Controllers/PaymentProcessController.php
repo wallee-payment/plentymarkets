@@ -29,6 +29,7 @@ use IO\Services\SessionStorageService;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
+use Plenty\Modules\Webshop\Contracts\CheckoutRepositoryContract;
 
 class PaymentProcessController extends Controller
 {
@@ -725,20 +726,22 @@ class PaymentProcessController extends Controller
             ]);
         }
 
-        /** @var \Plenty\Modules\Webshop\Checkout\Contracts\CheckoutRepositoryContract $checkoutRepository */
-        $checkoutRepository = pluginApp(\Plenty\Modules\Webshop\Checkout\Contracts\CheckoutRepositoryContract::class);
+        /** @var CheckoutRepositoryContract $checkoutRepository */
+        $checkoutRepository = pluginApp(CheckoutRepositoryContract::class);
 
-        // 1. Restore Addresses from Order Relations
+        // Restore Addresses from Order Relations
         foreach ($order->addressRelations as $relation) {
             // typeId 1 = Billing, typeId 2 = Delivery/Shipping
-            if ($relation->typeId == 1 || $relation->typeId == 2) {
-                $checkoutRepository->setContactAddressId($relation->addressId, $relation->typeId);
+            if ($relation->typeId == 1) {
+                $checkoutRepository->setBillingAddressId($relation->addressId);
+            } elseif ($relation->typeId == 2) {
+                $checkoutRepository->setDeliveryAddressId($relation->addressId);
             }
         }
 
-        // 2. Restore Guest Email
-        $email = $this->orderHelper->getOrderPropertyValue($order, \Plenty\Modules\Order\Property\Models\OrderPropertyType::EMAIL);
-        if ($email) {
+        // Restore Guest Email
+        $email = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::EMAIL);
+        if ($email && method_exists($checkoutRepository, 'setCustomerEmail')) {
             $checkoutRepository->setCustomerEmail($email);
         }
 
