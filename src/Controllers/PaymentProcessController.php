@@ -686,12 +686,12 @@ class PaymentProcessController extends Controller
     }
 
     /**
-     * Restore cart for PWA
+     * Restore the entire checkout session for PWA (Basket, Addresses, and Email)
      *
      * @param Request $request
      * @return Response
      */
-    public function restoreCart(Request $request)
+    public function restoreCheckoutSession(Request $request)
     {
         $orderId = $request->input('orderId');
         $this->getLogger(__METHOD__)->error('Wallee::restoreCartOrderId', [
@@ -725,7 +725,26 @@ class PaymentProcessController extends Controller
             ]);
         }
 
-        $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', []);
+        /** @var \Plenty\Modules\Webshop\Checkout\Contracts\CheckoutRepositoryContract $checkoutRepository */
+        $checkoutRepository = pluginApp(\Plenty\Modules\Webshop\Checkout\Contracts\CheckoutRepositoryContract::class);
+
+        // 1. Restore Addresses from Order Relations
+        foreach ($order->addressRelations as $relation) {
+            // typeId 1 = Billing, typeId 2 = Delivery/Shipping
+            if ($relation->typeId == 1 || $relation->typeId == 2) {
+                $checkoutRepository->setContactAddressId($relation->addressId, $relation->typeId);
+            }
+        }
+
+        // 2. Restore Guest Email
+        $email = $this->orderHelper->getOrderPropertyValue($order, \Plenty\Modules\Order\Property\Models\OrderPropertyType::EMAIL);
+        if ($email) {
+            $checkoutRepository->setCustomerEmail($email);
+        }
+
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', [
+            'restoredEmail' => $email ? 'yes' : 'no'
+        ]);
 
         return $this->response->json(['ok' => true]);
     }

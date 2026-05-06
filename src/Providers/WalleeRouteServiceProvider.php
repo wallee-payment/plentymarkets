@@ -21,6 +21,6 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
         $router->get('wallee/redirect-check', 'Wallee\Controllers\PaymentProcessController@redirectCheck');
         $router->get('wallee/return-failed/{id}', 'Wallee\Controllers\PaymentProcessController@returnFailed')->where('id', '\d+');
         $router->post('rest/storefront/wallee/register-return', 'Wallee\Controllers\PaymentProcessController@registerReturnContext');
-        $router->post('rest/storefront/wallee/restore-cart', 'Wallee\Controllers\PaymentProcessController@restoreCart');
+        $router->post('rest/storefront/wallee/restore-cart', 'Wallee\Controllers\PaymentProcessController@restoreCheckoutSession');
     }
 }
