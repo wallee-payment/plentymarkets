@@ -3,7 +3,7 @@
     <div class="content">
       <div class="spinner"></div>
       <h1>Payment unsuccessful</h1>
-      <p>Restoring the checkout session, please wait...</p>
+      <p>Restoring your cart, please wait...</p>
     </div>
   </div>
 </template>

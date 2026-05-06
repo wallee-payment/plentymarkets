@@ -29,7 +29,6 @@ use IO\Services\SessionStorageService;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
-use IO\Services\CheckoutService;
 
 class PaymentProcessController extends Controller
 {
@@ -687,12 +686,12 @@ class PaymentProcessController extends Controller
     }
 
     /**
-     * Restore the entire checkout session for PWA (Basket, Addresses, and Email)
+     * Restore cart for PWA
      *
      * @param Request $request
      * @return Response
      */
-    public function restoreCheckoutSession(Request $request)
+    public function restoreCart(Request $request)
     {
         $orderId = $request->input('orderId');
         $this->getLogger(__METHOD__)->error('Wallee::restoreCartOrderId', [
@@ -726,30 +725,7 @@ class PaymentProcessController extends Controller
             ]);
         }
 
-        /** @var CheckoutService $checkoutService */
-        $checkoutService = pluginApp(CheckoutService::class);
-
-        // Restore Addresses from Order Relations
-        foreach ($order->addressRelations as $relation) {
-            // typeId 1 = Billing, typeId 2 = Delivery/Shipping
-            if ($relation->typeId == 1) {
-                $checkoutService->setCustomerInvoiceAddressId($relation->addressId);
-            } elseif ($relation->typeId == 2) {
-                $checkoutService->setCustomerShippingAddressId($relation->addressId);
-            }
-        }
-
-        // Ensure the checkout state is refreshed
-        $checkoutService->validateCheckout();
-
-        // Restore Guest Email
-        $email = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::EMAIL);
-        // Email restoration via CheckoutService is skipped as no direct method exists, 
-        // but it is often linked to the invoice address restored above.
-
-        $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', [
-            'restoredEmail' => $email ? 'yes' : 'no'
-        ]);
+        $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', []);
 
         return $this->response->json(['ok' => true]);
     }
