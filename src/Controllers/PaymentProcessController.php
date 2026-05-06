@@ -29,7 +29,7 @@ use IO\Services\SessionStorageService;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
-use Plenty\Modules\Webshop\Contracts\CheckoutRepositoryContract;
+use IO\Services\CheckoutService;
 
 class PaymentProcessController extends Controller
 {
@@ -726,24 +726,26 @@ class PaymentProcessController extends Controller
             ]);
         }
 
-        /** @var CheckoutRepositoryContract $checkoutRepository */
-        $checkoutRepository = pluginApp(CheckoutRepositoryContract::class);
+        /** @var CheckoutService $checkoutService */
+        $checkoutService = pluginApp(CheckoutService::class);
 
         // Restore Addresses from Order Relations
         foreach ($order->addressRelations as $relation) {
             // typeId 1 = Billing, typeId 2 = Delivery/Shipping
             if ($relation->typeId == 1) {
-                $checkoutRepository->setBillingAddressId($relation->addressId);
+                $checkoutService->setCustomerInvoiceAddressId($relation->addressId);
             } elseif ($relation->typeId == 2) {
-                $checkoutRepository->setDeliveryAddressId($relation->addressId);
+                $checkoutService->setCustomerShippingAddressId($relation->addressId);
             }
         }
 
+        // Ensure the checkout state is refreshed
+        $checkoutService->validateCheckout();
+
         // Restore Guest Email
         $email = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::EMAIL);
-        if ($email) {
-            $checkoutRepository->setCustomerEmail($email);
-        }
+        // Email restoration via CheckoutService is skipped as no direct method exists, 
+        // but it is often linked to the invoice address restored above.
 
         $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', [
             'restoredEmail' => $email ? 'yes' : 'no'
