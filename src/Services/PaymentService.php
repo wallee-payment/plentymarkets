@@ -221,7 +221,7 @@ class PaymentService
                 'language' => $this->session->getLocaleSettings()->language,
                 'successUrl' => $this->getSuccessUrl(),
                 'failedUrl' => $this->getFailedUrl(),
-                'checkoutUrl' => $this->getCheckoutUrl()
+                'checkoutUrl' => $this->getFailedUrl()
             ];
             
             // Only add transactionId if it exists (not null)
@@ -332,7 +332,7 @@ class PaymentService
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
             'successUrl' => $this->getSuccessUrl($order),
             'failedUrl' => $this->getFailedUrl($order),
-            'checkoutUrl' => $this->getCheckoutUrl()
+            'checkoutUrl' => $this->getFailedUrl($order)
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
