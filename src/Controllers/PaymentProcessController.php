@@ -311,18 +311,12 @@ class PaymentProcessController extends Controller
             'order' => $order
         ]);
 
+        // Keep the order in its current unpaid state so it can be reused for payment retry
         if ($order) {
-            try {
-                $this->orderRepository->updateOrder(['statusId' => 8.0], $order->id);
-                $this->getLogger(__METHOD__)->error('Wallee::OrderCanceled', [
-                    'orderId' => $order->id,
-                ]);
-            } catch (\Throwable $e) {
-                $this->getLogger(__METHOD__)->error('Wallee::OrderCancelFailed', [
-                    'orderId' => $order->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+            $this->getLogger(__METHOD__)->error('Wallee::OrderKeptForRetry', [
+                'orderId' => $order->id,
+                'statusId' => $order->statusId,
+            ]);
         }
 
         $this->paymentHelper->updatePlentyPayment($transaction);
@@ -340,18 +334,38 @@ class PaymentProcessController extends Controller
                 $transaction['userFailureMessage']
             );
         }
-        return $this->redirectToCheckout();
+        return $this->redirectToCheckout($order ? $order->id : null);
     }
 
-    private function redirectToCheckout()
+    /**
+     * Redirect to checkout for payment retry
+     * For PWA: redirects to payment-selection page with orderId when available
+     * For Ceres: redirects to standard checkout page
+     *
+     * @param int|null $orderId
+     */
+    private function redirectToCheckout(?int $orderId = null)
     {
-        $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAHit', []);
+        $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAHit', [
+            'orderId' => $orderId,
+        ]);
         $originUrl = $this->frontendSession->getPlugin()->getValue('walleeOriginUrl');
         $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAOriginUrlCheck', [
             'originUrl' => $originUrl,
+            'orderId' => $orderId,
         ]);
         if ($originUrl) {
-            $url = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+            if ($orderId) {
+                // PWA: redirect to payment selection page with orderId for retry
+                $url = sprintf(
+                    '%s/checkout/payment-selection?orderId=%d',
+                    rtrim($originUrl, '/'),
+                    $orderId,
+                );
+            } else {
+                // PWA fallback: no order available, redirect to checkout with failure flag
+                $url = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+            }
             $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutRedirectToPwa', [
                 'url' => $url,
             ]);
@@ -415,7 +429,7 @@ class PaymentProcessController extends Controller
             ]);
             
             return $this->response->json([
-                'type' => $result['type'] === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL ? 'redirect' : ($result['type'] === GetPaymentMethodContent::RETURN_TYPE_ERROR ? 'error' : 'continue'),
+                'type' => $result['type'] === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL ? 'redirectUrl' : ($result['type'] === GetPaymentMethodContent::RETURN_TYPE_ERROR ? 'error' : 'continue'),
                 'value' => $result['content'] ?? ''
             ]);
             
@@ -728,5 +742,225 @@ class PaymentProcessController extends Controller
         $this->getLogger(__METHOD__)->error('Wallee::restoreCartFinish', []);
 
         return $this->response->json(['ok' => true]);
+    }
+
+    /**
+     * Get order checkout data for PWA payment retry
+     * Returns order info and available payment methods for retrying payment on an existing order
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function getOrderCheckoutData(Request $request)
+    {
+        try {
+            $orderId = $request->get('orderId', '');
+
+            if (empty($orderId)) {
+                return $this->response->make(
+                    json_encode(['error' => 'orderId is required']),
+                    400,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $orderRepo = $this->orderRepository;
+            $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
+                return $orderRepo->findOrderById($orderId);
+            });
+
+            if (!$order) {
+                return $this->response->make(
+                    json_encode(['error' => 'Order not found']),
+                    404,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            // Verify the order belongs to a Wallee payment method
+            if (!$this->paymentHelper->isWalleePaymentMopId($order->methodOfPaymentId)) {
+                return $this->response->make(
+                    json_encode(['error' => 'Order does not use a Wallee payment method']),
+                    403,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            $allowRetry = $this->allowSwitchPaymentMethod($orderId);
+            $currentPaymentMethodId = $this->orderHelper->getOrderPropertyValue(
+                $order,
+                OrderPropertyType::PAYMENT_METHOD,
+            );
+            $paymentMethods = $allowRetry
+                ? $this->getPaymentMethodListForSwitch($currentPaymentMethodId, $orderId)
+                : [];
+
+            // Build order summary for the PWA UI
+            $totals = pluginApp(OrderTotalsService::class)->getAllTotals($order);
+            $orderData = [
+                'orderId' => $order->id,
+                'createdAt' => (string) $order->createdAt,
+                'statusId' => $order->statusId,
+                'amounts' => $order->amounts,
+                'billingAddress' => $order->billingAddress,
+                'deliveryAddress' => $order->deliveryAddress,
+                'orderItems' => [],
+                'totals' => $totals,
+            ];
+
+            // Extract only the fields the PWA needs from each order item
+            foreach ($order->orderItems as $item) {
+                $orderData['orderItems'][] = [
+                    'orderItemName' => $item->orderItemName,
+                    'quantity' => $item->quantity,
+                    'amounts' => $item->amounts,
+                    'typeId' => $item->typeId,
+                    'itemVariationId' => $item->itemVariationId,
+                ];
+            }
+
+            $this->getLogger(__METHOD__)->error('Wallee::GetOrderCheckoutData', [
+                'orderId' => $orderId,
+                'allowRetry' => $allowRetry,
+                'paymentMethodCount' => count($paymentMethods),
+            ]);
+
+            return $this->response->make(
+                json_encode([
+                    'allowRetry' => $allowRetry,
+                    'currentPaymentMethodId' => $currentPaymentMethodId,
+                    'paymentMethods' => $paymentMethods,
+                    'orderData' => $orderData,
+                ]),
+                200,
+                ['Content-Type' => 'application/json'],
+            );
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('Wallee::GetOrderCheckoutDataException', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $this->response->make(
+                json_encode(['error' => 'Failed to load order checkout data']),
+                500,
+                ['Content-Type' => 'application/json'],
+            );
+        }
+    }
+
+    /**
+     * REST endpoint for PWA to retry payment on an existing order
+     * Switches payment method and creates a new Wallee transaction for the same order
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function payOrderRest(Request $request)
+    {
+        try {
+            $orderId = $request->get('orderId', '');
+            $paymentMethodId = $request->get('paymentMethodId', '');
+
+            if (empty($orderId) || empty($paymentMethodId)) {
+                return $this->response->make(
+                    json_encode(['error' => 'orderId and paymentMethodId are required']),
+                    400,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $orderRepo = $this->orderRepository;
+            $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
+                return $orderRepo->findOrderById($orderId);
+            });
+
+            if (!$order) {
+                return $this->response->make(
+                    json_encode(['error' => 'Order not found']),
+                    404,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            // Validate the order is eligible for payment retry
+            if (!$this->allowSwitchPaymentMethod($orderId)) {
+                return $this->response->make(
+                    json_encode(['error' => 'Payment retry is not allowed for this order']),
+                    403,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            // Switch payment method on the existing order
+            $this->switchPaymentMethodForOrder($order, $paymentMethodId);
+
+            // Re-load the order to get updated properties after payment method switch
+            $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
+                return $orderRepo->findOrderById($orderId);
+            });
+
+            // Execute payment using the updated order, creating a new Wallee transaction
+            $paymentMethod = $this->paymentMethodService->findByPaymentMethodId($paymentMethodId);
+            $result = $this->paymentService->executePayment($order, $paymentMethod);
+
+            $this->getLogger(__METHOD__)->error('Wallee::PayOrderRestResult', [
+                'orderId' => $orderId,
+                'paymentMethodId' => $paymentMethodId,
+                'resultType' => $result['type'] ?? 'unknown',
+            ]);
+
+            $type = $result['type'] ?? '';
+            $content = $result['content'] ?? $result['redirectUrl'] ?? null;
+
+            // Return redirect URL as JSON so the PWA can handle navigation client-side
+            if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
+                return $this->response->make(
+                    json_encode([
+                        'redirectUrl' => $content,
+                        'orderId' => $orderId,
+                    ]),
+                    200,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            // Payment processing error from Wallee
+            if ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR) {
+                return $this->response->make(
+                    json_encode([
+                        'error' => $content ?? 'Payment processing failed',
+                        'transactionId' => $result['transactionId'] ?? null,
+                    ]),
+                    400,
+                    ['Content-Type' => 'application/json'],
+                );
+            }
+
+            // Fallback for continue type or unknown response
+            return $this->response->make(
+                json_encode([
+                    'status' => 'continue',
+                    'orderId' => $orderId,
+                ]),
+                200,
+                ['Content-Type' => 'application/json'],
+            );
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('Wallee::PayOrderRestException', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $this->response->make(
+                json_encode(['error' => 'Failed to process payment retry']),
+                500,
+                ['Content-Type' => 'application/json'],
+            );
+        }
     }
 }

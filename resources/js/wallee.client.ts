@@ -121,7 +121,7 @@ export default defineNuxtPlugin(() => {
             try {
               const data = JSON.parse(xhr.responseText);
 
-              if (data?.data?.type === 'redirect' && data?.data?.value) {
+              if ((data?.data?.type === 'redirect' || data?.data?.type === 'redirectUrl') && data?.data?.value) {
                 redirect(data.data.value);
               }
             } catch (err) {

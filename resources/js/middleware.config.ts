@@ -38,14 +38,43 @@ const config = {
             // walleeRestoreCart restores cart in main shop
             walleeRestoreCart: async (
               context: any,
-              params: { orderId: string }
+              params: { orderId: string },
             ) => {
               const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/restore-cart`;
               const { data } = await context.client.post(
                 url, { orderId: params.orderId },
                 {
-                  headers: { cookie: context.req?.headers?.cookie || '' }
-                }
+                  headers: { cookie: context.req?.headers?.cookie || '' },
+                },
+              );
+              return data;
+            },
+            // walleeGetOrderCheckoutData fetches order retry eligibility and available payment methods
+            walleeGetOrderCheckoutData: async (
+              context: any,
+              params: { orderId: string },
+            ) => {
+              const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/order-checkout-data?orderId=${params.orderId}`;
+              const { data } = await context.client.get(
+                url,
+                {
+                  headers: { cookie: context.req?.headers?.cookie || '' },
+                },
+              );
+              return data;
+            },
+            // walleePayOrderRest submits a payment retry for an existing unpaid order
+            walleePayOrderRest: async (
+              context: any,
+              params: { orderId: string; paymentMethodId: string },
+            ) => {
+              const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/pay-order`;
+              const { data } = await context.client.post(
+                url,
+                { orderId: params.orderId, paymentMethodId: params.paymentMethodId },
+                {
+                  headers: { cookie: context.req?.headers?.cookie || '' },
+                },
               );
               return data;
             },
