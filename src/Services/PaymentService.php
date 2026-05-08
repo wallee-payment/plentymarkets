@@ -843,20 +843,16 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
-            $failedUrl = sprintf('%s/wallee-recovery', rtrim($originUrl, '/'));
             if ($order) {
-                $failedUrl .= '/' . $order->id;
+                // Redirect to the new PWA payment selection page for order reuse
+                return sprintf(
+                    '%s/checkout/payment-selection?orderId=%d',
+                    rtrim($originUrl, '/'),
+                    $order->id,
+                );
             }
-            return $failedUrl;
-            /**
-             * Below is the attempt at trying to redirect user to plenty shop endpoint 
-             * Wallee\Controllers\PaymentProcessController@returnFailed, which would redirect back to 
-             * PWA storefront. It did not work, as user would get stuck at
-             * https://epumcksk9ct6.c01-15.plentymarkets.com/wallee/return-failed/{transactionId}
-             * with "This action is unauthorized." error.
-             */
-            // $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-            // return sprintf('%s/wallee/return-failed', rtrim($domain, '/'));
+            // Fallback: no order available, redirect to PWA checkout with failure flag
+            return sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
