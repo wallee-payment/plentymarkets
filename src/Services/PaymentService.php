@@ -844,9 +844,10 @@ class PaymentService
         ]);
         if ($originUrl) {
             if ($order) {
-                // Redirect to the new PWA payment selection page for order reuse
+                // Redirect to the new PWA payment selection page (outside /checkout guard)
+                // Wallee will automatically append /{transactionId} to this URL
                 return sprintf(
-                    '%s/checkout/payment-selection?orderId=%d',
+                    '%s/payment-selection/%d',
                     rtrim($originUrl, '/'),
                     $order->id,
                 );

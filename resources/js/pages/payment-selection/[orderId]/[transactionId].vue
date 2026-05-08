@@ -144,19 +144,21 @@ function formatCurrency(amount: number | undefined, currency: string): string {
 }
 
 onMounted(async () => {
-  const queryOrderId = route.query.orderId as string;
-  if (!queryOrderId) {
+  // Read orderId from route params instead of query string to support restful URLs
+  const paramsOrderId = route.params.orderId as string;
+  
+  if (!paramsOrderId) {
     errorMessage.value = 'No order specified.';
     isLoading.value = false;
     redirectAway();
     return;
   }
-  orderId.value = queryOrderId;
+  orderId.value = paramsOrderId;
 
   try {
     const sdk = useSdk() as any;
     const result = await sdk.plentysystems.walleeGetOrderCheckoutData({
-      orderId: queryOrderId,
+      orderId: paramsOrderId,
     });
 
     const responseData = result?.data || result;
@@ -224,8 +226,6 @@ onMounted(async () => {
 
 /**
  * Redirect the user away from this page when retry is not possible.
- * We send them to /cart rather than /checkout because there is no active
- * basket to check out with — the items belong to the existing order.
  */
 function redirectAway(): void {
   setTimeout(() => {

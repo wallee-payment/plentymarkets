@@ -356,9 +356,9 @@ class PaymentProcessController extends Controller
         ]);
         if ($originUrl) {
             if ($orderId) {
-                // PWA: redirect to payment selection page with orderId for retry
+                // PWA: redirect to the new payment selection page (outside /checkout guard)
                 $url = sprintf(
-                    '%s/checkout/payment-selection?orderId=%d',
+                    '%s/payment-selection/%d',
                     rtrim($originUrl, '/'),
                     $orderId,
                 );
