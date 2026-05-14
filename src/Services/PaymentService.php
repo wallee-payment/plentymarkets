@@ -221,8 +221,7 @@ class PaymentService
                 'language' => $this->session->getLocaleSettings()->language,
                 'successUrl' => $this->getSuccessUrl(),
                 'failedUrl' => $this->getFailedUrl(),
-//                'checkoutUrl' => $this->getFailedUrl(),
-                'checkoutUrl' => $this->getCheckoutUrl()
+                'checkoutUrl' => $this->getFailedUrl()
             ];
             
             // Only add transactionId if it exists (not null)
