@@ -158,8 +158,9 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
                 $result = $this->paymentService->executePayment($order, $paymentMethod);
-                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedExecutePaymentResult', [
+                $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
                     'result' => $result,
                 ]);
 
@@ -172,13 +173,22 @@ class WalleeServiceProviderHelper
                     $type = 'continue';
                 }
 
+
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventTypeMatch', [
+                    'type' => $type,
+                    '$result[content]' => $result['content']
+                ]);
                 // Store redirect URL in session so ExecutePayment listener can return it to PWA
                 if ($type === 'redirect' && !empty($result['content'])) {
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventSessionSet', [
+                        'result[content]' => $result['content']
+                    ]);
+
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
-                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedRedirectStored', [
-                        'url' => $result['content'],
-                    ]);
+//                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedRedirectStored', [
+//                        'url' => $result['content'],
+//                    ]);
                 }
 
             } catch (\Exception $e) {
@@ -214,13 +224,14 @@ class WalleeServiceProviderHelper
 
                 $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
                 if (!$eventMop) {
-                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentMethodNull');
+                    $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNull');
                     $event->setType('continue');
                     $event->setValue('');
                     return;
                 }
 
-                $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentExecutingFromBasket');
+                $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFromBasket', []);
+                // Handle PWA basket-based payment
                 $result = $this->paymentService->executePaymentFromBasket($eventMop);
 
                 $event->setValue($result['content'] ?? null);
