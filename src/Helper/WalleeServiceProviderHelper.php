@@ -237,6 +237,14 @@ class WalleeServiceProviderHelper
                 $event->setValue($result['content'] ?? null);
                 $event->setType($result['type'] ?? '');
 
+                // Store the URL early as a fallback for addExecutePaymentContentEventListener.
+                if (!empty($result['content'])) {
+                    $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentUrlStoredAsFallback', [
+                        'url' => $result['content'],
+                    ]);
+                }
+
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentException', [
                     'message' => $e->getMessage(),
@@ -282,11 +290,32 @@ class WalleeServiceProviderHelper
                 ]);
 
                 if ($isPwa) {
-                    // PWA: redirect URL was stored in session by addAfterOrderCreatedListener
+                    // Primary: URL stored by addAfterOrderCreatedListener after order-to-transaction linking.
+                    // Fallback: URL stored early by addGetPaymentMethodContentEventListener (basket transaction).
                     $redirectUrl = $this->session->getPlugin()->getValue('walleePendingRedirectUrl');
                     $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaRedirectUrl', [
                         'redirectUrl' => $redirectUrl,
                     ]);
+
+                    // Second fallback: build URL from the transaction ID still in session.
+                    if (empty($redirectUrl)) {
+                        $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+                        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaFallbackTransactionId', [
+                            'transactionId' => $transactionId,
+                        ]);
+                        if ($transactionId) {
+                            /** @var \Wallee\Services\WalleeSdkService $sdkService */
+                            $sdkService = pluginApp(\Wallee\Services\WalleeSdkService::class);
+                            $paymentPageUrl = $sdkService->call('buildPaymentPageUrl', ['id' => $transactionId]);
+                            if (!empty($paymentPageUrl) && !is_array($paymentPageUrl)) {
+                                $redirectUrl = $paymentPageUrl;
+                                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaFallbackUrlBuilt', [
+                                    'url' => $redirectUrl,
+                                ]);
+                            }
+                        }
+                    }
+
                     if (!empty($redirectUrl)) {
                         $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');
                         $this->session->getPlugin()->unsetKey('walleeOrderId');
@@ -312,8 +341,16 @@ class WalleeServiceProviderHelper
 
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
 
+                // Map executePayment() types to ExecutePayment event types.
+                $resultType = $result['type'] ?? '';
+                if ($resultType === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $resultType === 'redirectUrl') {
+                    $event->setType('redirect');
+                } elseif ($resultType === GetPaymentMethodContent::RETURN_TYPE_ERROR || $resultType === 'error') {
+                    $event->setType('error');
+                } else {
+                    $event->setType('continue');
+                }
                 $event->setValue($result['content'] ?? null);
-                $event->setType($result['type'] ?? '');
 
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentException', [
