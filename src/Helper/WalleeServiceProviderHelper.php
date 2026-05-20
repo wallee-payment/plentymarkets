@@ -202,8 +202,9 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds the get payment method content event listener.
-     * PWA only: creates a basket-level transaction before order is placed.
-     * CERES skips this — it creates its transaction inside ExecutePayment.
+     * Both PWA and CERES: creates a basket-level transaction and returns the redirect URL.
+     * CERES: redirect happens here (plentymarkets redirectUrl from this event).
+     * PWA: URL also stored in session ExecutePayment listener can return it.
      * @return void
      */
     public function addGetPaymentMethodContentEventListener(): void
@@ -213,12 +214,6 @@ class WalleeServiceProviderHelper
 
             try {
                 if (!$this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
-                    return;
-                }
-
-                // CERES creates its transaction in ExecutePayment — skip here to avoid double transactions
-                if (!$this->isPwaContext()) {
-                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentSkippedForCeres');
                     return;
                 }
 
@@ -241,8 +236,9 @@ class WalleeServiceProviderHelper
                 $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $event->getMop());
                 if (!empty($result['content'])) {
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
-                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentUrlStoredAsFallback', [
+                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentUrlStored', [
                         'url' => $result['content'],
+                        'isPwa' => $this->isPwaContext(),
                     ]);
                 }
 
@@ -257,8 +253,8 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds the execute payment content event listener.
-     * CERES: creates Wallee transaction and returns redirect URL directly.
      * PWA: returns redirect URL stored in session by addAfterOrderCreatedListener.
+     * CERES: redirect already handled by addGetPaymentMethodContentEventListener; returns 'continue'.
      * @return void
      */
     public function addExecutePaymentContentEventListener(): void
@@ -315,7 +311,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                // CERES: validate MOP then create Wallee transaction using the real order.
+                // CERES: redirect URL was already returned via GetPaymentMethodContent.
                 $mopId = $event->getMop();
                 if (!$this->paymentHelper->isWalleePaymentMopId($mopId)) {
                     $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentNotWalleeMethod', [
@@ -324,35 +320,9 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($mopId);
-                if (!$eventMop) {
-                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentMethodNull', ['mop' => $mopId]);
-                    return;
-                }
-
-                $eventOrderId = $this->orderRepository->findById($orderId);
-                if (!$eventOrderId) {
-                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentOrderNotFound', [
-                        'orderId' => $orderId,
-                    ]);
-                    return;
-                }
-
-                // Skip plentyPayment creation here — assigning payment before redirect causes
-                $result = $this->paymentService->executePayment($eventOrderId, $eventMop, true);
-
-                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
-
-                // Map executePayment() types to ExecutePayment event types.
-                $resultType = $result['type'] ?? '';
-                if ($resultType === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $resultType === 'redirectUrl') {
-                    $event->setType('redirect');
-                } elseif ($resultType === GetPaymentMethodContent::RETURN_TYPE_ERROR || $resultType === 'error') {
-                    $event->setType('error');
-                } else {
-                    $event->setType('continue');
-                }
-                $event->setValue($result['content'] ?? null);
+                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresSkipped', ['mop' => $mopId]);
+                $event->setType('continue');
+                $event->setValue('');
 
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentException', [
