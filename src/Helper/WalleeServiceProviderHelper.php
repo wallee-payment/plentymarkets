@@ -128,7 +128,7 @@ class WalleeServiceProviderHelper
                     'transactionId' => $transactionId,
                 ]);
 
-                // Link the basket-level transaction to the newly created order.
+                // Link the basket-level transaction to the newly created order
                 if ($transactionId) {
                     try {
                         /** @var \Wallee\Services\WalleeSdkService $sdkService */
@@ -148,6 +148,37 @@ class WalleeServiceProviderHelper
                     }
                 } else {
                     $this->getLogger(__METHOD__)->error('Wallee::NoTransactionInSession');
+                }
+
+                $paymentMethod = $this->paymentHelper->getWalleePaymentMethodByMopId($order->methodOfPaymentId);
+                if (!$paymentMethod) {
+                    $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNotFound', [
+                        'methodOfPaymentId' => $order->methodOfPaymentId,
+                    ]);
+                    return;
+                }
+
+                $result = $this->paymentService->executePayment($order, $paymentMethod);
+                $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedExecutePaymentResult', [
+                    'result' => $result,
+                ]);
+
+                $type = $result['type'] ?? '';
+                if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
+                    $type = 'redirect';
+                } elseif ($type === GetPaymentMethodContent::RETURN_TYPE_ERROR || $type === 'error') {
+                    $type = 'error';
+                } else {
+                    $type = 'continue';
+                }
+
+                // Store redirect URL in session so ExecutePayment listener can return it to PWA
+                if ($type === 'redirect' && !empty($result['content'])) {
+                    $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
+                    $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedRedirectStored', [
+                        'url' => $result['content'],
+                    ]);
                 }
 
             } catch (\Exception $e) {
@@ -239,6 +270,25 @@ class WalleeServiceProviderHelper
                     'isPwa' => $isPwa,
                 ]);
 
+                if ($isPwa) {
+                    // PWA: redirect URL was stored in session by addAfterOrderCreatedListener
+                    $redirectUrl = $this->session->getPlugin()->getValue('walleePendingRedirectUrl');
+                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaRedirectUrl', [
+                        'redirectUrl' => $redirectUrl,
+                    ]);
+                    if (!empty($redirectUrl)) {
+                        $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');
+                        $this->session->getPlugin()->unsetKey('walleeOrderId');
+                        $event->setType('redirect');
+                        $event->setValue($redirectUrl);
+                    } else {
+                        $event->setType('continue');
+                        $event->setValue('');
+                    }
+                    return;
+                }
+
+                // CERES: create Wallee transaction now using the real order
                 $eventOrderId = $this->orderRepository->findById($orderId);
                 if (!$eventOrderId) {
                     $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentOrderNotFound', [
@@ -247,15 +297,6 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                if ($isPwa) {
-                    $result = $this->paymentService->executePayment($eventOrderId, $eventMop);
-                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaResult', ['result' => $result]);
-                    $event->setValue($result['content'] ?? null);
-                    $event->setType($result['type'] ?? '');
-                    return;
-                }
-
-                // CERES: no basket transaction exists, create fresh
                 $result = $this->paymentService->executePayment($eventOrderId, $eventMop);
 
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
