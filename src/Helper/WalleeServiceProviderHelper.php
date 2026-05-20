@@ -217,6 +217,12 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                // CERES creates its transaction in ExecutePayment — skip here
+                if (!$this->isPwaContext()) {
+                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentSkippedForCeres');
+                    return;
+                }
+
                 $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($event->getMop());
                 if (!$eventMop) {
                     $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNull');
@@ -226,20 +232,14 @@ class WalleeServiceProviderHelper
                 }
 
                 $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFromBasket', []);
-                // Handle PWA basket-based payment
                 $result = $this->paymentService->executePaymentFromBasket($eventMop);
 
                 $event->setValue($result['content'] ?? null);
                 $event->setType($result['type'] ?? '');
 
-                // Store MOP and URL in session — basket may be cleared by the time ExecutePayment fires.
                 $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $event->getMop());
                 if (!empty($result['content'])) {
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
-                    $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentUrlStored', [
-                        'url' => $result['content'],
-                        'isPwa' => $this->isPwaContext(),
-                    ]);
                 }
 
             } catch (\Exception $e) {
@@ -311,7 +311,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                // CERES: redirect URL was already returned via GetPaymentMethodContent.
+                // CERES: validate MOP, then create Wallee transaction using the real order.
                 $mopId = $event->getMop();
                 if (!$this->paymentHelper->isWalleePaymentMopId($mopId)) {
                     $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentNotWalleeMethod', [
@@ -320,9 +320,34 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresSkipped', ['mop' => $mopId]);
-                $event->setType('continue');
-                $event->setValue('');
+                $eventMop = $this->paymentHelper->getWalleePaymentMethodByMopId($mopId);
+                if (!$eventMop) {
+                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentMethodNull', ['mop' => $mopId]);
+                    return;
+                }
+
+                $eventOrderId = $this->orderRepository->findById($orderId);
+                if (!$eventOrderId) {
+                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentOrderNotFound', [
+                        'orderId' => $orderId,
+                    ]);
+                    return;
+                }
+
+                // Creates CONFIRMED transaction + plentyPayment (unaccountable=1) + assigns to order.
+                $result = $this->paymentService->executePayment($eventOrderId, $eventMop);
+
+                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
+
+                $resultType = $result['type'] ?? '';
+                if ($resultType === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $resultType === 'redirectUrl') {
+                    $event->setType('redirect');
+                } elseif ($resultType === GetPaymentMethodContent::RETURN_TYPE_ERROR || $resultType === 'error') {
+                    $event->setType('error');
+                } else {
+                    $event->setType('continue');
+                }
+                $event->setValue($result['content'] ?? null);
 
             } catch (\Exception $e) {
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentException', [
