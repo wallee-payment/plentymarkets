@@ -338,7 +338,8 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $result = $this->paymentService->executePayment($eventOrderId, $eventMop);
+                // Skip plentyPayment creation here — assigning payment before redirect causes
+                $result = $this->paymentService->executePayment($eventOrderId, $eventMop, true);
 
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
 

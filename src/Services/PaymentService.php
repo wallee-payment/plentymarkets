@@ -313,7 +313,7 @@ class PaymentService
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function executePayment(Order $order, PaymentMethod $paymentMethod): array
+    public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
         $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
         // Ensure webhooks are created on each transaction
@@ -385,8 +385,10 @@ class PaymentService
             ];
         }
 
-        $payment = $this->paymentHelper->createPlentyPayment($transaction);
-        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+        if (!$skipPaymentCreation) {
+            $payment = $this->paymentHelper->createPlentyPayment($transaction);
+            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+        }
 
         $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
