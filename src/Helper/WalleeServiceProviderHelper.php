@@ -237,7 +237,8 @@ class WalleeServiceProviderHelper
                 $event->setValue($result['content'] ?? null);
                 $event->setType($result['type'] ?? '');
 
-                // Store the URL early as a fallback for addExecutePaymentContentEventListener.
+                // Store MOP and URL in session — basket may be cleared by the time ExecutePayment fires.
+                $this->session->getPlugin()->setValue('walleePaymentSelectedMethodId', $event->getMop());
                 if (!empty($result['content'])) {
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
                     $this->getLogger(__METHOD__)->error('Wallee::GetPaymentMethodContentUrlStoredAsFallback', [
@@ -266,7 +267,13 @@ class WalleeServiceProviderHelper
             $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', []);
 
             try {
-                $mopId = $event->getMop();
+                // Fall back to the MOP stored in session during GetPaymentMethodContent.
+                $mopId = $event->getMop() ?: (int) $this->session->getPlugin()->getValue('walleePaymentSelectedMethodId');
+
+                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentMopResolved', [
+                    'eventMop' => $event->getMop(),
+                    'resolvedMop' => $mopId,
+                ]);
 
                 if (!$this->paymentHelper->isWalleePaymentMopId($mopId)) {
                     $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentNotWalleeMethod', [
