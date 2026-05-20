@@ -339,14 +339,8 @@ class WalleeServiceProviderHelper
 
                 $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentCeresResult', ['result' => $result]);
 
-                $resultType = $result['type'] ?? '';
-                if ($resultType === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $resultType === 'redirectUrl') {
-                    $event->setType('redirect');
-                } elseif ($resultType === GetPaymentMethodContent::RETURN_TYPE_ERROR || $resultType === 'error') {
-                    $event->setType('error');
-                } else {
-                    $event->setType('continue');
-                }
+                // Pass type directly — CERES expects 'redirectUrl' (not 'redirect') from ExecutePayment.
+                $event->setType($result['type'] ?? '');
                 $event->setValue($result['content'] ?? null);
 
             } catch (\Exception $e) {
