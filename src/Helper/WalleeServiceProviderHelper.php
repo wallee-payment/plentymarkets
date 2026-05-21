@@ -1,7 +1,6 @@
 <?php
 namespace Wallee\Helper;
 
-use IO\Services\BasketService;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
@@ -173,7 +172,6 @@ class WalleeServiceProviderHelper
                     $type = 'continue';
                 }
 
-
                 $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedEventTypeMatch', [
                     'type' => $type,
                     '$result[content]' => $result['content']
@@ -186,9 +184,6 @@ class WalleeServiceProviderHelper
 
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
                     $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
-//                    $this->getLogger(__METHOD__)->error('Wallee::OrderCreatedRedirectStored', [
-//                        'url' => $result['content'],
-//                    ]);
                 }
 
             } catch (\Exception $e) {
@@ -202,9 +197,8 @@ class WalleeServiceProviderHelper
 
     /**
      * Adds the get payment method content event listener.
-     * Both PWA and CERES: creates a basket-level transaction and returns the redirect URL.
-     * CERES: redirect happens here (plentymarkets redirectUrl from this event).
-     * PWA: URL also stored in session ExecutePayment listener can return it.
+     * PWA only: creates a basket-level transaction before order creation and stores the redirect URL in session.
+     * CERES is skipped — its transaction is created in ExecutePayment after order creation.
      * @return void
      */
     public function addGetPaymentMethodContentEventListener(): void
@@ -254,7 +248,7 @@ class WalleeServiceProviderHelper
     /**
      * Adds the execute payment content event listener.
      * PWA: returns redirect URL stored in session by addAfterOrderCreatedListener.
-     * CERES: redirect already handled by addGetPaymentMethodContentEventListener; returns 'continue'.
+     * CERES: creates Wallee transaction from the real order, returns 'redirectUrl' type for CERES redirect.
      * @return void
      */
     public function addExecutePaymentContentEventListener(): void
