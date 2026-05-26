@@ -1,9 +1,10 @@
 <?php
-use Wallee\Sdk\Model\WebhookUrlCreate;
 use Wallee\Sdk\Model\WebhookListenerCreate;
-use Wallee\Sdk\Service\WebhookUrlService;
-use Wallee\Sdk\Service\WebhookListenerService;
 use Wallee\Sdk\Model\WebhookListenerUpdate;
+use Wallee\Sdk\Model\WebhookUrlCreate;
+use Wallee\Sdk\Model\WebhookUrlUpdate;
+use Wallee\Sdk\Service\WebhookListenerService;
+use Wallee\Sdk\Service\WebhookUrlService;
 
 require_once __DIR__ . '/WalleeSdkHelper.php';
 
@@ -69,12 +70,13 @@ $query->setNumberOfEntities(1);
 $filter = new \Wallee\Sdk\Model\EntityQueryFilter();
 $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
 $filter->setChildren([
-    WalleeSdkHelper::createEntityFilter('url', SdkRestApi::getParam('notificationUrl')),
-    WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE)
+    WalleeSdkHelper::createEntityFilter('name', 'plentymarkets ' . SdkRestApi::getParam('storeId')),
+    WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
 ]);
 $query->setFilter($filter);
 $webhookResult = $webhookUrlService->search($spaceId, $query);
 if (empty($webhookResult)) {
+    // If no existing webhook URL is found for this store, we create a new one.
     $webhookUrlRequest = new WebhookUrlCreate();
     $webhookUrlRequest->setState(\Wallee\Sdk\Model\CreationEntityState::ACTIVE);
     $webhookUrlRequest->setName('plentymarkets ' . SdkRestApi::getParam('storeId'));
@@ -82,6 +84,15 @@ if (empty($webhookResult)) {
     $webhookUrl = $webhookUrlService->create($spaceId, $webhookUrlRequest);
 } else {
     $webhookUrl = $webhookResult[0];
+    // If the registered URL has changed (e.g. during a plugin update to /rest/v1/),
+    // we update the webhook URL in-place so existing listeners remain valid and active.
+    if ($webhookUrl->getUrl() !== SdkRestApi::getParam('notificationUrl')) {
+        $webhookUrlUpdateRequest = new WebhookUrlUpdate();
+        $webhookUrlUpdateRequest->setId($webhookUrl->getId());
+        $webhookUrlUpdateRequest->setVersion($webhookUrl->getVersion());
+        $webhookUrlUpdateRequest->setUrl(SdkRestApi::getParam('notificationUrl'));
+        $webhookUrl = $webhookUrlService->update($spaceId, $webhookUrlUpdateRequest);
+    }
 }
 
 $query = new \Wallee\Sdk\Model\EntityQuery();

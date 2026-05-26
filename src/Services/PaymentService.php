@@ -167,7 +167,7 @@ class PaymentService
         $webstoreConfig = $webstoreHelper->getCurrentWebstoreConfiguration();
         $this->sdkService->call('createWebhook', [
             'storeId' => $webstoreConfig->webstoreId,
-            'notificationUrl' => $webstoreConfig->domainSsl . '/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : '')
+            'notificationUrl' => $webstoreConfig->domainSsl . '/rest/v1/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : ''),
         ]);
     }
 
