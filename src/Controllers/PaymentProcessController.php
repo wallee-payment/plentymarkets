@@ -421,11 +421,16 @@ class PaymentProcessController extends Controller
                 ]);
             }
             
+            $this->getLogger(__METHOD__)->info('PWA preparing payment from basket', [
+                'sessionWalleeOriginUrl' => $this->frontendSession->getPlugin()->getValue('walleeOriginUrl') ?? 'null',
+                'sessionWalleeTransactionId' => $this->frontendSession->getPlugin()->getValue('walleeTransactionId') ?? 'null',
+            ]);
+
             // Execute payment from basket (PWA flow)
             $result = $this->paymentService->executePaymentFromBasket($paymentMethod);
             
             $this->getLogger(__METHOD__)->error('Wallee::PreparePaymentResult', [
-                'result' => $result
+                'result' => $result,
             ]);
             
             return $this->response->json([

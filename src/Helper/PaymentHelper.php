@@ -201,9 +201,24 @@ class PaymentHelper
         return $payment;
     }
 
-    public function updatePlentyPayment($transaction)
+    /**
+     * Updates the status of matching plentymarkets payments based on transaction state.
+     * If no matching payment is found, a warning is logged to help diagnose webhook delivery mismatches.
+     *
+     * @param array $transaction
+     * @return bool
+     */
+    public function updatePlentyPayment(array $transaction): bool
     {
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
+
+        if (empty($payments)) {
+            $this->getLogger(__METHOD__)->warning('Wallee::NoMatchingPaymentForWebhook', [
+                'transactionId' => $transaction['id'],
+                'state' => $transaction['state'],
+                'merchantReference' => $transaction['merchantReference'] ?? 'none',
+            ]);
+        }
 
         $state = $this->mapTransactionState($transaction['state']);
 

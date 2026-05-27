@@ -88,9 +88,23 @@ class WalleeServiceProviderHelper
      * The PWA plugin calls registerReturnContext before dopreparepayment,
      * which stores walleeOriginUrl in the session. CERES never sets this value.
      */
+    /**
+     * Determines whether the current request originates from the PWA theme.
+     * Logs the lookup variables to assist in debugging session state issues.
+     *
+     * @return bool
+     */
     private function isPwaContext(): bool
     {
-        return !empty($this->session->getPlugin()->getValue('walleeOriginUrl'));
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+
+        $this->getLogger(__METHOD__)->debug('Checking PWA context variables', [
+            'originUrl' => $originUrl ?? 'null',
+            'transactionId' => $transactionId ?? 'null',
+        ]);
+
+        return !empty($originUrl);
     }
 
     /**
