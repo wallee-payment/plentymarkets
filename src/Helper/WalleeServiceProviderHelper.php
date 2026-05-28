@@ -268,25 +268,34 @@ class WalleeServiceProviderHelper
     public function addExecutePaymentContentEventListener(): void
     {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
-            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', []);
+            // Log that the payment execution has started for debugging purposes
+            $this->getLogger(__METHOD__)->debug('Wallee::ExecutePaymentEventFired', [],);
 
             try {
                 $isPwa = $this->isPwaContext();
                 $orderId = $event->getOrderId();
 
-                $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentContext', [
-                    'eventMop' => $event->getMop(),
-                    'orderId'  => $orderId,
-                    'isPwa'    => $isPwa,
-                ]);
+                // Log the payment context parameters to verify PWA status and IDs
+                $this->getLogger(__METHOD__)->debug(
+                    'Wallee::ExecutePaymentContext',
+                    [
+                        'eventMop' => $event->getMop(),
+                        'orderId'  => $orderId,
+                        'isPwa'    => $isPwa,
+                    ],
+                );
 
                 if ($isPwa) {
                     // Primary source: URL stored by addAfterOrderCreatedListener.
                     // Fallback: URL stored by addGetPaymentMethodContentEventListener.
                     $redirectUrl = $this->session->getPlugin()->getValue('walleePendingRedirectUrl');
-                    $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaRedirectUrl', [
-                        'redirectUrl' => $redirectUrl,
-                    ]);
+                    // Log the resolved redirect URL for the PWA storefront
+                    $this->getLogger(__METHOD__)->debug(
+                        'Wallee::ExecutePaymentPwaRedirectUrl',
+                        [
+                            'redirectUrl' => $redirectUrl,
+                        ],
+                    );
 
                     // Second fallback: rebuild URL from the transaction ID still in session.
                     if (empty($redirectUrl)) {
