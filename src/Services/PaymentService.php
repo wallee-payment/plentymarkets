@@ -336,6 +336,11 @@ class PaymentService
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
+        $this->getLogger(__METHOD__)->error('wallee::TODO is this a problem for PWA?', []);
+        //TODO is this a problem for PWA?
+        // $this->session->getPlugin()->unsetKey('walleeOriginUrl');
+        // $this->session->getPlugin()->unsetKey('walleeTransactionId');
+
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
         ]);

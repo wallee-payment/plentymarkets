@@ -257,7 +257,7 @@ class PaymentProcessController extends Controller
             $templateData['paymentMethodListForSwitch'] = [];
         }
 
-        return $twig->render('Wallee::Failure', $templateData);
+        return $twig->render('wallee::Failure', $templateData);
     }
 
 

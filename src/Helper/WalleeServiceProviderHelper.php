@@ -310,9 +310,6 @@ class WalleeServiceProviderHelper
                     if (!empty($redirectUrl)) {
                         $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');
                         $this->session->getPlugin()->unsetKey('walleeOrderId');
-                        $this->session->getPlugin()->unsetKey('walleeOriginUrl');
-                        $this->session->getPlugin()->unsetKey('walleeTransactionId');
-                        $this->session->getPlugin()->unsetKey('walleePaymentSelectedMethodId');
                         $event->setType('redirect');
                         $event->setValue($redirectUrl);
                     } else {
