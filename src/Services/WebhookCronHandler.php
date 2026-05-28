@@ -63,8 +63,21 @@ class WebhookCronHandler extends CronHandler
 
     public function handle()
     {
+        $twoDaysAgo = time() - (2 * 24 * 60 * 60);
+
         foreach ($this->webhookRepository->getWebhookList() as $webhook) {
             try {
+                // If a webhook has been in the queue for more than 2 days, it is considered stale
+                // (e.g. from an old or inactive developer space) and is removed to prevent queue bloat.
+                if ($webhook->createdAt < $twoDaysAgo) {
+                    $this->getLogger(__METHOD__)->info('Wallee::DeletingStaleWebhook', [
+                        'webhookId' => $webhook->id,
+                        'createdAt' => $webhook->createdAt,
+                    ]);
+                    $this->webhookRepository->deleteWebhook($webhook->id);
+                    continue;
+                }
+
                 $this->getLogger(__METHOD__)->info('processWebhook', $webhook);
                 $result = $this->processWebhook($webhook);
                 if ($result) {
