@@ -295,6 +295,13 @@ $pendingTransaction->setId($createdTransaction->getId());
 $pendingTransaction->setVersion($createdTransaction->getVersion());
 collectTransactionData($pendingTransaction, $client);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
-$transactionResponse = $service->confirm($spaceId, $pendingTransaction);
+// Allow callers to keep the transaction in PENDING (PWA needs the user to complete payment on the payment page).
+// Default to confirm for backward compatibility (CERES flow).
+$shouldConfirm = SdkRestApi::getParam('confirm') ?? true;
+if ($shouldConfirm) {
+    $transactionResponse = $service->confirm($spaceId, $pendingTransaction);
+} else {
+    $transactionResponse = $service->update($spaceId, $pendingTransaction);
+}
 
 return WalleeSdkHelper::convertData($transactionResponse);

@@ -135,34 +135,6 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
-
-                $this->getLogger(__METHOD__)->error('FLOW::TransactionFromSession', [
-                    'transactionId' => $transactionId,
-                ]);
-
-                // Link the basket-level transaction to the newly created order
-                if ($transactionId) {
-                    try {
-                        /** @var \Wallee\Services\WalleeSdkService $sdkService */
-                        $sdkService = pluginApp(\Wallee\Services\WalleeSdkService::class);
-                        $sdkService->call('updateTransaction', [
-                            'id' => $transactionId,
-                            'merchantReference' => (string) $order->id,
-                        ]);
-                        $this->getLogger(__METHOD__)->error('Wallee::TransactionLinked', [
-                            'transactionId' => $transactionId,
-                            'orderId' => $order->id,
-                        ]);
-                    } catch (\Exception $e) {
-                        $this->getLogger(__METHOD__)->error('Wallee::TransactionLinkFailed', [
-                            'error' => $e->getMessage(),
-                        ]);
-                    }
-                } else {
-                    $this->getLogger(__METHOD__)->error('Wallee::NoTransactionInSession');
-                }
-
                 $paymentMethod = $this->paymentHelper->getWalleePaymentMethodByMopId($order->methodOfPaymentId);
                 if (!$paymentMethod) {
                     $this->getLogger(__METHOD__)->error('Wallee::PaymentMethodNotFound', [
@@ -171,8 +143,15 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $this->getLogger(__METHOD__)->error('Wallee::beforeExecutePaymentFunction', []);
-                $result = $this->paymentService->executePayment($order, $paymentMethod);
+                // Link the basket-level transaction to the order and update URLs.
+                // Don't confirm — the user still needs to complete payment on the Wallee payment page.
+                // Confirming would move the transaction out of PENDING, causing the payment page to 302 immediately.
+                $result = $this->paymentService->executePayment(
+                    $order,
+                    $paymentMethod,
+                    false,
+                    false,
+                );
                 $this->getLogger(__METHOD__)->error('Wallee::afterExecutePaymentFunction', [
                     'result' => $result,
                 ]);

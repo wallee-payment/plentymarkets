@@ -313,7 +313,7 @@ class PaymentService
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
+    public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false, bool $confirmTransaction = true): array
     {
         $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
         // Ensure webhooks are created on each transaction
@@ -332,7 +332,8 @@ class PaymentService
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
             'successUrl' => $this->getSuccessUrl($order),
             'failedUrl' => $this->getFailedUrl($order),
-            'checkoutUrl' => $this->getFailedUrl($order)
+            'checkoutUrl' => $this->getFailedUrl($order),
+            'confirm' => $confirmTransaction,
         ];
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
