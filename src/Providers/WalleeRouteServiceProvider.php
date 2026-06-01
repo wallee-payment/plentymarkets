@@ -20,10 +20,10 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
             'rest/v1/wallee/update-transaction',
             'Wallee\Controllers\PaymentNotificationController@updateTransaction',
         );
-        $router->post(
-            'rest/v1/wallee/update-transaction/',
-            'Wallee\Controllers\PaymentNotificationController@updateTransaction',
-        );
+        // $router->post(
+        //     'rest/v1/wallee/update-transaction/',
+        //     'Wallee\Controllers\PaymentNotificationController@updateTransaction',
+        // );
         $router->get('wallee/fail-transaction/{id}', 'Wallee\Controllers\PaymentProcessController@failTransaction')->where('id', '\d+');
         $router->post('wallee/pay-order', 'Wallee\Controllers\PaymentProcessController@payOrder');
         $router->get('wallee/download-invoice/{id}', 'Wallee\Controllers\PaymentTransactionController@downloadInvoice')->where('id', '\d+');
