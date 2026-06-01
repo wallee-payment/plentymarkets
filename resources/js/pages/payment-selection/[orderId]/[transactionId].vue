@@ -35,9 +35,9 @@
             <span class="item-qty">× {{ item.quantity }}</span>
           </div>
         </div>
-        <div v-if="orderData.totals" class="order-total">
+        <div v-if="orderTotalGross !== undefined" class="order-total">
           <span>Total</span>
-          <strong>{{ formatCurrency(orderData.totals.totalGross, orderCurrency) }}</strong>
+          <strong>{{ formatCurrency(orderTotalGross, orderCurrency) }}</strong>
         </div>
       </div>
 
@@ -118,12 +118,30 @@ const productItems = computed(() => {
 
 /**
  * Extract the order currency from the amounts array for formatting.
+ * We look for the non-system currency (which represents the customer's purchase currency)
+ * to avoid displaying the default store system currency (e.g. CHF) instead of the order currency (e.g. GBP).
  */
 const orderCurrency = computed(() => {
   if (!orderData.value?.amounts?.length) {
     return 'EUR';
   }
-  return orderData.value.amounts[0]?.currency || 'EUR';
+  const nonSystemAmount = orderData.value.amounts.find(
+    (amount: any) => amount.isSystemCurrency === false || amount.isSystemCurrency === 0 || amount.isSystemCurrency === 'false'
+  );
+  return (nonSystemAmount || orderData.value.amounts[0])?.currency || 'EUR';
+});
+
+/**
+ * Get the total gross amount of the order in the customer's selected currency.
+ */
+const orderTotalGross = computed(() => {
+  if (!orderData.value?.amounts?.length) {
+    return 0;
+  }
+  const nonSystemAmount = orderData.value.amounts.find(
+    (amount: any) => amount.isSystemCurrency === false || amount.isSystemCurrency === 0 || amount.isSystemCurrency === 'false'
+  );
+  return (nonSystemAmount || orderData.value.amounts[0])?.grossTotal ?? (orderData.value.totals?.totalGross || 0);
 });
 
 /**
