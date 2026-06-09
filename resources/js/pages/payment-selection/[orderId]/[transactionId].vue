@@ -16,10 +16,9 @@
 
     <!-- Payment selection UI -->
     <div v-else class="payment-container">
-      <h1>Choose Payment Method</h1>
+      <h1>Payment canceled  </h1>
       <p class="subtitle">
-        Your previous payment for order <strong>#{{ orderId }}</strong> was not completed.
-        Please select a payment method to try again.
+        The order <strong>#{{ orderId }}</strong> was submitted, but the payment was canceled. Please choose a different payment method and try again.
       </p>
 
       <!-- Order summary -->
