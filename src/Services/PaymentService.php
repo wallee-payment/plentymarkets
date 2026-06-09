@@ -817,7 +817,10 @@ class PaymentService
             $this->getLogger(__METHOD__)->error('Wallee::accessKey', [
                 'accessKey' => $accessKey
             ]);
-            return sprintf('%s/confirmation/%d/%s', rtrim($originUrl, '/'), $order->id, $accessKey);
+            $originLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+            $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+            $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
+            return sprintf('%s%s/confirmation/%d/%s', rtrim($originUrl, '/'), $langPrefix, $order->id, $accessKey);
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
@@ -845,17 +848,21 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
+            $originLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+            $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+            $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
             if ($order) {
                 // Redirect to the new PWA payment selection page (outside /checkout guard)
                 // Wallee will automatically append /{transactionId} to this URL
                 return sprintf(
-                    '%s/payment-selection/%d',
+                    '%s%s/payment-selection/%d',
                     rtrim($originUrl, '/'),
+                    $langPrefix,
                     $order->id,
                 );
             }
             // Fallback: no order available, redirect to PWA checkout with failure flag
-            return sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+            return sprintf('%s%s/checkout?wallee_failed=1', rtrim($originUrl, '/'), $langPrefix);
         }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
