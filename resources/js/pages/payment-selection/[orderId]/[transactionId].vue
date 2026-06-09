@@ -82,6 +82,11 @@
         <span v-else>Complete Payment</span>
       </button>
 
+      <!-- Back to shop button -->
+      <button class="cancel-button" @click="router.replace('/')">
+        Return to shop
+      </button>
+
       <!-- Submission error feedback -->
       <div v-if="submitError" class="submit-error">
         {{ submitError }}
@@ -464,6 +469,25 @@ async function submitPayment(): Promise<void> {
 .submit-button:disabled {
   background: #b0c4de;
   cursor: not-allowed;
+}
+
+/* Cancel / back button */
+.cancel-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background: transparent;
+  color: #555;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.cancel-button:hover {
+  border-color: #adb5bd;
+  color: #333;
 }
 
 /* Submission error */
