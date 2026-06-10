@@ -3,27 +3,25 @@
     <!-- Loading state -->
     <div v-if="isLoading" class="loading-container">
       <div class="spinner"></div>
-      <p>Loading payment options...</p>
+      <p>{{ texts.loading }}</p>
     </div>
 
     <!-- Error state -->
     <div v-else-if="errorMessage" class="error-container">
       <div class="error-icon">⚠</div>
-      <h1>Something went wrong</h1>
+      <h1>{{ texts.errorTitle }}</h1>
       <p>{{ errorMessage }}</p>
-      <p class="redirect-notice">Redirecting you shortly...</p>
+      <p class="redirect-notice">{{ texts.redirectNotice }}</p>
     </div>
 
     <!-- Payment selection UI -->
     <div v-else class="payment-container">
-      <h1>Payment canceled  </h1>
-      <p class="subtitle">
-        The order <strong>#{{ orderId }}</strong> was submitted, but the payment was canceled. Please choose a different payment method and try again.
-      </p>
+      <h1>{{ texts.title }}</h1>
+      <p class="subtitle"><template v-for="(part, index) in subtitleParts" :key="index">{{ part }}<strong v-if="index < subtitleParts.length - 1">#{{ orderId }}</strong></template></p>
 
       <!-- Order summary -->
       <div v-if="orderData" class="order-summary">
-        <h2>Order Summary</h2>
+        <h2>{{ texts.orderSummaryTitle }}</h2>
         <div class="order-items">
           <div
             v-for="(item, index) in productItems"
@@ -35,14 +33,14 @@
           </div>
         </div>
         <div v-if="orderTotalGross !== undefined" class="order-total">
-          <span>Total</span>
+          <span>{{ texts.orderTotalLabel }}</span>
           <strong>{{ formatCurrency(orderTotalGross, orderCurrency) }}</strong>
         </div>
       </div>
 
       <!-- Payment methods -->
       <div class="payment-methods">
-        <h2>Payment Method</h2>
+        <h2>{{ texts.paymentMethodTitle }}</h2>
         <div
           v-for="method in paymentMethods"
           :key="method.id"
@@ -78,12 +76,12 @@
         @click="submitPayment"
       >
         <span v-if="isSubmitting" class="btn-spinner"></span>
-        <span v-else>Complete Payment</span>
+        <span v-else>{{ texts.submitButton }}</span>
       </button>
 
       <!-- Back to shop button -->
       <button class="cancel-button" @click="router.replace('/')">
-        Return to shop
+        {{ texts.cancelButton }}
       </button>
 
       <!-- Submission error feedback -->
@@ -96,6 +94,63 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+
+/**
+ * All user-facing text in this component, so a host app can translate or
+ * reword it without forking the component. Any subset can be overridden
+ * via the `texts` prop; omitted keys fall back to `DEFAULT_TEXTS`.
+ *
+ * `subtitle` supports a `{orderId}` placeholder, which is replaced with the
+ * order id rendered inside its own <strong> tag.
+ */
+interface PaymentSelectionTexts {
+  loading: string;
+  errorTitle: string;
+  redirectNotice: string;
+  title: string;
+  subtitle: string;
+  orderSummaryTitle: string;
+  orderTotalLabel: string;
+  paymentMethodTitle: string;
+  submitButton: string;
+  cancelButton: string;
+  errorNoOrder: string;
+  errorLoadFailed: string;
+  errorRetryNotAllowed: string;
+  errorLoadGeneric: string;
+  errorUnexpectedResponse: string;
+  errorSubmitFailed: string;
+}
+
+const DEFAULT_TEXTS: PaymentSelectionTexts = {
+  loading: 'Loading payment options...',
+  errorTitle: 'Something went wrong',
+  redirectNotice: 'Redirecting you shortly...',
+  title: 'Payment canceled',
+  subtitle: 'The order {orderId} was submitted, but the payment was canceled. Please choose a different payment method and try again.',
+  orderSummaryTitle: 'Order Summary',
+  orderTotalLabel: 'Total',
+  paymentMethodTitle: 'Payment Method',
+  submitButton: 'Complete Payment',
+  cancelButton: 'Return to shop',
+  errorNoOrder: 'No order specified.',
+  errorLoadFailed: 'Failed to load order data.',
+  errorRetryNotAllowed: 'Payment retry is no longer available for this order.',
+  errorLoadGeneric: 'Could not load payment options. Please try again later.',
+  errorUnexpectedResponse: 'Unexpected response from payment server.',
+  errorSubmitFailed: 'Payment could not be processed. Please try again.',
+};
+
+const props = defineProps<{
+  texts?: Partial<PaymentSelectionTexts>;
+}>();
+
+const texts = computed<PaymentSelectionTexts>(() => ({
+  ...DEFAULT_TEXTS,
+  ...props.texts,
+}));
+
+const subtitleParts = computed(() => texts.value.subtitle.split('{orderId}'));
 
 const route = useRoute();
 const router = useRouter();
@@ -170,7 +225,7 @@ onMounted(async () => {
   const paramsOrderId = route.params.orderId as string;
   
   if (!paramsOrderId) {
-    errorMessage.value = 'No order specified.';
+    errorMessage.value = texts.value.errorNoOrder;
     isLoading.value = false;
     redirectAway();
     return;
@@ -186,7 +241,7 @@ onMounted(async () => {
     const responseData = result?.data || result;
 
     if (!responseData || responseData.error) {
-      errorMessage.value = responseData?.error || 'Failed to load order data.';
+      errorMessage.value = responseData?.error || texts.value.errorLoadFailed;
       isLoading.value = false;
       redirectAway();
       return;
@@ -213,7 +268,7 @@ onMounted(async () => {
        * handle these stale unpaid orders through their normal order management
        * workflows (e.g., automatic cancellation after X days).
        */
-      errorMessage.value = 'Payment retry is no longer available for this order.';
+      errorMessage.value = texts.value.errorRetryNotAllowed;
       isLoading.value = false;
       redirectAway();
       return;
@@ -239,7 +294,7 @@ onMounted(async () => {
     }
   } catch (err: any) {
     console.error('[wallee] Failed to load order checkout data:', err);
-    errorMessage.value = 'Could not load payment options. Please try again later.';
+    errorMessage.value = texts.value.errorLoadGeneric;
     redirectAway();
   } finally {
     isLoading.value = false;
@@ -288,11 +343,11 @@ async function submitPayment(): Promise<void> {
       // Payment method doesn't require redirect, send user to confirmation
       router.replace(`/confirmation/${orderId.value}`);
     } else {
-      submitError.value = 'Unexpected response from payment server.';
+      submitError.value = texts.value.errorUnexpectedResponse;
     }
   } catch (err: any) {
     console.error('[wallee] Payment retry failed:', err);
-    submitError.value = 'Payment could not be processed. Please try again.';
+    submitError.value = texts.value.errorSubmitFailed;
   } finally {
     isSubmitting.value = false;
   }
