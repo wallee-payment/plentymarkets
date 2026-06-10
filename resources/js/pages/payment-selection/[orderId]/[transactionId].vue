@@ -80,7 +80,7 @@
       </button>
 
       <!-- Back to shop button -->
-      <button class="cancel-button" @click="router.replace('/')">
+      <button class="cancel-button" @click="router.replace(props.shopPath)">
         {{ texts.cancelButton }}
       </button>
 
@@ -141,9 +141,19 @@ const DEFAULT_TEXTS: PaymentSelectionTexts = {
   errorSubmitFailed: 'Payment could not be processed. Please try again.',
 };
 
-const props = defineProps<{
-  texts?: Partial<PaymentSelectionTexts>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    texts?: Partial<PaymentSelectionTexts>;
+    /** Route to navigate to when the customer leaves this page (e.g. on error, or via "Return to shop"). */
+    shopPath?: string;
+    /** Route to navigate to once the payment retry succeeds without a redirect. Supports an `{orderId}` placeholder. */
+    confirmationPath?: string;
+  }>(),
+  {
+    shopPath: '/',
+    confirmationPath: '/confirmation/{orderId}',
+  },
+);
 
 const texts = computed<PaymentSelectionTexts>(() => ({
   ...DEFAULT_TEXTS,
@@ -199,6 +209,12 @@ interface PayOrderResponse {
   status?: 'continue';
 }
 
+/** Order item typeId that identifies a regular product line item (as opposed to shipping, coupons, etc.). */
+const PRODUCT_ITEM_TYPE_ID = 1;
+
+/** Delay before redirecting the customer away when the page can't proceed. */
+const REDIRECT_DELAY_MS = 3000;
+
 const route = useRoute();
 const router = useRouter();
 
@@ -219,7 +235,7 @@ const productItems = computed(() => {
   if (!orderData.value?.orderItems) {
     return [];
   }
-  return orderData.value.orderItems.filter((item: OrderItem) => item.typeId === 1);
+  return orderData.value.orderItems.filter((item: OrderItem) => item.typeId === PRODUCT_ITEM_TYPE_ID);
 });
 
 /**
@@ -353,8 +369,8 @@ onMounted(async () => {
  */
 function redirectAway(): void {
   setTimeout(() => {
-    router.replace('/');
-  }, 3000);
+    router.replace(props.shopPath);
+  }, REDIRECT_DELAY_MS);
 }
 
 /**
@@ -388,7 +404,7 @@ async function submitPayment(): Promise<void> {
       submitError.value = responseData.error;
     } else if (responseData?.status === 'continue') {
       // Payment method doesn't require redirect, send user to confirmation
-      router.replace(`/confirmation/${orderId.value}`);
+      router.replace(props.confirmationPath.replace('{orderId}', orderId.value));
     } else {
       submitError.value = texts.value.errorUnexpectedResponse;
     }
