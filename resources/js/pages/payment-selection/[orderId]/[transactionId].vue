@@ -152,6 +152,53 @@ const texts = computed<PaymentSelectionTexts>(() => ({
 
 const subtitleParts = computed(() => texts.value.subtitle.split('{orderId}'));
 
+/** A single amount entry from a Plentymarkets order, in either the system or customer currency. */
+interface OrderAmount {
+  currency: string;
+  isSystemCurrency: boolean | number | string;
+  grossTotal: number;
+}
+
+/** A line item of an order, as returned by walleeGetOrderCheckoutData. */
+interface OrderItem {
+  orderItemName: string;
+  quantity: number;
+  typeId: number;
+}
+
+/** Order summary data used to render the order overview. */
+interface OrderData {
+  orderItems: OrderItem[];
+  amounts: OrderAmount[];
+  totals?: {
+    totalGross?: number;
+  };
+}
+
+/** A Wallee payment method available for the order. */
+interface PaymentMethod {
+  id: number | string;
+  name: string;
+  description?: string;
+  icon?: string;
+}
+
+/** Response shape of walleeGetOrderCheckoutData. */
+interface CheckoutDataResponse {
+  error?: string;
+  allowRetry: boolean;
+  currentPaymentMethodId?: number | string;
+  paymentMethods?: PaymentMethod[];
+  orderData?: OrderData;
+}
+
+/** Response shape of walleePayOrderRest. */
+interface PayOrderResponse {
+  redirectUrl?: string;
+  error?: string;
+  status?: 'continue';
+}
+
 const route = useRoute();
 const router = useRouter();
 
@@ -160,8 +207,8 @@ const isLoading = ref<boolean>(true);
 const isSubmitting = ref<boolean>(false);
 const errorMessage = ref<string>('');
 const submitError = ref<string>('');
-const orderData = ref<any>(null);
-const paymentMethods = ref<any[]>([]);
+const orderData = ref<OrderData | null>(null);
+const paymentMethods = ref<PaymentMethod[]>([]);
 const selectedPaymentMethod = ref<string>('');
 
 /**
@@ -172,35 +219,35 @@ const productItems = computed(() => {
   if (!orderData.value?.orderItems) {
     return [];
   }
-  return orderData.value.orderItems.filter((item: any) => item.typeId === 1);
+  return orderData.value.orderItems.filter((item: OrderItem) => item.typeId === 1);
 });
 
 /**
- * Extract the order currency from the amounts array for formatting.
- * We look for the non-system currency (which represents the customer's purchase currency)
- * to avoid displaying the default store system currency (e.g. CHF) instead of the order currency (e.g. GBP).
+ * Find the non-system currency amount (the customer's purchase currency),
+ * falling back to the first amount entry if none is marked as such.
+ * We avoid displaying the default store system currency (e.g. CHF) instead
+ * of the order currency (e.g. GBP).
  */
-const orderCurrency = computed(() => {
+const customerAmount = computed<OrderAmount | undefined>(() => {
   if (!orderData.value?.amounts?.length) {
-    return 'EUR';
+    return undefined;
   }
   const nonSystemAmount = orderData.value.amounts.find(
-    (amount: any) => amount.isSystemCurrency === false || amount.isSystemCurrency === 0 || amount.isSystemCurrency === 'false'
+    (amount: OrderAmount) => amount.isSystemCurrency === false || amount.isSystemCurrency === 0 || amount.isSystemCurrency === 'false'
   );
-  return (nonSystemAmount || orderData.value.amounts[0])?.currency || 'EUR';
+  return nonSystemAmount || orderData.value.amounts[0];
 });
+
+/**
+ * Extract the order currency for formatting.
+ */
+const orderCurrency = computed(() => customerAmount.value?.currency || 'EUR');
 
 /**
  * Get the total gross amount of the order in the customer's selected currency.
  */
 const orderTotalGross = computed(() => {
-  if (!orderData.value?.amounts?.length) {
-    return 0;
-  }
-  const nonSystemAmount = orderData.value.amounts.find(
-    (amount: any) => amount.isSystemCurrency === false || amount.isSystemCurrency === 0 || amount.isSystemCurrency === 'false'
-  );
-  return (nonSystemAmount || orderData.value.amounts[0])?.grossTotal ?? (orderData.value.totals?.totalGross || 0);
+  return customerAmount.value?.grossTotal ?? (orderData.value?.totals?.totalGross || 0);
 });
 
 /**
@@ -238,7 +285,7 @@ onMounted(async () => {
       orderId: paramsOrderId,
     });
 
-    const responseData = result?.data || result;
+    const responseData: CheckoutDataResponse = result?.data || result;
 
     if (!responseData || responseData.error) {
       errorMessage.value = responseData?.error || texts.value.errorLoadFailed;
@@ -274,14 +321,14 @@ onMounted(async () => {
       return;
     }
 
-    orderData.value = responseData.orderData;
+    orderData.value = responseData.orderData ?? null;
     paymentMethods.value = responseData.paymentMethods || [];
 
     // Pre-select the current payment method if it's in the list
     if (responseData.currentPaymentMethodId) {
       const currentId = String(responseData.currentPaymentMethodId);
       const exists = paymentMethods.value.some(
-        (m: any) => String(m.id) === currentId,
+        (m: PaymentMethod) => String(m.id) === currentId,
       );
       if (exists) {
         selectedPaymentMethod.value = currentId;
@@ -292,7 +339,7 @@ onMounted(async () => {
     if (!selectedPaymentMethod.value && paymentMethods.value.length === 1) {
       selectedPaymentMethod.value = String(paymentMethods.value[0].id);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[wallee] Failed to load order checkout data:', err);
     errorMessage.value = texts.value.errorLoadGeneric;
     redirectAway();
@@ -329,7 +376,7 @@ async function submitPayment(): Promise<void> {
       paymentMethodId: selectedPaymentMethod.value,
     });
 
-    const responseData = result?.data || result;
+    const responseData: PayOrderResponse = result?.data || result;
 
     if (responseData?.redirectUrl) {
       // Navigate to the Wallee payment page
@@ -345,7 +392,7 @@ async function submitPayment(): Promise<void> {
     } else {
       submitError.value = texts.value.errorUnexpectedResponse;
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[wallee] Payment retry failed:', err);
     submitError.value = texts.value.errorSubmitFailed;
   } finally {
