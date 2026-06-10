@@ -300,11 +300,52 @@ async function submitPayment(): Promise<void> {
 </script>
 
 <style scoped>
+/*
+ * Theming
+ * -------
+ * This component can be restyled by a host app without touching this file.
+ * Every color, radius and font declared below falls back to the defaults
+ * shown here, but can be overridden by setting the matching CSS custom
+ * property on any ancestor element (e.g. `:root`, `body` or a wrapper
+ * around this component):
+ *
+ *   :root {
+ *     --wallee-color-primary: #ff6600;
+ *     --wallee-font-family: 'Inter', sans-serif;
+ *   }
+ *
+ * Color palette:
+ *   --wallee-color-primary           accent color (selected state, buttons, radios, spinner)
+ *   --wallee-color-primary-hover     submit button hover background
+ *   --wallee-color-primary-disabled  submit button disabled background
+ *   --wallee-color-primary-bg        background tint for the selected payment method
+ *   --wallee-color-heading           primary heading text color
+ *   --wallee-color-text              default body text color
+ *   --wallee-color-text-secondary    secondary heading/text color
+ *   --wallee-color-text-muted        muted/secondary text (e.g. quantities, descriptions)
+ *   --wallee-color-text-faint        faint text (e.g. redirect notice)
+ *   --wallee-color-text-light        light text (e.g. loading state)
+ *   --wallee-color-border            default border color
+ *   --wallee-color-border-strong     stronger border/divider color
+ *   --wallee-color-border-hover      border color on hover (cancel button)
+ *   --wallee-color-surface           surface background (order summary box)
+ *   --wallee-color-error-bg          submission error background
+ *   --wallee-color-error-border      submission error border
+ *   --wallee-color-error-text        submission error text color
+ *
+ * Layout & typography:
+ *   --wallee-font-family             base font family
+ *   --wallee-max-width                max width of the component
+ *   --wallee-radius                  default border radius (cards, buttons)
+ *   --wallee-radius-sm               smaller border radius (error box)
+ *   --wallee-payment-icon-width      payment method icon width
+ *   --wallee-payment-icon-height     payment method icon height
+ */
 .wallee-payment-selection {
-  max-width: 600px;
+  max-width: var(--wallee-max-width, 600px);
   margin: 40px auto;
   padding: 0 20px;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--wallee-font-family, system-ui, -apple-system, sans-serif);
 }
 
 /* Loading */
@@ -315,7 +356,7 @@ async function submitPayment(): Promise<void> {
   justify-content: center;
   height: 60vh;
   text-align: center;
-  color: #666;
+  color: var(--wallee-color-text-light, #666);
 }
 
 /* Error */
@@ -329,43 +370,43 @@ async function submitPayment(): Promise<void> {
 }
 .error-container h1 {
   font-size: 22px;
-  color: #333;
+  color: var(--wallee-color-text-secondary, #333);
   margin-bottom: 8px;
 }
 .error-container p {
-  color: #666;
+  color: var(--wallee-color-text-light, #666);
   margin-bottom: 4px;
 }
 .redirect-notice {
   font-style: italic;
   font-size: 14px;
-  color: #999;
+  color: var(--wallee-color-text-faint, #999);
   margin-top: 12px;
 }
 
 /* Payment container */
 .payment-container h1 {
   font-size: 24px;
-  color: #1a1a1a;
+  color: var(--wallee-color-heading, #1a1a1a);
   margin-bottom: 8px;
 }
 .subtitle {
-  color: #555;
+  color: var(--wallee-color-text, #555);
   margin-bottom: 28px;
   line-height: 1.5;
 }
 
 /* Order summary */
 .order-summary {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  background: var(--wallee-color-surface, #f8f9fa);
+  border: 1px solid var(--wallee-color-border, #e9ecef);
+  border-radius: var(--wallee-radius, 8px);
   padding: 20px;
   margin-bottom: 28px;
 }
 .order-summary h2 {
   font-size: 16px;
-  color: #333;
+  color: var(--wallee-color-text-secondary, #333);
   margin-bottom: 12px;
 }
 .order-item {
@@ -373,7 +414,7 @@ async function submitPayment(): Promise<void> {
   justify-content: space-between;
   padding: 6px 0;
   font-size: 14px;
-  color: #555;
+  color: var(--wallee-color-text, #555);
 }
 .item-name {
   flex: 1;
@@ -381,12 +422,12 @@ async function submitPayment(): Promise<void> {
 }
 .item-qty {
   white-space: nowrap;
-  color: #888;
+  color: var(--wallee-color-text-muted, #888);
 }
 .order-total {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--wallee-color-border-strong, #dee2e6);
   margin-top: 12px;
   padding-top: 12px;
   font-size: 16px;
@@ -398,18 +439,18 @@ async function submitPayment(): Promise<void> {
 }
 .payment-methods h2 {
   font-size: 16px;
-  color: #333;
+  color: var(--wallee-color-text-secondary, #333);
   margin-bottom: 12px;
 }
 .payment-method-option {
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
+  border: 2px solid var(--wallee-color-border, #e9ecef);
+  border-radius: var(--wallee-radius, 8px);
   margin-bottom: 10px;
   transition: border-color 0.15s ease;
 }
 .payment-method-option.selected {
-  border-color: #0d6efd;
-  background: #f0f6ff;
+  border-color: var(--wallee-color-primary, #0d6efd);
+  background: var(--wallee-color-primary-bg, #f0f6ff);
 }
 .payment-label {
   display: flex;
@@ -423,11 +464,11 @@ async function submitPayment(): Promise<void> {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  accent-color: #0d6efd;
+  accent-color: var(--wallee-color-primary, #0d6efd);
 }
 .payment-icon {
-  width: 40px;
-  height: 28px;
+  width: var(--wallee-payment-icon-width, 40px);
+  height: var(--wallee-payment-icon-height, 28px);
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -437,11 +478,11 @@ async function submitPayment(): Promise<void> {
 }
 .payment-name {
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--wallee-color-heading, #1a1a1a);
 }
 .payment-desc {
   font-size: 13px;
-  color: #888;
+  color: var(--wallee-color-text-muted, #888);
   margin-top: 2px;
 }
 
@@ -449,10 +490,10 @@ async function submitPayment(): Promise<void> {
 .submit-button {
   width: 100%;
   padding: 14px;
-  background: #0d6efd;
+  background: var(--wallee-color-primary, #0d6efd);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--wallee-radius, 8px);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -463,10 +504,10 @@ async function submitPayment(): Promise<void> {
   gap: 8px;
 }
 .submit-button:hover:not(:disabled) {
-  background: #0b5ed7;
+  background: var(--wallee-color-primary-hover, #0b5ed7);
 }
 .submit-button:disabled {
-  background: #b0c4de;
+  background: var(--wallee-color-primary-disabled, #b0c4de);
   cursor: not-allowed;
 }
 
@@ -476,27 +517,27 @@ async function submitPayment(): Promise<void> {
   margin-top: 10px;
   padding: 12px;
   background: transparent;
-  color: #555;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
+  color: var(--wallee-color-text, #555);
+  border: 2px solid var(--wallee-color-border-strong, #dee2e6);
+  border-radius: var(--wallee-radius, 8px);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .cancel-button:hover {
-  border-color: #adb5bd;
-  color: #333;
+  border-color: var(--wallee-color-border-hover, #adb5bd);
+  color: var(--wallee-color-text-secondary, #333);
 }
 
 /* Submission error */
 .submit-error {
   margin-top: 12px;
   padding: 12px 16px;
-  background: #fff3f3;
-  border: 1px solid #f5c6cb;
-  border-radius: 6px;
-  color: #842029;
+  background: var(--wallee-color-error-bg, #fff3f3);
+  border: 1px solid var(--wallee-color-error-border, #f5c6cb);
+  border-radius: var(--wallee-radius-sm, 6px);
+  color: var(--wallee-color-error-text, #842029);
   font-size: 14px;
 }
 
@@ -506,7 +547,7 @@ async function submitPayment(): Promise<void> {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border-left-color: #0d6efd;
+  border-left-color: var(--wallee-color-primary, #0d6efd);
   animation: spin 0.8s linear infinite;
   margin-bottom: 16px;
 }
