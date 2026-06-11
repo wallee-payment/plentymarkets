@@ -5,8 +5,7 @@
  * This file goes to "apps/web/app/plugins"
  */
 
-// Bump on every change so the deployed revision is visible in the browser console.
-console.log('[wallee] PLUGIN LOADED rev wal-2026-06-11-02');
+console.log('[wallee] PLUGIN LOADED');
 
 export default defineNuxtPlugin((nuxtApp) => {
 

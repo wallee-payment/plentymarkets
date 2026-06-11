@@ -18,12 +18,6 @@ class WalleeServiceProviderHelper
     use Loggable;
 
     /**
-     * Bump on every logging/flow change. Appears in the log payloads so we can
-     * verify from the logs alone which code revision served a given request.
-     */
-    const LOG_REV = 'wal-2026-06-11-02';
-
-    /**
      * @var $eventDispatcher
      */
     private $eventDispatcher;
@@ -136,7 +130,6 @@ class WalleeServiceProviderHelper
     private function walleeSessionSnapshot(): array
     {
         return [
-            'logRev' => self::LOG_REV,
             'sessionFingerprint' => $this->sessionFingerprint(),
             'walleeOriginUrl' => $this->session->getPlugin()->getValue('walleeOriginUrl') ?? 'null',
             'walleeTransactionId' => $this->session->getPlugin()->getValue('walleeTransactionId') ?? 'null',
@@ -328,9 +321,7 @@ class WalleeServiceProviderHelper
     {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
             // Log that the payment execution has started for debugging purposes
-            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', [
-                'logRev' => self::LOG_REV,
-            ]);
+            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', []);
 
             try {
                 $isPwa = $this->isPwaContext();
