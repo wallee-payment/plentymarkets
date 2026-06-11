@@ -276,7 +276,7 @@ class PaymentProcessController extends Controller
                 'transactionId' => $transactionId,
                 'transaction' => $transaction,
             ]);
-            return $this->redirectToCheckout();
+            return $this->redirectToCheckout(null, $transactionId);
         }
 
         // $state = $transaction['state'] ?? null;
@@ -334,7 +334,7 @@ class PaymentProcessController extends Controller
                 $transaction['userFailureMessage']
             );
         }
-        return $this->redirectToCheckout($order ? $order->id : null);
+        return $this->redirectToCheckout($order, $transactionId);
     }
 
     /**
@@ -342,38 +342,57 @@ class PaymentProcessController extends Controller
      * For PWA: redirects to payment-selection page with orderId when available
      * For Ceres: redirects to standard checkout page
      *
-     * @param int|null $orderId
+     * @param Order|null $order
+     * @param int|null $transactionId
      */
-    private function redirectToCheckout(?int $orderId = null)
+    private function redirectToCheckout(?Order $order = null, ?int $transactionId = null)
     {
+        $orderId = $order->id ?? null;
         $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAHit', [
             'orderId' => $orderId,
+            'transactionId' => $transactionId,
         ]);
         $originUrl = $this->frontendSession->getPlugin()->getValue('walleeOriginUrl');
+
+        // Resolve the end user language: order property first, then session value set by register-return
+        $orderLang = $order ? $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::DOCUMENT_LANGUAGE) : null;
+        $sessionLang = $this->frontendSession->getPlugin()->getValue('walleeOriginLang');
+        $lang = $orderLang ?: $sessionLang;
+        /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);
+        $defaultLang = $webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+        $langPrefix = ($lang && $lang !== $defaultLang) ? '/' . $lang : '';
+
         $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutPWAOriginUrlCheck', [
             'originUrl' => $originUrl,
             'orderId' => $orderId,
+            'orderDocumentLanguage' => $orderLang,
+            'sessionWalleeOriginLang' => $sessionLang,
+            'defaultLang' => $defaultLang,
+            'langPrefix' => $langPrefix,
         ]);
         if ($originUrl) {
-            if ($orderId) {
+            if ($orderId && $transactionId) {
                 // PWA: redirect to the new payment selection page (outside /checkout guard)
                 $url = sprintf(
-                    '%s/payment-selection/%d',
+                    '%s%s/payment-selection/%d/%d',
                     rtrim($originUrl, '/'),
+                    $langPrefix,
                     $orderId,
+                    $transactionId,
                 );
             } else {
                 // PWA fallback: no order available, redirect to checkout with failure flag
-                $url = sprintf('%s/checkout?wallee_failed=1', rtrim($originUrl, '/'));
+                $url = sprintf('%s%s/checkout?wallee_failed=1', rtrim($originUrl, '/'), $langPrefix);
             }
             $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutRedirectToPwa', [
                 'url' => $url,
             ]);
             return $this->response->redirectTo($url);
         }
-        $lang = $this->sessionStorage->getLang();
-        $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-        $url = sprintf('%s/%s/checkout', $domain, $lang);
+        $ceresLang = $lang ?: $this->sessionStorage->getLang();
+        $domain = $webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+        $url = sprintf('%s/%s/checkout', $domain, $ceresLang);
         $this->getLogger(__METHOD__)->error('Wallee::RedirectToCheckoutRedirectToOG', [
             'url' => $url,
         ]);
@@ -688,15 +707,26 @@ class PaymentProcessController extends Controller
             'request' => $request
         ]);
         $originUrl = $request->input('originUrl');
-        $lang = $request->input('lang') ?: 'en';
+        $requestLang = $request->input('lang');
+        $lang = $requestLang;
+        if (!$lang) {
+            // Fall back to the webstore default language instead of hardcoding 'en'
+            /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
+            $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);
+            $lang = $webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+        }
 
         $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextVars', [
             'originUrl' => $originUrl,
-            'lang' => $lang,
+            'requestLang' => $requestLang,
+            'resolvedLang' => $lang,
         ]);
 
         if ($originUrl) {
-            $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextSetToSession', []);
+            $this->getLogger(__METHOD__)->error('Wallee::registerReturnContextSetToSession', [
+                'walleeOriginUrl' => $originUrl,
+                'walleeOriginLang' => $lang,
+            ]);
             $this->frontendSession->getPlugin()->setValue('walleeOriginUrl', $originUrl);
             $this->frontendSession->getPlugin()->setValue('walleeOriginLang', $lang);
             return $this->response->json(['ok' => true]);

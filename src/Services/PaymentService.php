@@ -16,6 +16,7 @@ use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Wallee\Helper\OrderHelper;
 use Wallee\Helper\OrderItemSkuHelper;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
@@ -218,7 +219,8 @@ class PaymentService
                 ],
                 'billingAddress' => $this->getBasketBillingAddressSafe($basket),
                 'shippingAddress' => $this->getBasketShippingAddressSafe($basket),
-                'language' => $this->session->getLocaleSettings()->language,
+                // Use the same language for the hosted payment page as for the return URLs
+                'language' => $this->resolveLanguage(),
                 'successUrl' => $this->getSuccessUrl(),
                 'failedUrl' => $this->getFailedUrl(),
                 'checkoutUrl' => $this->getFailedUrl()
@@ -328,7 +330,8 @@ class PaymentService
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
             'shippingAddress' => $this->getAddress($order->deliveryAddress),
-            'language' => $this->session->getLocaleSettings()->language,
+            // Use the same language for the hosted payment page as for the return URLs
+            'language' => $this->resolveLanguage($order),
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
             'successUrl' => $this->getSuccessUrl($order),
             'failedUrl' => $this->getFailedUrl($order),
@@ -791,6 +794,43 @@ class PaymentService
     }
 
     /**
+     * Resolves the language the end user is browsing the shop with.
+     *
+     * Resolution order:
+     * 1. The order's DOCUMENT_LANGUAGE property (typeId 6) — per-order, survives session loss.
+     * 2. The walleeOriginLang session value registered by the PWA via register-return.
+     * 3. The frontend session locale (Ceres / last resort).
+     *
+     * @param Order|null $order
+     * @return string|null
+     */
+    private function resolveLanguage(?Order $order = null): ?string
+    {
+        $orderLang = null;
+        if ($order) {
+            try {
+                $orderLang = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::DOCUMENT_LANGUAGE);
+            } catch (\Exception $e) {
+                $this->getLogger(__METHOD__)->error('Wallee::resolveLanguageOrderPropertyFailed', [
+                    'orderId' => $order->id ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+        $sessionLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+        $localeLang = $this->session->getLocaleSettings()->language;
+        $lang = $orderLang ?: ($sessionLang ?: $localeLang);
+        $this->getLogger(__METHOD__)->error('Wallee::resolveLanguage', [
+            'orderId' => $order->id ?? null,
+            'orderDocumentLanguage' => $orderLang,
+            'sessionWalleeOriginLang' => $sessionLang,
+            'sessionLocaleLanguage' => $localeLang,
+            'resolvedLanguage' => $lang,
+        ]);
+        return $lang;
+    }
+
+    /**
      *
      * @return string
      */
@@ -807,8 +847,8 @@ class PaymentService
         ]);
         $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
             'originUrl' => $originUrl,
-            'orderId' => $order->id,
-            'orderProperties' => $order->properties,
+            'orderId' => $order->id ?? null,
+            'orderProperties' => $order->properties ?? null,
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl && $order) {
@@ -817,7 +857,7 @@ class PaymentService
             $this->getLogger(__METHOD__)->error('Wallee::accessKey', [
                 'accessKey' => $accessKey
             ]);
-            $originLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+            $originLang = $this->resolveLanguage($order);
             $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
             $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
             $url = sprintf('%s%s/confirmation/%d/%s', rtrim($originUrl, '/'), $langPrefix, $order->id, $accessKey);
@@ -829,7 +869,7 @@ class PaymentService
             ]);
             return $url;
         }
-        $lang = $this->session->getLocaleSettings()->language;
+        $lang = $this->resolveLanguage($order) ?: $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/confirmation', $domain, $lang);
     }
@@ -855,7 +895,7 @@ class PaymentService
             'frontendOriginUrl' => $frontendOriginUrl,
         ]);
         if ($originUrl) {
-            $originLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+            $originLang = $this->resolveLanguage($order);
             $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
             $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
             $this->getLogger(__METHOD__)->error('Wallee::getFailedUrlLang', [
@@ -880,7 +920,7 @@ class PaymentService
             // Fallback: no order available, redirect to PWA checkout with failure flag
             return sprintf('%s%s/checkout?wallee_failed=1', rtrim($originUrl, '/'), $langPrefix);
         }
-        $lang = $this->session->getLocaleSettings()->language;
+        $lang = $this->resolveLanguage($order) ?: $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/wallee/fail-transaction', $domain, $lang);
     }

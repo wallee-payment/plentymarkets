@@ -7,11 +7,40 @@
 
 console.log('[wallee] PLUGIN LOADED');
 
-export default defineNuxtPlugin(() => {
-  
+export default defineNuxtPlugin((nuxtApp) => {
+
   // Only run on client side
   if (typeof window === 'undefined') {
     return;
+  }
+
+  /**
+   * Returns the language the customer is currently browsing with.
+   * Prefers the nuxt-i18n locale (the source of truth for the PWA URL
+   * language prefix); falls back to the <html lang> attribute. An empty
+   * result is fine: the plugin endpoint falls back to the webstore
+   * default language.
+   */
+  function getActiveLang(): string {
+    const i18n = (nuxtApp as any).$i18n;
+    if (i18n?.locale?.value) {
+      return i18n.locale.value;
+    }
+    return (document.documentElement.lang || '').slice(0, 2);
+  }
+
+  function registerReturnContext() {
+    walleeRegisterReturnContext(window.location.origin, getActiveLang())
+      .catch((err: any) => console.error('[wallee] Context registration failed:', err));
+  }
+
+  // Register origin url + language once on startup and again on every language
+  // switch, so the session values are present even when doPreparePayment is not
+  // sent via XMLHttpRequest (the interception below only covers XHR).
+  nuxtApp.hook('app:mounted', registerReturnContext);
+  const i18n = (nuxtApp as any).$i18n;
+  if (i18n?.locale) {
+    watch(i18n.locale, registerReturnContext);
   }
 
   const url = new URL(window.location.href);
@@ -134,8 +163,8 @@ export default defineNuxtPlugin(() => {
       if (url.toLowerCase().includes('dopreparepayment')) {
         try {
           const originUrl = window.location.origin;
-          const lang = (document.documentElement.lang || 'en').slice(0, 2);
-          
+          const lang = getActiveLang();
+
           // Wait for context registration before sending the actual request
           walleeRegisterReturnContext(originUrl, lang)
             .catch((err: any) => console.error('[wallee] Context registration failed:', err))
