@@ -86,6 +86,9 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   function redirect(url: string) {
     console.log('[wallee]: redirect url: ', url);
+    if (!/^https?:\/\//i.test(url)) {
+      console.error('[wallee] redirect value is not an absolute URL — the backend likely stored an error message as the redirect URL:', url);
+    }
     sessionStorage.setItem('wallee_pending_redirect', url);
     localStorage.setItem('wallee_pending_redirect', url);
     if ((window as any).__wallee_should_redirect) {
@@ -146,16 +149,24 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       if (url.toLowerCase().includes('doexecutepayment')) {
         xhr.addEventListener('readystatechange', function() {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            try {
-              const data = JSON.parse(xhr.responseText);
+          if (xhr.readyState !== 4) {
+            return;
+          }
+          if (xhr.status !== 200) {
+            console.error('[wallee] doExecutePayment returned non-200 status, no redirect will happen. status:', xhr.status, 'body:', xhr.responseText);
+            return;
+          }
+          try {
+            const data = JSON.parse(xhr.responseText);
+            console.log('[wallee] doExecutePayment response. type:', data?.data?.type, 'value:', data?.data?.value);
 
-              if ((data?.data?.type === 'redirect' || data?.data?.type === 'redirectUrl') && data?.data?.value) {
-                redirect(data.data.value);
-              }
-            } catch (err) {
-              console.error('[wallee] Error parsing XHR response:', err);
+            if ((data?.data?.type === 'redirect' || data?.data?.type === 'redirectUrl') && data?.data?.value) {
+              redirect(data.data.value);
+            } else {
+              console.warn('[wallee] doExecutePayment did not return a redirect — staying in shop. Full payload:', xhr.responseText);
             }
+          } catch (err) {
+            console.error('[wallee] Error parsing XHR response:', err, 'body:', xhr.responseText);
           }
         }, true);
       }

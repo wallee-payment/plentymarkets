@@ -188,7 +188,11 @@ class PaymentService
             $this->createWebhook();
             
             $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
-            
+
+            $this->getLogger(__METHOD__)->error('Wallee::BasketTransactionSessionState', [
+                'reusedTransactionId' => $transactionId ?? 'null',
+            ]);
+
             /** @var \IO\Services\BasketService $basketService */
             $basketService = pluginApp(\IO\Services\BasketService::class);
             $basket = $basketService->getBasket();
@@ -293,7 +297,12 @@ class PaymentService
                 'redirectUrl' => $paymentPageUrl, // Additional field for PWA
                 'transactionId' => $transaction['id']
             ];
-            
+
+            $this->getLogger(__METHOD__)->error('Wallee::BasketTransactionSuccess', [
+                'transactionId' => $transaction['id'],
+                'paymentPageUrl' => $paymentPageUrl,
+            ]);
+
             return $result;
             
         } catch (\Exception $e) {
