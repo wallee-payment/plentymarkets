@@ -18,6 +18,12 @@ class WalleeServiceProviderHelper
     use Loggable;
 
     /**
+     * Bump on every logging/flow change. Appears in the log payloads so we can
+     * verify from the logs alone which code revision served a given request.
+     */
+    const LOG_REV = 'wal-2026-06-11-02';
+
+    /**
      * @var $eventDispatcher
      */
     private $eventDispatcher;
@@ -130,6 +136,7 @@ class WalleeServiceProviderHelper
     private function walleeSessionSnapshot(): array
     {
         return [
+            'logRev' => self::LOG_REV,
             'sessionFingerprint' => $this->sessionFingerprint(),
             'walleeOriginUrl' => $this->session->getPlugin()->getValue('walleeOriginUrl') ?? 'null',
             'walleeTransactionId' => $this->session->getPlugin()->getValue('walleeTransactionId') ?? 'null',
@@ -321,7 +328,9 @@ class WalleeServiceProviderHelper
     {
         $this->eventDispatcher->listen(ExecutePayment::class, function (ExecutePayment $event) {
             // Log that the payment execution has started for debugging purposes
-            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', []);
+            $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentEventFired', [
+                'logRev' => self::LOG_REV,
+            ]);
 
             try {
                 $isPwa = $this->isPwaContext();
@@ -383,9 +392,25 @@ class WalleeServiceProviderHelper
                         $event->setType('redirect');
                         $event->setValue($redirectUrl);
                     } else {
-                        // No pending URL and no transaction id in session: the storefront
-                        // receives 'continue' and will NOT redirect to the payment page.
-                        // This is the only silent no-redirect path in the PWA flow.
+                        // No pending URL and no transaction id in session: the prepare-phase
+                        // events (GetPaymentMethodContent / OrderCreated) did not run for this
+                        // checkout. The order already exists at this point, so recover by
+                        // creating the transaction directly from the order, like CERES does.
+                        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaSessionEmptyRecovering', [
+                            'orderId' => $orderId,
+                            'eventMop' => $event->getMop(),
+                            'sessionState' => $this->walleeSessionSnapshot(),
+                        ]);
+
+                        $recoveredUrl = $this->recoverRedirectUrlFromOrder($orderId, $event->getMop());
+                        if (!empty($recoveredUrl)) {
+                            $event->setType('redirect');
+                            $event->setValue($recoveredUrl);
+                            return;
+                        }
+
+                        // Recovery failed too: the storefront receives 'continue' and
+                        // will NOT redirect to the payment page.
                         $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentPwaNoRedirectContinue', [
                             'orderId' => $orderId,
                             'sessionState' => $this->walleeSessionSnapshot(),
@@ -437,5 +462,58 @@ class WalleeServiceProviderHelper
                 $event->setValue('Payment failed: ' . $e->getMessage());
             }
         });
+    }
+
+    /**
+     * Last-resort recovery for the PWA flow: when ExecutePayment finds neither a
+     * pending redirect URL nor a transaction id in the session (observed when the
+     * prepare-phase events were never dispatched), create the Wallee transaction
+     * directly from the already-created order and return the payment page URL.
+     *
+     * @param int|null $orderId
+     * @param int|string|null $mopId
+     * @return string|null
+     */
+    private function recoverRedirectUrlFromOrder($orderId, $mopId): ?string
+    {
+        try {
+            if (empty($orderId) || !$this->paymentHelper->isWalleePaymentMopId($mopId)) {
+                $this->getLogger(__METHOD__)->error('Wallee::PwaRecoveryNotApplicable', [
+                    'orderId' => $orderId,
+                    'mopId' => $mopId,
+                ]);
+                return null;
+            }
+
+            $paymentMethod = $this->paymentHelper->getWalleePaymentMethodByMopId($mopId);
+            $order = $this->orderRepository->findById($orderId);
+            if (!$paymentMethod || !$order) {
+                $this->getLogger(__METHOD__)->error('Wallee::PwaRecoveryOrderOrMethodMissing', [
+                    'orderId' => $orderId,
+                    'mopId' => $mopId,
+                    'orderFound' => !empty($order),
+                    'methodFound' => !empty($paymentMethod),
+                ]);
+                return null;
+            }
+
+            $result = $this->paymentService->executePayment($order, $paymentMethod);
+            $this->getLogger(__METHOD__)->error('Wallee::PwaRecoveryExecutePaymentResult', [
+                'orderId' => $orderId,
+                'type' => $result['type'] ?? 'null',
+                'content' => $result['content'] ?? 'null',
+            ]);
+
+            if (($result['type'] ?? '') === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL && !empty($result['content'])) {
+                return (string) $result['content'];
+            }
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('Wallee::PwaRecoveryException', [
+                'orderId' => $orderId,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+        return null;
     }
 }
