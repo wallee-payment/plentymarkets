@@ -395,23 +395,33 @@ async function submitPayment(): Promise<void> {
     const responseData: PayOrderResponse = result?.data || result;
 
     if (responseData?.redirectUrl) {
-      // Navigate to the Wallee payment page
+      // Navigate to the Wallee payment page. Keep `isSubmitting` true so the
+      // spinner stays visible until the browser unloads this page — resetting
+      // it here would make the button briefly flicker back to its enabled
+      // state during the gap between starting navigation and the new page
+      // actually loading.
       window.location.href = responseData.redirectUrl;
       return;
     }
 
+    if (responseData?.status === 'continue') {
+      // Payment method doesn't require redirect, send user to confirmation.
+      // As with the redirect path above, leave `isSubmitting` set so the
+      // button doesn't revert while the route change is in flight.
+      router.replace(props.confirmationPath.replace('{orderId}', orderId.value));
+      return;
+    }
+
+    // From here on we stay on this page, so re-enable the button.
     if (responseData?.error) {
       submitError.value = responseData.error;
-    } else if (responseData?.status === 'continue') {
-      // Payment method doesn't require redirect, send user to confirmation
-      router.replace(props.confirmationPath.replace('{orderId}', orderId.value));
     } else {
       submitError.value = texts.value.errorUnexpectedResponse;
     }
+    isSubmitting.value = false;
   } catch (err: unknown) {
     console.error('[wallee] Payment retry failed:', err);
     submitError.value = texts.value.errorSubmitFailed;
-  } finally {
     isSubmitting.value = false;
   }
 }
