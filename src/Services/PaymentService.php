@@ -326,11 +326,18 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
+        // Timing instrumentation: profile the non-SDK PHP work in this method.
+        // Remote round-trips are timed separately in WalleeSdkService::call
+        // (Wallee::SdkCallTiming). Remove once profiling is done.
+        $executeStart = microtime(true);
         $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
         // Ensure webhooks are created on each transaction
+        $webhookStart = microtime(true);
         $this->createWebhook();
+        $webhookMs = (int) round((microtime(true) - $webhookStart) * 1000);
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
+        $assemblyStart = microtime(true);
         $parameters = [
             'transactionId' => $transactionId,
             'order' => $order,
@@ -346,6 +353,17 @@ class PaymentService
             'failedUrl' => $this->getFailedUrl($order),
             'checkoutUrl' => $this->getFailedUrl($order)
         ];
+        $assemblyMs = (int) round((microtime(true) - $assemblyStart) * 1000);
+
+        // Per-method timing summary: tagged with the payment method so we can
+        // compare e.g. bank transfer vs card across checkouts.
+        $this->getLogger(__METHOD__)->error('Wallee::TimingExecutePayment', [
+            'paymentMethodId' => $paymentMethod->id,
+            'paymentKey' => $paymentMethod->paymentKey,
+            'createWebhookMs' => $webhookMs,
+            'paramAssemblyMs' => $assemblyMs,
+        ]);
+
         $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         // $this->getLogger(__METHOD__)->error('wallee::TODO is this a problem for PWA?', []);
@@ -434,6 +452,8 @@ class PaymentService
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'redirectUrl' => $paymentPageUrl,
             'transaction' => $transaction,
+            // Total wall-clock time of executePayment, end to end.
+            'totalExecutePaymentMs' => (int) round((microtime(true) - $executeStart) * 1000),
             // 'content' => $paymentPageUrl
         ]);
         return [
