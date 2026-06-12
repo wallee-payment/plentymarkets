@@ -63,6 +63,16 @@ class WebhookCronHandler extends CronHandler
 
     public function handle()
     {
+        // Ensure the Wallee-side webhook listeners exist. We cannot do it when saving the configuration, so this is the next best place.
+        // This is a no-op if the listeners already exist, so it is safe to call on every cron run.
+        try {
+            $this->paymentService->createWebhook();
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('Wallee::CronWebhookEnsureFailed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+
         $twoDaysAgo = time() - (2 * 24 * 60 * 60);
 
         foreach ($this->webhookRepository->getWebhookList() as $webhook) {

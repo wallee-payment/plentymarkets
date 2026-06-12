@@ -184,9 +184,6 @@ class PaymentService
             'paymentMethod' => $paymentMethod
         ]);
         try {
-            // Ensure webhooks are created
-            $this->createWebhook();
-            
             $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
             $this->getLogger(__METHOD__)->error('Wallee::BasketTransactionSessionState', [
@@ -331,10 +328,7 @@ class PaymentService
         // (Wallee::SdkCallTiming). Remove once profiling is done.
         $executeStart = microtime(true);
         $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
-        // Ensure webhooks are created on each transaction
-        $webhookStart = microtime(true);
-        $this->createWebhook();
-        $webhookMs = (int) round((microtime(true) - $webhookStart) * 1000);
+
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $assemblyStart = microtime(true);
@@ -360,7 +354,6 @@ class PaymentService
         $this->getLogger(__METHOD__)->error('Wallee::TimingExecutePayment', [
             'paymentMethodId' => $paymentMethod->id,
             'paymentKey' => $paymentMethod->paymentKey,
-            'createWebhookMs' => $webhookMs,
             'paramAssemblyMs' => $assemblyMs,
         ]);
 
