@@ -399,6 +399,15 @@ class PaymentService
         }
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
+
+        // Inner timing breakdown piggybacked by the lib. Log it, then strip the
+        // key so the transaction payload is untouched downstream. Remove once
+        // profiling is done.
+        if (is_array($transaction) && isset($transaction['__walleeTimings'])) {
+            $this->getLogger(__METHOD__)->error('Wallee::CreateTxnInnerTiming', $transaction['__walleeTimings']);
+            unset($transaction['__walleeTimings']);
+        }
+
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
