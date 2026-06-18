@@ -110,7 +110,7 @@ function resolveProductSku($orderItem, $itemIdsByOrderItemId)
     return isset($orderItem['id']) ? $orderItem['id'] : 'product';
 }
 
-function collectTransactionData($transactionRequest, $client, &$walleeTimings = null, $phase = '')
+function collectTransactionData($transactionRequest, $client, &$walleeTimings = null, $phase = '', &$prefetch = null)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
     $order = SdkRestApi::getParam('order');
@@ -122,21 +122,34 @@ function collectTransactionData($transactionRequest, $client, &$walleeTimings = 
     $transactionRequest->setSuccessUrl(SdkRestApi::getParam('successUrl'));
     $transactionRequest->setFailedUrl(SdkRestApi::getParam('checkoutUrl'));
 
-    $service = new LanguageService($client);
-    $tLanguages = microtime(true);
-    $languages = $service->all();
-    if (is_array($walleeTimings)) { $walleeTimings[$phase . '.languagesAllMs'] = (int) round((microtime(true) - $tLanguages) * 1000); }
+    // languages/currencies are platform-static and pmConfig is identical for the
+    // same payment method, so we fetch each once (first pass) and reuse it on the
+    // second pass via $prefetch — saving ~3 redundant round-trips per transaction.
+    if (is_array($prefetch) && array_key_exists('languages', $prefetch)) {
+        $languages = $prefetch['languages'];
+    } else {
+        $service = new LanguageService($client);
+        $tLanguages = microtime(true);
+        $languages = $service->all();
+        if (is_array($walleeTimings)) { $walleeTimings[$phase . '.languagesAllMs'] = (int) round((microtime(true) - $tLanguages) * 1000); }
+        if (is_array($prefetch)) { $prefetch['languages'] = $languages; }
+    }
     foreach ($languages as $language) {
         if ($language->getIso2Code() == SdkRestApi::getParam('language') && $language->getPrimaryOfGroup()) {
             $transactionRequest->setLanguage($language->getIetfCode());
         }
     }
 
-    $currencyService = new CurrencyService($client);
     $currencyDecimalPlaces = 2;
-    $tCurrencies = microtime(true);
-    $currencies = $currencyService->all();
-    if (is_array($walleeTimings)) { $walleeTimings[$phase . '.currenciesAllMs'] = (int) round((microtime(true) - $tCurrencies) * 1000); }
+    if (is_array($prefetch) && array_key_exists('currencies', $prefetch)) {
+        $currencies = $prefetch['currencies'];
+    } else {
+        $currencyService = new CurrencyService($client);
+        $tCurrencies = microtime(true);
+        $currencies = $currencyService->all();
+        if (is_array($walleeTimings)) { $walleeTimings[$phase . '.currenciesAllMs'] = (int) round((microtime(true) - $tCurrencies) * 1000); }
+        if (is_array($prefetch)) { $prefetch['currencies'] = $currencies; }
+    }
     foreach ($currencies as $currency) {
         if ($currency->getCurrencyCode() == $orderAmount['currency']) {
             $currencyDecimalPlaces = $currency->getFractionDigits();
@@ -260,19 +273,24 @@ function collectTransactionData($transactionRequest, $client, &$walleeTimings = 
     $metaData['plentyPaymentMethodId'] = (int) $paymentMethod['id'];
     $transactionRequest->setMetaData($metaData);
 
-    $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
-    $query = new EntityQuery();
-    $query->setNumberOfEntities(20);
-    $filter = new EntityQueryFilter();
-    $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
-    $filter->setChildren([
-        WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
-        WalleeSdkHelper::createEntityFilter('paymentMethod', $paymentMethodId)
-    ]);
-    $query->setFilter($filter);
-    $tPmConfig = microtime(true);
-    $paymentMethodConfigurations = $paymentMethodConfigurationService->search($spaceId, $query);
-    if (is_array($walleeTimings)) { $walleeTimings[$phase . '.pmConfigSearchMs'] = (int) round((microtime(true) - $tPmConfig) * 1000); }
+    if (is_array($prefetch) && array_key_exists('pmConfigs', $prefetch)) {
+        $paymentMethodConfigurations = $prefetch['pmConfigs'];
+    } else {
+        $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
+        $query = new EntityQuery();
+        $query->setNumberOfEntities(20);
+        $filter = new EntityQueryFilter();
+        $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
+        $filter->setChildren([
+            WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
+            WalleeSdkHelper::createEntityFilter('paymentMethod', $paymentMethodId)
+        ]);
+        $query->setFilter($filter);
+        $tPmConfig = microtime(true);
+        $paymentMethodConfigurations = $paymentMethodConfigurationService->search($spaceId, $query);
+        if (is_array($walleeTimings)) { $walleeTimings[$phase . '.pmConfigSearchMs'] = (int) round((microtime(true) - $tPmConfig) * 1000); }
+        if (is_array($prefetch)) { $prefetch['pmConfigs'] = $paymentMethodConfigurations; }
+    }
 
     $allowedPaymentMethodConfigurations = [];
     foreach ($paymentMethodConfigurations as $paymentMethodConfiguration) {
@@ -282,12 +300,15 @@ function collectTransactionData($transactionRequest, $client, &$walleeTimings = 
     $transactionRequest->setAllowedPaymentMethodConfigurations($allowedPaymentMethodConfigurations);
 }
 
-// Timing instrumentation: this lib makes ~8 Wallee API round-trips per call
-// (collectTransactionData runs twice, each doing languages + currencies +
-// pmConfig lookups, plus create + confirm). Timings are accumulated here and
-// piggybacked onto the response under __walleeTimings; the plugin logs and
-// strips that key. Remove once profiling is done.
+// Timing instrumentation: the create path makes ~5 Wallee API round-trips
+// (collectTransactionData fetches languages + currencies + pmConfig once, reused
+// on the confirm pass via $prefetch, plus create + confirm). Timings are
+// accumulated here and piggybacked onto the response under __walleeTimings; the
+// plugin logs and strips that key. Remove once profiling is done.
 $walleeTimings = [];
+// Shared cache of static lookups, populated on the first collectTransactionData
+// pass and reused on the second so the confirm pass skips the re-fetch.
+$prefetch = [];
 
 $service = new TransactionService($client);
 $spaceId = SdkRestApi::getParam('spaceId');
@@ -299,7 +320,7 @@ if (! empty($transactionId)) {
 } else {
     $transactionRequest = new TransactionCreate();
     $tCollectCreate = microtime(true);
-    collectTransactionData($transactionRequest, $client, $walleeTimings, 'create');
+    collectTransactionData($transactionRequest, $client, $walleeTimings, 'create', $prefetch);
     $walleeTimings['collectCreateTotalMs'] = (int) round((microtime(true) - $tCollectCreate) * 1000);
     $transactionRequest->setAutoConfirmationEnabled(false);
     $transactionRequest->setChargeRetryEnabled(false);
@@ -313,7 +334,7 @@ $pendingTransaction = new TransactionPending();
 $pendingTransaction->setId($createdTransaction->getId());
 $pendingTransaction->setVersion($createdTransaction->getVersion());
 $tCollectConfirm = microtime(true);
-collectTransactionData($pendingTransaction, $client, $walleeTimings, 'confirm');
+collectTransactionData($pendingTransaction, $client, $walleeTimings, 'confirm', $prefetch);
 $walleeTimings['collectConfirmTotalMs'] = (int) round((microtime(true) - $tCollectConfirm) * 1000);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
 $tConfirm = microtime(true);
