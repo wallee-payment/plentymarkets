@@ -78,8 +78,7 @@ const config = {
               );
               return data;
             },
-            // walleeGetTransactionFailure fetches the user-facing decline message for a failed transaction.
-            // PWA equivalent of the CERES NotificationService::error() alert (e.g. PowerPay decline reason).
+            // walleeGetTransactionFailure fetches the user-facing decline message for a failed transaction
             walleeGetTransactionFailure: async (
               context: any,
               params: { transactionId: string },
