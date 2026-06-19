@@ -692,6 +692,42 @@ class PaymentProcessController extends Controller
     }
 
     /**
+     * Returns the failure message for a Wallee transaction — PWA equivalent of the CERES
+     * NotificationService::error() alert. The PWA extracts the transactionId from the
+     * payment-selection/{orderId}/{transactionId} URL and calls this endpoint on mount
+     * to show the decline reason
+     *
+     * @param int $id Wallee transaction ID
+     * @return Response
+     */
+    public function getTransactionFailure(int $id)
+    {
+        $transaction = $this->sdkService->call('getTransaction', ['id' => $id]);
+
+        if (is_array($transaction) && isset($transaction['error'])) {
+            $this->getLogger(__METHOD__)->error('Wallee::GetTransactionFailureLookupFailed', [
+                'transactionId' => $id,
+                'error' => $transaction['error_msg'] ?? '',
+            ]);
+            return $this->response->make(
+                json_encode(['message' => null]),
+                200,
+                ['Content-Type' => 'application/json'],
+            );
+        }
+
+        $this->paymentHelper->updatePlentyPayment($transaction);
+
+        $message = !empty($transaction['userFailureMessage']) ? $transaction['userFailureMessage'] : null;
+
+        return $this->response->make(
+            json_encode(['message' => $message]),
+            200,
+            ['Content-Type' => 'application/json'],
+        );
+    }
+
+    /**
      * Register return url for PWA
      *
      * @param Request $request
