@@ -178,47 +178,27 @@ function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $
 
     if ($reductionAmount != $refundAmount) {
         $fixedReductions = [];
-
-        // Only distribute across positive line items. Discount/voucher line items have a
-        // negative amountIncludingTax. Setting a negative unitPriceReduction on them is
-        // invalid — Wallee treats it as 0, causing an over-refund equal to the voucher value.
-        // The voucher's net effect is already reflected in $refundAmount from PlentyMarkets.
-        $positiveBaseAmount = 0;
-        foreach ($baseLineItems as $lineItem) {
-            if ($lineItem->getAmountIncludingTax() > 0 && $lineItem->getQuantity() > 0) {
-                $positiveBaseAmount += $lineItem->getAmountIncludingTax();
-            }
-        }
-
-        if ($positiveBaseAmount == 0) {
+        $baseAmount = WalleeSdkHelper::calculateLineItemTotalAmount($baseLineItems);
+        if ($baseAmount == 0) {
             throw new \Exception('There are no line items left that can be refunded on the transaction ' . $transactionId . ' in space ' . $spaceId . '.');
         }
-
-        $rate = $refundAmount / $positiveBaseAmount;
-
-        $calculatedTotal = 0;
+        $rate = $refundAmount / $baseAmount;
         foreach ($baseLineItems as $lineItem) {
-            if ($lineItem->getAmountIncludingTax() > 0 && $lineItem->getQuantity() > 0) {
-                $lineItemReductionTotal = WalleeSdkHelper::roundAmount($lineItem->getAmountIncludingTax() * $rate / $lineItem->getQuantity());
+            if ($lineItem->getQuantity() > 0) {
                 $reduction = new \Wallee\Sdk\Model\LineItemReductionCreate();
                 $reduction->setLineItemUniqueId($lineItem->getUniqueId());
                 $reduction->setQuantityReduction(0);
-                $reduction->setUnitPriceReduction($lineItemReductionTotal);
+                $reduction->setUnitPriceReduction(WalleeSdkHelper::roundAmount($lineItem->getAmountIncludingTax() * $rate / $lineItem->getQuantity()));
                 $fixedReductions[] = $reduction;
-                $calculatedTotal += $lineItemReductionTotal;
             }
-        }
-
-        $remainder = WalleeSdkHelper::roundAmount($refundAmount - $calculatedTotal);
-
-        if (abs($remainder) >= 0.01 && count($fixedReductions) > 0) {
-            $fixedReductions[0]->setUnitPriceReduction($fixedReductions[0]->getUnitPriceReduction() + WalleeSdkHelper::roundAmount($remainder));
         }
         return $fixedReductions;
     } else {
         return $reductions;
     }
 }
+
+
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 
