@@ -121,11 +121,6 @@ class PaymentNotificationController extends Controller
         }
 
         $webhookRequest = json_decode($this->request->getContent());
-        // Log the received webhook request as an error to ensure visibility in Plentymarkets logs
-        $this->getLogger(__METHOD__)->error(
-            'Wallee::WebhookRequestReceived',
-            (array)$webhookRequest,
-        );
 
         if (in_array(strtolower($webhookRequest->listenerEntityTechnicalName), [
             'transaction',

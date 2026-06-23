@@ -180,15 +180,8 @@ class PaymentService
      */
     public function executePaymentFromBasket(PaymentMethod $paymentMethod): array
     {
-        $this->getLogger(__METHOD__)->error('FLOW::executePaymentFromBasket', [
-            'paymentMethod' => $paymentMethod
-        ]);
         try {
             $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
-
-            $this->getLogger(__METHOD__)->error('Wallee::BasketTransactionSessionState', [
-                'reusedTransactionId' => $transactionId ?? 'null',
-            ]);
 
             /** @var \IO\Services\BasketService $basketService */
             $basketService = pluginApp(\IO\Services\BasketService::class);
@@ -238,7 +231,6 @@ class PaymentService
                 $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
 
                 if (is_array($transaction) && isset($transaction['error']) && $transaction['error']) {
-                    $this->getLogger(__METHOD__)->error('wallee::BasketTransactionError', $transaction);
                     return [
                         'transactionId' => $transactionId,
                         'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -280,7 +272,6 @@ class PaymentService
             ]);
             
             if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
-                $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
                 return [
                     'transactionId' => $transaction['id'],
                     'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -294,11 +285,6 @@ class PaymentService
                 'redirectUrl' => $paymentPageUrl, // Additional field for PWA
                 'transactionId' => $transaction['id']
             ];
-
-            $this->getLogger(__METHOD__)->error('Wallee::BasketTransactionSuccess', [
-                'transactionId' => $transaction['id'],
-                'paymentPageUrl' => $paymentPageUrl,
-            ]);
 
             return $result;
             
@@ -327,7 +313,6 @@ class PaymentService
         // Remote round-trips are timed separately in WalleeSdkService::call
         // (Wallee::SdkCallTiming). Remove once profiling is done.
         $executeStart = microtime(true);
-        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentFunction', []);
 
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
@@ -349,15 +334,6 @@ class PaymentService
         ];
         $assemblyMs = (int) round((microtime(true) - $assemblyStart) * 1000);
 
-        // Per-method timing summary: tagged with the payment method so we can
-        // compare e.g. bank transfer vs card across checkouts.
-        $this->getLogger(__METHOD__)->error('Wallee::TimingExecutePayment', [
-            'paymentMethodId' => $paymentMethod->id,
-            'paymentKey' => $paymentMethod->paymentKey,
-            'paramAssemblyMs' => $assemblyMs,
-        ]);
-
-        $this->getLogger(__METHOD__)->error('wallee::TransactionParameters', $parameters);
 
         // $this->getLogger(__METHOD__)->error('wallee::TODO is this a problem for PWA?', []);
         //TODO is this a problem for PWA?
@@ -369,7 +345,6 @@ class PaymentService
         ]);
 
         if (is_array($existingTransaction) && $existingTransaction['error']) {
-            $this->getLogger(__METHOD__)->error('wallee::ExistingTransactionsError', $existingTransaction);
             return [
                 'transactionId' => $transactionId,
                 'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
@@ -404,7 +379,6 @@ class PaymentService
         // key so the transaction payload is untouched downstream. Remove once
         // profiling is done.
         if (is_array($transaction) && isset($transaction['__walleeTimings'])) {
-            $this->getLogger(__METHOD__)->error('Wallee::CreateTxnInnerTiming', $transaction['__walleeTimings']);
             unset($transaction['__walleeTimings']);
         }
 
@@ -450,14 +424,6 @@ class PaymentService
             ];
         }
 
-        $this->getLogger(__METHOD__)->error('Wallee::ExecutePaymentBeforePwaRedirectReturn', [
-            'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
-            'redirectUrl' => $paymentPageUrl,
-            'transaction' => $transaction,
-            // Total wall-clock time of executePayment, end to end.
-            'totalExecutePaymentMs' => (int) round((microtime(true) - $executeStart) * 1000),
-            // 'content' => $paymentPageUrl
-        ]);
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
             'redirectUrl' => $paymentPageUrl, // Additional field for PWA
@@ -684,10 +650,6 @@ class PaymentService
             $address = $this->getBasketBillingAddress($basket);
             return $this->getAddress($address);
         } catch (\Exception $e) {
-            $this->getLogger(__METHOD__)->error('vRPayment::BillingAddressError', [
-                'error' => $e->getMessage(),
-                'addressId' => $basket->customerInvoiceAddressId ?? 'null'
-            ]);
             // Return minimal valid address structure
             return [
                 'city' => '',
@@ -851,13 +813,6 @@ class PaymentService
         $sessionLang = $this->session->getPlugin()->getValue('walleeOriginLang');
         $localeLang = $this->session->getLocaleSettings()->language;
         $lang = $orderLang ?: ($sessionLang ?: $localeLang);
-        $this->getLogger(__METHOD__)->error('Wallee::resolveLanguage', [
-            'orderId' => $order->id ?? null,
-            'orderDocumentLanguage' => $orderLang,
-            'sessionWalleeOriginLang' => $sessionLang,
-            'sessionLocaleLanguage' => $localeLang,
-            'resolvedLanguage' => $lang,
-        ]);
         return $lang;
     }
 
@@ -871,33 +826,14 @@ class PaymentService
         $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
         $frontendOriginUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
-        $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
-            'cookie' => $request->header('Cookie'),
-            'sessionClass' => get_class($this->session),
-            'frontendSessionClass' => get_class($frontendSession),
-        ]);
-        $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrl', [
-            'originUrl' => $originUrl,
-            'orderId' => $order->id ?? null,
-            'orderProperties' => $order->properties ?? null,
-            'frontendOriginUrl' => $frontendOriginUrl,
-        ]);
+
         if ($originUrl && $order) {
-            $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrlIsPWA', []);
             $accessKey = $this->orderRepository->generateAccessKey($order->id);
-            $this->getLogger(__METHOD__)->error('Wallee::accessKey', [
-                'accessKey' => $accessKey
-            ]);
             $originLang = $this->resolveLanguage($order);
             $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
             $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
             $url = sprintf('%s%s/confirmation/%d/%s', rtrim($originUrl, '/'), $langPrefix, $order->id, $accessKey);
-            $this->getLogger(__METHOD__)->error('Wallee::getSuccessUrlBuilt', [
-                'originLang' => $originLang,
-                'defaultLang' => $defaultLang,
-                'langPrefix' => $langPrefix,
-                'url' => $url,
-            ]);
+
             return $url;
         }
         $lang = $this->resolveLanguage($order) ?: $this->session->getLocaleSettings()->language;
@@ -915,25 +851,12 @@ class PaymentService
         $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
         $frontendOriginUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
-        $this->getLogger(__METHOD__)->error('Wallee::sessionGet', [
-            'cookie' => $request->header('Cookie'),
-            'sessionClass' => get_class($this->session),
-            'frontendSessionClass' => get_class($frontendSession),
-        ]);
-        $this->getLogger(__METHOD__)->error('Wallee::getFailedUrl', [
-            'originUrl' => $originUrl,
-            'order' => $order,
-            'frontendOriginUrl' => $frontendOriginUrl,
-        ]);
+
         if ($originUrl) {
             $originLang = $this->resolveLanguage($order);
             $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
             $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
-            $this->getLogger(__METHOD__)->error('Wallee::getFailedUrlLang', [
-                'originLang' => $originLang,
-                'defaultLang' => $defaultLang,
-                'langPrefix' => $langPrefix,
-            ]);
+
             if ($order) {
                 // Redirect to the new PWA payment selection page (outside /checkout guard)
                 // Wallee will automatically append /{transactionId} to this URL
@@ -943,9 +866,7 @@ class PaymentService
                     $langPrefix,
                     $order->id,
                 );
-                $this->getLogger(__METHOD__)->error('Wallee::getFailedUrlBuilt', [
-                    'url' => $url,
-                ]);
+
                 return $url;
             }
             // Fallback: no order available, redirect to PWA checkout with failure flag

@@ -92,12 +92,6 @@ class PaymentHelper
                 ];
 
                 if ($paymentMethod->id == $mopId) {
-                    $this->getLogger(__METHOD__)->error('Wallee::isWalleePaymentMopId_TRUE', [
-                        'mopId' => $mopId,
-                        'paymentMethodId' => $paymentMethod->id,
-                        'areEqual' => ($paymentMethod->id == $mopId),
-                        'areIdentical' => ($paymentMethod->id === $mopId)
-                    ]);
                     return true;
                 }
             }
@@ -106,7 +100,7 @@ class PaymentHelper
     }
 
     /**
-     * Get VR Payment method object by MOP ID.
+     * Get Wallee Payment method object by MOP ID.
      *
      * @param int $mopId
      * @return \Plenty\Modules\Payment\Method\Models\PaymentMethod|null
@@ -125,13 +119,6 @@ class PaymentHelper
                     'match' => ($paymentMethod->id === $mopId)
                 ];
                 if ($paymentMethod->id == $mopId) {
-                    $this->getLogger(__METHOD__)->error('Wallee::FoundPaymentMethod', [
-                        'mopId' => $mopId,
-                        'paymentMethod' => [
-                            'id' => $paymentMethod->id,
-                            'paymentKey' => $paymentMethod->paymentKey
-                        ]
-                    ]);
                     return $paymentMethod;
                 }
             }
@@ -212,27 +199,6 @@ class PaymentHelper
     {
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
 
-        // Log the transaction update request as an error to guarantee it shows up in Plentymarkets logs
-        $this->getLogger(__METHOD__)->error(
-            'Wallee::updatePlentyPaymentWebhook',
-            [
-                'transactionId' => $transaction['id'],
-                'state' => $transaction['state'],
-                'paymentsCount' => count($payments),
-            ],
-        );
-
-        if (empty($payments)) {
-            $this->getLogger(__METHOD__)->error(
-                'Wallee::NoMatchingPaymentForWebhook',
-                [
-                    'transactionId' => $transaction['id'],
-                    'state' => $transaction['state'],
-                    'merchantReference' => $transaction['merchantReference'] ?? 'none',
-                ],
-            );
-        }
-
         $state = $this->mapTransactionState($transaction['state']);
 
         $this->markPaymentsCaptured($state, $payments);
@@ -242,15 +208,6 @@ class PaymentHelper
 
     public function updateInvoice($transactionInvoice)
     {
-        // Log the incoming invoice update webhook as error for visibility
-        $this->getLogger(__METHOD__)->error(
-            'Wallee::updateInvoiceWebhook',
-            [
-                'invoiceId' => $transactionInvoice['id'] ?? null,
-                'state' => $transactionInvoice['state'] ?? null,
-            ],
-        );
-
         if ($transactionInvoice['state'] == 'NOT_APPLICABLE') {
             $transactionState = $transactionInvoice['completion']['lineItemVersion']['transaction']['state'];
             if ($transactionState == 'FULFILL') {
@@ -302,14 +259,6 @@ class PaymentHelper
 
     public function updateRefund($refund)
     {
-        // Log the incoming refund update webhook as error for visibility
-        $this->getLogger(__METHOD__)->error(
-            'Wallee::updateRefundWebhook',
-            [
-                'refundId' => $refund['id'] ?? null,
-                'state' => $refund['state'] ?? null,
-            ],
-        );
 
         $state = $this->mapRefundState($refund['state']);
 
