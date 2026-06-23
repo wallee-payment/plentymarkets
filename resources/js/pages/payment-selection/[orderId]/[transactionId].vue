@@ -218,6 +218,8 @@ const REDIRECT_DELAY_MS = 3000;
 const route = useRoute();
 const router = useRouter();
 
+const { send } = useNotification();
+
 const orderId = ref<string>('');
 const isLoading = ref<boolean>(true);
 const isSubmitting = ref<boolean>(false);
@@ -286,7 +288,8 @@ function formatCurrency(amount: number | undefined, currency: string): string {
 onMounted(async () => {
   // Read orderId from route params instead of query string to support restful URLs
   const paramsOrderId = route.params.orderId as string;
-  
+  const paramsTransactionId = route.params.transactionId as string;
+
   if (!paramsOrderId) {
     errorMessage.value = texts.value.errorNoOrder;
     isLoading.value = false;
@@ -294,6 +297,22 @@ onMounted(async () => {
     return;
   }
   orderId.value = paramsOrderId;
+
+  // Fetch the decline reason independently — does not block the main page load.
+  // Mirrors CERES NotificationService::error() for the PWA layer (e.g. PowerPay decline message).
+  if (paramsTransactionId) {
+    const sdk = useSdk() as any;
+    sdk.plentysystems.walleeGetTransactionFailure({ transactionId: paramsTransactionId })
+      .then((result: any) => {
+        const message = result?.data?.message ?? result?.message;
+        if (message) {
+          send({ type: 'negative', message });
+        }
+      })
+      .catch((err: unknown) => {
+        console.warn('[wallee] Could not fetch transaction failure message:', err);
+      });
+  }
 
   try {
     const sdk = useSdk() as any;

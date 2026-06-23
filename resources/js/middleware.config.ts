@@ -78,6 +78,20 @@ const config = {
               );
               return data;
             },
+            // walleeGetTransactionFailure fetches the user-facing decline message for a failed transaction
+            walleeGetTransactionFailure: async (
+              context: any,
+              params: { transactionId: string },
+            ) => {
+              const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/transaction-failure/${params.transactionId}`;
+              const { data } = await context.client.get(
+                url,
+                {
+                  headers: { cookie: context.req?.headers?.cookie || '' },
+                },
+              );
+              return data;
+            },
           },
         },
       ],

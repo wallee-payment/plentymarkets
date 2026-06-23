@@ -59,5 +59,6 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
         $router->post($storefrontPrefix . 'restore-cart', $processController . 'restoreCart');
         $router->get($storefrontPrefix . 'order-checkout-data', $processController . 'getOrderCheckoutData');
         $router->post($storefrontPrefix . 'pay-order', $processController . 'payOrderRest');
+        $router->get($storefrontPrefix . 'transaction-failure/{id}', $processController . 'getTransactionFailure')->where('id', '\d+');
     }
 }
