@@ -3,12 +3,9 @@ namespace Wallee\Services;
 
 use Plenty\Modules\Plugin\Libs\Contracts\LibraryCallContract;
 use Plenty\Plugin\ConfigRepository;
-use Plenty\Plugin\Log\Loggable;
 
 class WalleeSdkService
 {
-
-    use Loggable;
 
     const GATEWAY_BASE_PATH = 'https://app-wallee.com';
 
@@ -49,21 +46,7 @@ class WalleeSdkService
         if (!isset($parameters['spaceId']) || $parameters['spaceId'] == 0) {
             $parameters['spaceId'] = $this->config->get('wallee.space_id');
         }
-
-        // Timing instrumentation: every SDK method is a Plenty library call that
-        // boots an isolated PHP runtime and makes HTTPS round-trips to the Wallee
-        // API. Logging the per-call duration lets us see exactly which remote call
-        // owns each second of the checkout delay. Remove once profiling is done.
-        $start = microtime(true);
-        $result = $this->libCall->call('wallee::' . $method, $parameters);
-        $durationMs = (int) round((microtime(true) - $start) * 1000);
-
-        $this->getLogger(__METHOD__)->error('Wallee::SdkCallTiming', [
-            'method' => $method,
-            'durationMs' => $durationMs,
-        ]);
-
-        return $result;
+        return $this->libCall->call('wallee::' . $method, $parameters);
     }
 
     public function validateWebhook(int $spaceId, string $signature, string $payload)

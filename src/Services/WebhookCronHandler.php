@@ -80,8 +80,7 @@ class WebhookCronHandler extends CronHandler
                 // If a webhook has been in the queue for more than 2 days, it is considered stale
                 // (e.g. from an old or inactive developer space) and is removed to prevent queue bloat.
                 if ($webhook->createdAt < $twoDaysAgo) {
-                    // Log the deletion of stale webhooks as error level to keep visibility in PM log tool
-                    $this->getLogger(__METHOD__)->error(
+                    $this->getLogger(__METHOD__)->info(
                         'Wallee::DeletingStaleWebhook',
                         [
                             'webhookId' => $webhook->id,
@@ -92,8 +91,7 @@ class WebhookCronHandler extends CronHandler
                     continue;
                 }
 
-                // Log the start of processing for this webhook to error level for permanent visibility
-                $this->getLogger(__METHOD__)->error(
+                $this->getLogger(__METHOD__)->info(
                     'Wallee::processWebhook',
                     [
                         'id' => $webhook->id,
