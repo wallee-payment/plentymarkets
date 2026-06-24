@@ -9,7 +9,8 @@ $spaceId = SdkRestApi::getParam('spaceId');
 $transactionId = SdkRestApi::getParam('transactionId');
 
 $service = new TransactionService($client);
-$possiblePaymentMethods = $service->fetchPaymentMethods($spaceId, $transactionId, 'iframe');
+
+$possiblePaymentMethods = $service->fetchPaymentMethods($spaceId, $transactionId, 'payment_page');
 if ($possiblePaymentMethods != null && ! empty($possiblePaymentMethods)) {
     return true;
 } else {
