@@ -59,6 +59,7 @@ class WalleeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->getApplication()->register(WalleeRouteServiceProvider::class);
+//        $this->getApplication()->register(WalleeStorefrontRouteServiceProvider::class);
         $this->getApplication()->bind(WebhookRepositoryContract::class, WebhookRepository::class);
         $this->getApplication()->bind(RefundEventProcedure::class);
     }
@@ -113,6 +114,8 @@ class WalleeServiceProvider extends ServiceProvider
         ], 'Wallee\Procedures\RefundEventProcedure@run');
 
         $walleeServiceProviderHelper->addExecutePaymentContentEventListener();
+        $walleeServiceProviderHelper->addAfterOrderCreatedListener();
+        $walleeServiceProviderHelper->addGetPaymentMethodContentEventListener();
 
         $cronContainer->add(CronContainer::EVERY_FIFTEEN_MINUTES, WebhookCronHandler::class);
     }

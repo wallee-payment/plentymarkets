@@ -121,7 +121,6 @@ class PaymentNotificationController extends Controller
         }
 
         $webhookRequest = json_decode($this->request->getContent());
-        $this->getLogger(__METHOD__)->info('webhookRequest', $webhookRequest);
 
         if (in_array(strtolower($webhookRequest->listenerEntityTechnicalName), [
             'transaction',
