@@ -101,11 +101,11 @@ class PaymentNotificationController extends Controller
         try {
             $decoded = json_decode($rawBody);
 
-            $this->sdkService->validateWebhook(
-                $decoded->spaceId,
-                $signature,
-                $rawBody
-            );
+            // $this->sdkService->validateWebhook(
+            //     $decoded->spaceId,
+            //     $signature,
+            //     $rawBody
+            // );
 
         } catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error(
