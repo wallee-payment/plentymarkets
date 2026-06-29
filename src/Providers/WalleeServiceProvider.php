@@ -49,7 +49,6 @@ use Wallee\Methods\KlarnaPayLaterPaymentMethod;
 use Wallee\Methods\KlarnaSliceItPaymentMethod;
 use Wallee\Procedures\RefundEventProcedure;
 use Wallee\Repositories\WebhookRepository;
-use Wallee\Services\PaymentService;
 use Wallee\Services\WebhookCronHandler;
 use IO\Services\BasketService;
 
@@ -73,8 +72,7 @@ class WalleeServiceProvider extends ServiceProvider
         PaymentMethodContainer $payContainer,
         EventProceduresService $eventProceduresService,
         CronContainer $cronContainer,
-        WalleeServiceProviderHelper $walleeServiceProviderHelper,
-        PaymentService $paymentService
+        WalleeServiceProviderHelper $walleeServiceProviderHelper
     ) {
         $this->registerPaymentMethod($payContainer, 1457546097615, AliPayPaymentMethod::class);
         $this->registerPaymentMethod($payContainer, 1457546097602, BankTransferPaymentMethod::class);

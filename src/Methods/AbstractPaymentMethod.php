@@ -3,7 +3,6 @@ namespace Wallee\Methods;
 
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 use Plenty\Plugin\ConfigRepository;
-use Wallee\Services\PaymentService;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
 
 abstract class AbstractPaymentMethod extends PaymentMethodService
@@ -17,12 +16,6 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
 
     /**
      *
-     * @var PaymentService
-     */
-    protected $paymentService;
-
-    /**
-     *
      * @var PaymentRepositoryContract
      */
     protected $paymentRepository;
@@ -31,13 +24,11 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
      * Constructor.
      *
      * @param ConfigRepository $configRepo
-     * @param PaymentService $paymentService
      * @param PaymentRepositoryContract $paymentRepository
      */
-    public function __construct(ConfigRepository $configRepo, PaymentService $paymentService, PaymentRepositoryContract $paymentRepository)
+    public function __construct(ConfigRepository $configRepo, PaymentRepositoryContract $paymentRepository)
     {
         $this->configRepo = $configRepo;
-        $this->paymentService = $paymentService;
         $this->paymentRepository = $paymentRepository;
     }
 
