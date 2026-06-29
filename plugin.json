@@ -45,8 +45,7 @@
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods",
 		"Wallee\\Migrations\\CreateWebhooks",
-		"Wallee\\Migrations\\CreateWebhookTable",
-		"Wallee\\Migrations\\UpdateWebhookSpaceId"
+		"Wallee\\Migrations\\CreateWebhookTable"
 	],
 	"dataProviders": [
 		{
