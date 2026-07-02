@@ -198,8 +198,6 @@ function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $
     }
 }
 
-
-
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
 
 $spaceId = SdkRestApi::getParam('spaceId');

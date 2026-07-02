@@ -70,12 +70,12 @@ class CreatePaymentMethods
 
     private function createPaymentMethod($id, $name)
     {
-        // if ($this->paymentHelper->getPaymentMopId($id) == 'no_paymentmethod_found') {
+        if ($this->paymentHelper->getPaymentMopId($id) == 'no_paymentmethod_found') {
             $this->paymentMethodRepositoryContract->createPaymentMethod([
                 'pluginKey' => 'wallee',
                 'paymentKey' => (string) $id,
-                'name' => 'Wallee: ' . $name
+                'name' => $name
             ]);
-        // }
+        }
     }
 }

@@ -98,17 +98,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Immediate synchronous redirect
     window.location.href = url;
-
-    // Early return test
-    return;
-
-    // If that didn't work, try other methods in rapid succession
-    window.location.replace(url);
-    window.location.assign(url);
-    (window as any).location = url;
-                    
-    // Prevent any code from continuing
-    throw new Error('wallee redirect initiated');
   }
 
   async function walleeRegisterReturnContext(originUrl: string, lang: string) {

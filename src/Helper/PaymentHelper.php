@@ -100,7 +100,7 @@ class PaymentHelper
     }
 
     /**
-     * Get VR Payment method object by MOP ID.
+     * Get payment method object by MOP ID.
      *
      * @param int $mopId
      * @return \Plenty\Modules\Payment\Method\Models\PaymentMethod|null
