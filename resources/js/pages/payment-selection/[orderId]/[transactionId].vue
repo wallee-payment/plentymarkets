@@ -371,7 +371,7 @@ onMounted(async () => {
     }
 
     // If only one method is available, auto-select it
-    if (!selectedPaymentMethod.value && paymentMethods.value.length === 1) {
+    if (!selectedPaymentMethod.value && paymentMethods.value.length === 1 && paymentMethods.value[0]) {
       selectedPaymentMethod.value = String(paymentMethods.value[0].id);
     }
   } catch (err: unknown) {

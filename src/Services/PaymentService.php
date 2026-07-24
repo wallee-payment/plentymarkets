@@ -496,6 +496,13 @@ class PaymentService
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
         foreach ($order->orderItems as $orderItem) {
+            if (! in_array($orderItem->typeId, [
+                OrderItemSkuHelper::TYPE_VARIATION,
+                OrderItemSkuHelper::TYPE_ITEM_BUNDLE,
+                OrderItemSkuHelper::TYPE_BUNDLE_COMPONENT
+            ])) {
+                continue;
+            }
             if (! empty($orderItem->itemId)) {
                 $itemIdsByOrderItemId[$orderItem->id] = $orderItem->itemId;
                 continue;
@@ -538,15 +545,6 @@ class PaymentService
                     'reason' => 'missingItemIdForVariation'
                 ];
             }
-        }
-
-        if (! empty($unresolvedOrderItems)) {
-            $this->getLogger(__METHOD__)->error('wallee::debug.basic', [
-                'logCode' => 'OrderItemIdResolutionIncomplete',
-                'orderId' => $order->id,
-                'unresolvedOrderItems' => $unresolvedOrderItems,
-                'resolvedItemIdsByOrderItemId' => $itemIdsByOrderItemId
-            ]);
         }
 
         return $itemIdsByOrderItemId;

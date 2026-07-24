@@ -81,6 +81,7 @@ if (empty($webhookResult)) {
     $webhookUrlRequest->setState(\Wallee\Sdk\Model\CreationEntityState::ACTIVE);
     $webhookUrlRequest->setName('plentymarkets ' . SdkRestApi::getParam('storeId'));
     $webhookUrlRequest->setUrl(SdkRestApi::getParam('notificationUrl'));
+    $webhookUrlRequest->setEnablePayloadSignatureAndState(true);
     $webhookUrl = $webhookUrlService->create($spaceId, $webhookUrlRequest);
 } else {
     $webhookUrl = $webhookResult[0];

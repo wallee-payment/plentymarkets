@@ -5,6 +5,13 @@ class OrderItemSkuHelper
 {
 
     /**
+     * @see https://developers.plentymarkets.com/en-gb/plugin-io/5.0.0/IO/Builder/Order/OrderItemType.html
+     */
+    const TYPE_VARIATION = 1;
+    const TYPE_ITEM_BUNDLE = 2;
+    const TYPE_BUNDLE_COMPONENT = 3;
+
+    /**
      * @param mixed $compositeSku
      * @param mixed $variationId
      * @return string|null

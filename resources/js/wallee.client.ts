@@ -5,13 +5,26 @@
  * This file goes to "apps/web/app/plugins"
  */
 
-console.log('[wallee] PLUGIN LOADED');
-
 export default defineNuxtPlugin((nuxtApp) => {
 
   // Only run on client side
   if (typeof window === 'undefined') {
     return;
+  }
+
+  // The upstream checkout flow navigates to /confirmation as soon as the order
+  // is created, regardless of what doExecutePayment resolves to (it doesn't
+  // check the response). That races the hard redirect below: if the router
+  // navigation wins, /confirmation renders before window.location.href takes
+  // effect. Once a redirect is pending, cancel any further route navigation
+  // so the confirmation page never mounts.
+  const router = (nuxtApp as any).$router;
+  if (router?.beforeEach) {
+    router.beforeEach(() => {
+      if ((window as any).__wallee_should_redirect) {
+        return false;
+      }
+    });
   }
 
   /**
@@ -44,15 +57,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   const url = new URL(window.location.href);
-  console.log('[wallee]: url=', url);
 
   if (url.pathname.endsWith('/checkout') && url.searchParams.get('wallee_failed') === '1') {
-    console.log('[wallee]: url.pathname.endsWith(/checkout) && url.searchParams.get(wallee_failed) === 1');
     const orderId = url.searchParams.get('orderId');
     if (orderId) {
       try {
         walleeRestoreCart(orderId);
-        console.log('[wallee] basket restored');
       } catch (err) {
         console.error('[wallee] basket restore failed: ', err);
       }
@@ -85,7 +95,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   function redirect(url: string) {
-    console.log('[wallee]: redirect url: ', url);
     if (!/^https?:\/\//i.test(url)) {
       console.error('[wallee] redirect value is not an absolute URL — the backend likely stored an error message as the redirect URL:', url);
     }
@@ -104,17 +113,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Immediate synchronous redirect
     window.location.href = url;
-
-    // Early return test
-    return;
-
-    // If that didn't work, try other methods in rapid succession
-    window.location.replace(url);
-    window.location.assign(url);
-    (window as any).location = url;
-                    
-    // Prevent any code from continuing
-    throw new Error('wallee redirect initiated');
   }
 
   async function walleeRegisterReturnContext(originUrl: string, lang: string) {
@@ -139,7 +137,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     
     XMLHttpRequest.prototype.open = function(this: XMLHttpRequest, method: string, url: string | URL, ...rest: any[]) {
       (this as any).__wallee_url = url.toString();
-      console.log('[wallee]: XMLHttpRequest=', url);
       return originalXHROpen.apply(this, [method, url, ...rest] as any);
     };
     
@@ -158,7 +155,6 @@ export default defineNuxtPlugin((nuxtApp) => {
           }
           try {
             const data = JSON.parse(xhr.responseText);
-            console.log('[wallee] doExecutePayment response. type:', data?.data?.type, 'value:', data?.data?.value);
 
             if ((data?.data?.type === 'redirect' || data?.data?.type === 'redirectUrl') && data?.data?.value) {
               redirect(data.data.value);
