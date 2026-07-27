@@ -47,7 +47,7 @@ function collectTransactionData($transactionRequest, $client)
         }
     }
 
-    $basketNetPrices = $basket['basketAmountNet'] == $basket['basketAmount']
+    $basketNetPrices = $basket['basketAmountNet'] == $basket['basketAmount'];
     $lineItems = [];
     $arrayOfItemIdsInLoop = [];
     $maxTaxRate = 0;
