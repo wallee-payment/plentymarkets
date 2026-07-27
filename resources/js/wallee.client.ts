@@ -12,21 +12,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     return;
   }
 
-  // The upstream checkout flow navigates to /confirmation as soon as the order
-  // is created, regardless of what doExecutePayment resolves to (it doesn't
-  // check the response). That races the hard redirect below: if the router
-  // navigation wins, /confirmation renders before window.location.href takes
-  // effect. Once a redirect is pending, cancel any further route navigation
-  // so the confirmation page never mounts.
-  const router = (nuxtApp as any).$router;
-  if (router?.beforeEach) {
-    router.beforeEach(() => {
-      if ((window as any).__wallee_should_redirect) {
-        return false;
-      }
-    });
-  }
-
   /**
    * Returns the language the customer is currently browsing with.
    * Prefers the nuxt-i18n locale (the source of truth for the PWA URL

@@ -200,6 +200,8 @@ class PaymentService
                     'currency' => $basket->currency,
                     'customerId' => $basket->customerId ?? '',
                     'orderId' => $tempMerchantRef, // PWA: Use temp reference until order is created
+                    'basketAmount' => $basket->basketAmount ?? 0,
+                    'basketAmountNet' => $basket->basketAmountNet ?? 0,
                     'shippingAmount' => $basket->shippingAmount ?? 0,
                     'shippingAmountNet' => $basket->shippingAmountNet ?? 0,
                     'couponDiscount' => $basket->couponDiscount ?? 0,
