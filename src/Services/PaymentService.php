@@ -222,6 +222,8 @@ class PaymentService
                 'checkoutUrl' => $this->getFailedUrl()
             ];
 
+            $this->getLogger(__METHOD__)->error('wallee::BasketParamsDebug', $parameters);
+
             // Only add transactionId if it exists (not null)
             if ($transactionId !== null) {
                 $parameters['transactionId'] = $transactionId;
