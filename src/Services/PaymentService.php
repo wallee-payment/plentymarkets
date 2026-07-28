@@ -317,6 +317,7 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
+        $this->getLogger(__METHOD__)->error('wallee::executePayment', $order);
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [
