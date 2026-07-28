@@ -240,6 +240,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                $this->getLogger(__METHOD__)->error('wallee::EventMopIdDebug', $eventMop);
                 $result = $this->paymentService->executePaymentFromBasket($eventMop);
 
                 $event->setValue($result['content'] ?? null);
