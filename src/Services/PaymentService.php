@@ -371,6 +371,7 @@ class PaymentService
         }
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
+        $this->getLogger(__METHOD__)->error('wallee::TransactionDebug', $transaction);
 
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
