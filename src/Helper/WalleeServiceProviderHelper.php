@@ -223,6 +223,7 @@ class WalleeServiceProviderHelper
     public function addGetPaymentMethodContentEventListener(): void
     {
         $this->eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) {
+            $this->getLogger(__METHOD__)->error('eventlistener', "here");
             try {
                 if (!$this->paymentHelper->isWalleePaymentMopId($event->getMop())) {
                     return;
