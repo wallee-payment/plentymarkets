@@ -146,6 +146,7 @@ class WalleeServiceProviderHelper
      */
     public function addAfterOrderCreatedListener(): void
     {
+        $this->getLogger(__METHOD__)->error('addAfterOrderCreatedListener', "here");
         $this->eventDispatcher->listen(OrderCreated::class, function (OrderCreated $event) {
             $order = $event->getOrder();
 
@@ -159,7 +160,6 @@ class WalleeServiceProviderHelper
                 }
 
                 // CERES processes payment in ExecutePayment — nothing to do here
-                $this->getLogger(__METHOD__)->error('addAfterOrderCreatedListener', "here");
                 if (!$this->isPwaContext()) {
                     return;
                 }
@@ -224,6 +224,7 @@ class WalleeServiceProviderHelper
      */
     public function addGetPaymentMethodContentEventListener(): void
     {
+        $this->getLogger(__METHOD__)->error('addGetPaymentMethodContentEventListener', "here");
         $this->eventDispatcher->listen(GetPaymentMethodContent::class, function (GetPaymentMethodContent $event) {
             $this->getLogger(__METHOD__)->error('eventlistener', "here");
             try {
@@ -232,7 +233,6 @@ class WalleeServiceProviderHelper
                 }
 
                 // CERES creates its transaction in ExecutePayment — skip here
-                $this->getLogger(__METHOD__)->error('addGetPaymentMethodContentEventListener', "here");
                 if (!$this->isPwaContext()) {
                     return;
                 }
