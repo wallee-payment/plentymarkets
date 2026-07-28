@@ -105,6 +105,11 @@ class WalleeServiceProviderHelper
             'transactionId' => $transactionId ?? 'null',
         ]);
 
+        $this->getLogger(__METHOD__)->error('isPwaContext', [
+            'originUrl' => $originUrl ?? 'null',
+            'transactionId' => $transactionId ?? 'null',
+        ]);
+
         return !empty($originUrl);
     }
 
