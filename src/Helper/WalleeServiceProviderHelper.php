@@ -159,6 +159,7 @@ class WalleeServiceProviderHelper
                 }
 
                 // CERES processes payment in ExecutePayment — nothing to do here
+                $this->getLogger(__METHOD__)->error('addAfterOrderCreatedListener', "here");
                 if (!$this->isPwaContext()) {
                     return;
                 }
@@ -231,6 +232,7 @@ class WalleeServiceProviderHelper
                 }
 
                 // CERES creates its transaction in ExecutePayment — skip here
+                $this->getLogger(__METHOD__)->error('addGetPaymentMethodContentEventListener', "here");
                 if (!$this->isPwaContext()) {
                     return;
                 }
