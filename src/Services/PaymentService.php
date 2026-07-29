@@ -183,8 +183,6 @@ class PaymentService
         try {
             $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
-            $this->getLogger(__METHOD__)->error('wallee::TransIdDebug', $transactionId);
-
             /** @var \IO\Services\BasketService $basketService */
             $basketService = pluginApp(\IO\Services\BasketService::class);
             $basket = $basketService->getBasket();
@@ -223,8 +221,6 @@ class PaymentService
                 'failedUrl' => $this->getFailedUrl(),
                 'checkoutUrl' => $this->getFailedUrl()
             ];
-
-            $this->getLogger(__METHOD__)->error('wallee::BasketParamsDebug', $parameters);
 
             // Only add transactionId if it exists (not null)
             if ($transactionId !== null) {
@@ -317,7 +313,6 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
-        $this->getLogger(__METHOD__)->error('wallee::executePayment', $order);
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [
@@ -371,7 +366,6 @@ class PaymentService
         }
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
-        $this->getLogger(__METHOD__)->error('wallee::TransactionDebug', $transaction);
 
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
