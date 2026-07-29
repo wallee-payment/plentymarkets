@@ -96,16 +96,10 @@ class WalleeServiceProviderHelper
      */
     private function isPwaContext(): bool
     {
-        $this->getLogger(__METHOD__)->error('pwacontext', "here");
         $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $this->getLogger(__METHOD__)->debug('Checking PWA context variables', [
-            'originUrl' => $originUrl ?? 'null',
-            'transactionId' => $transactionId ?? 'null',
-        ]);
-
-        $this->getLogger(__METHOD__)->error('isPwaContext', [
             'originUrl' => $originUrl ?? 'null',
             'transactionId' => $transactionId ?? 'null',
         ]);
