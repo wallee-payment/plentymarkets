@@ -121,7 +121,6 @@ function collectTransactionData($transactionRequest, $client)
     }
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
     $basketAmount = $basket['basketAmount'];
-    // $basketAmount = $basketNetPrices ? $basketForTemplate['basketAmountNet'] : $basketForTemplate['basketAmount'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');

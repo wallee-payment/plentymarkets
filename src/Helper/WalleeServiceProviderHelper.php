@@ -188,7 +188,19 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
-                $result = $this->paymentService->executePayment($order, $paymentMethod);
+                // Re-fetch the order so that orderItems and amounts relations are fully loaded.
+                // $event->getOrder() returns a thin object without eager-loaded relations, which
+                // causes createTransactionFromOrder to see an empty orderItems array and collapse
+                // the entire order total into a single adjustment line item.
+                $fullOrder = $this->orderRepository->findOrderById($order->id);
+                if (!$fullOrder) {
+                    $this->getLogger(__METHOD__)->error('Wallee::OrderRefetchFailed', [
+                        'orderId' => $order->id,
+                    ]);
+                    return;
+                }
+
+                $result = $this->paymentService->executePayment($fullOrder, $paymentMethod);
 
                 $type = $result['type'] ?? '';
                 if ($type === GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL || $type === 'redirectUrl') {
@@ -202,7 +214,7 @@ class WalleeServiceProviderHelper
                 // Store redirect URL in session so ExecutePayment listener can return it to PWA
                 if ($type === 'redirect' && !empty($result['content'])) {
                     $this->session->getPlugin()->setValue('walleePendingRedirectUrl', $result['content']);
-                    $this->session->getPlugin()->setValue('walleeOrderId', $order->id);
+                    $this->session->getPlugin()->setValue('walleeOrderId', $fullOrder->id);
                 }
 
             } catch (\Exception $e) {
@@ -240,6 +252,7 @@ class WalleeServiceProviderHelper
                     return;
                 }
 
+                $this->getLogger(__METHOD__)->error('wallee::EventMopIdDebug', $eventMop);
                 $result = $this->paymentService->executePaymentFromBasket($eventMop);
 
                 $event->setValue($result['content'] ?? null);
