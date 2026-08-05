@@ -16,7 +16,7 @@ class WalleeSdkHelper
         $client = new ApiClient($userId, $userKey);
         $client->setBasePath($gatewayBasePath . '/api');
         $client->addDefaultHeader('x-meta-shop-system', 'plentymarkets');
-        $client->addDefaultHeader('x-meta-plugin-version', 2.2.2);
+        $client->addDefaultHeader('x-meta-plugin-version', "2.2.2");
         return $client;
     }
 
