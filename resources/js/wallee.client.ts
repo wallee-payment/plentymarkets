@@ -1,15 +1,70 @@
 /**
  * wallee Client Plugin
  * Intercepts doExecutePayment to handle payment redirects
- * 
+ *
  * This file goes to "apps/web/app/plugins"
+ * The sibling "lang" folder goes to "apps/web/app/plugins/lang"
  */
+
+import de from './lang/de.json';
+import en from './lang/en.json';
+import fr from './lang/fr.json';
+import it from './lang/it.json';
+
+// Registered on the shop's i18n instance at runtime rather than shipped into
+// "apps/web/app/lang", so the theme's own locale files are never overwritten
+// and the plugin keeps working across theme updates.
+const LOCALE_MESSAGES: Record<string, any> = { de, en, fr, it };
 
 export default defineNuxtPlugin((nuxtApp) => {
 
   // Only run on client side
   if (typeof window === 'undefined') {
     return;
+  }
+
+  let localesRegistered = false;
+
+  /**
+   * Translates one of this plugin's own keys through the shop's i18n instance.
+   * $i18n is resolved lazily so this works regardless of whether the plugin is
+   * loaded before or after @nuxtjs/i18n. Falls back to the English message when
+   * i18n is unavailable, so the customer never sees a raw translation key.
+   */
+  function translate(key: string): string {
+    const fallback = (en as any)['wallee'].checkout[key];
+    const i18n = (nuxtApp as any).$i18n;
+
+    if (typeof i18n?.t !== 'function') {
+      return fallback;
+    }
+
+    if (!localesRegistered && typeof i18n.mergeLocaleMessage === 'function') {
+      Object.keys(LOCALE_MESSAGES).forEach((locale) => {
+        i18n.mergeLocaleMessage(locale, LOCALE_MESSAGES[locale]);
+      });
+      localesRegistered = true;
+    }
+
+    // vue-i18n echoes the key back when no message is registered for it
+    const fullKey = 'wallee.checkout.' + key;
+    const translated = i18n.t(fullKey);
+    return !translated || translated === fullKey ? fallback : translated;
+  }
+
+  // The upstream checkout flow navigates to /confirmation as soon as the order
+  // is created, regardless of what doExecutePayment resolves to (it doesn't
+  // check the response). That races the hard redirect below: if the router
+  // navigation wins, /confirmation renders before window.location.href takes
+  // effect. Once a redirect is pending, cancel any further route navigation
+  // so the confirmation page never mounts.
+  const router = (nuxtApp as any).$router;
+  if (router?.beforeEach) {
+    router.beforeEach(() => {
+      if ((window as any).__wallee_should_redirect) {
+        return false;
+      }
+    });
   }
 
   /**
@@ -57,7 +112,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     try {
       const { send } = (window as any).$nuxt?.$nuxt?.useNotification?.() ?? {};
       if (send) {
-        send({ type: 'negative', message: 'Your payment could not be completed. Please try again.' });
+        send({ type: 'negative', message: translate('paymentFailed') });
       } else {
         showFallbackBanner();
       }
@@ -74,7 +129,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const banner = document.createElement('div');
     banner.style.cssText =
       'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fee;border:1px solid #f99;padding:12px 20px;border-radius:6px;z-index:99999;color:#900;';
-    banner.textContent = 'Your payment could not be completed. Please try again.';
+    banner.textContent = translate('paymentFailed');
     document.body.appendChild(banner);
     setTimeout(() => banner.remove(), 6000);
   }
@@ -93,7 +148,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Create overlay to prevent interaction
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-size:24px;';
-    overlay.innerHTML = '<div>Redirecting to payment page...</div>';
+    const message = document.createElement('div');
+    message.textContent = translate('redirecting');
+    overlay.appendChild(message);
     document.body.appendChild(overlay);
 
     // Immediate synchronous redirect

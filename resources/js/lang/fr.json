@@ -1,0 +1,8 @@
+{
+  "wallee": {
+    "checkout": {
+      "redirecting": "Redirection en cours...",
+      "paymentFailed": "Votre paiement n'a pas pu être finalisé. Veuillez réessayer."
+    }
+  }
+}
