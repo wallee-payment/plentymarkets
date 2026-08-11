@@ -68,4 +68,46 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
         return false;
     }
 
+    /**
+     * Check if this payment method runs in the background.
+     * Returns false because payment requires redirecting to external payment page.
+     *
+     * @return bool
+     */
+    public function isBackgroundEnabled(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Check if the payment method should be shown as an icon in checkout.
+     *
+     * @return bool
+     */
+    public function showIconInCheckout(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the payment redirect source URL.
+     * PWA uses this for non-background payment methods.
+     *
+     * @param int $orderId
+     * @return string
+     */
+    public function getSourceUrl(int $orderId): string
+    {
+        /** @var \Plenty\Plugin\Log\Loggable $loggable */
+        $loggable = pluginApp(\Plenty\Plugin\Log\Loggable::class);
+        $loggable->getLogger(__METHOD__)->error('Wallee::getSourceUrl_CALLED', [
+            'orderId' => $orderId,
+            'paymentMethod' => get_class($this)
+        ]);
+
+        // For PWA: Return URL that triggers payment preparation
+        // This should trigger the ExecutePayment event
+        return '';
+    }
+
 }

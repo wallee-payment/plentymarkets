@@ -47,7 +47,7 @@ function collectTransactionData($transactionRequest, $client)
         }
     }
 
-    $basketNetPrices = $basketForTemplate['basketAmountNet'] == $basketForTemplate['basketAmount'];
+    $basketNetPrices = $basket['basketAmountNet'] == $basket['basketAmount'];
     $lineItems = [];
     $arrayOfItemIdsInLoop = [];
     $maxTaxRate = 0;
@@ -120,7 +120,8 @@ function collectTransactionData($transactionRequest, $client)
         $lineItems[] = $lineItem;
     }
     $lineItemTotalAmount = WalleeSdkHelper::calculateLineItemTotalAmount($lineItems);
-    $basketAmount = $basketForTemplate['basketAmount'];
+    $basketAmount = $basket['basketAmount'];
+    // $basketAmount = $basketNetPrices ? $basketForTemplate['basketAmountNet'] : $basketForTemplate['basketAmount'];
     if (WalleeSdkHelper::roundAmount($lineItemTotalAmount, $currencyDecimalPlaces) > WalleeSdkHelper::roundAmount($basketAmount, $currencyDecimalPlaces)) {
         $lineItem = new LineItemCreate();
         $lineItem->setUniqueId('adjustment');

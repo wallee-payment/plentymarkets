@@ -1,20 +1,20 @@
 {
 	"name": "wallee",
 	"marketplaceName": {
-		"de": "wallee E-Commerce Hub",
-		"en": "wallee e-commerce hub"
+		"de": "Checkout mit wallee",
+		"en": "Checkout with wallee"
 	},
 	"namespace": "Wallee",
 	"type": "payment",
-	"version": "2.1.8",
+	"version": "2.2.0",
 	"license": " Apache License Version 2",
 	"isClosedSource": false,
 	"pluginIcon": "icon_plugin_md.png",
 	"price": 0.00,
 	"description": "The official wallee plugin for plentymarkets.",
 	"shortDescription": {
-		"de": "Ein Plugin - 50+ PSPs. Mit dem wallee Plugin verbinden Sie direkt zu Ihrem gewünschten PSP und akzeptieren Kreditkarten, Rechnungen, SOFORT, Alipay, usw. ",
-		"en": "Connect to over 50+ Payment Service Provider. Process credit cards, Sofort, Paydirekt, PayPal, Alipay, and many more."
+		"de": "Moderne Zahlungsmethoden für deinen Shop mit dem Payment Plugin von wallee (Ready for PWA).",
+		"en": "Modern payment methods for your store with the wallee Payment Plugin (Ready for PWA)."
 	},
 	"categories": [
 		"3519"
@@ -45,8 +45,7 @@
 	"runOnBuild": [
 		"Wallee\\Migrations\\CreatePaymentMethods",
 		"Wallee\\Migrations\\CreateWebhooks",
-		"Wallee\\Migrations\\CreateWebhookTable",
-		"Wallee\\Migrations\\UpdateWebhookSpaceId"
+		"Wallee\\Migrations\\CreateWebhookTable"
 	],
 	"dataProviders": [
 		{

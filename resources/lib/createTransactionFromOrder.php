@@ -110,7 +110,7 @@ function resolveProductSku($orderItem, $itemIdsByOrderItemId)
     return isset($orderItem['id']) ? $orderItem['id'] : 'product';
 }
 
-function collectTransactionData($transactionRequest, $client)
+function collectTransactionData($transactionRequest, $client, &$prefetch = null)
 {
     $spaceId = SdkRestApi::getParam('spaceId');
     $order = SdkRestApi::getParam('order');
@@ -122,17 +122,32 @@ function collectTransactionData($transactionRequest, $client)
     $transactionRequest->setSuccessUrl(SdkRestApi::getParam('successUrl'));
     $transactionRequest->setFailedUrl(SdkRestApi::getParam('checkoutUrl'));
 
-    $service = new LanguageService($client);
-    $languages = $service->all();
+    // languages/currencies are platform-static and pmConfig is identical for the
+    // same payment method, so we fetch each once (first pass) and reuse it on the
+    // second pass via $prefetch — saving ~3 redundant round-trips per transaction.
+    if (is_array($prefetch) && array_key_exists('languages', $prefetch)) {
+        $languages = $prefetch['languages'];
+    } else {
+        $service = new LanguageService($client);
+        $languages = $service->all();
+        if (is_array($prefetch)) { $prefetch['languages'] = $languages; }
+    }
     foreach ($languages as $language) {
         if ($language->getIso2Code() == SdkRestApi::getParam('language') && $language->getPrimaryOfGroup()) {
             $transactionRequest->setLanguage($language->getIetfCode());
         }
     }
 
-    $currencyService = new CurrencyService($client);
     $currencyDecimalPlaces = 2;
-    $currencies = $currencyService->all();
+    if (is_array($prefetch) && array_key_exists('currencies', $prefetch)) {
+        $currencies = $prefetch['currencies'];
+    } else {
+        $currencyService = new CurrencyService($client);
+        $currencies = $currencyService->all();
+        if (is_array($prefetch)) { 
+            $prefetch['currencies'] = $currencies;
+        }
+    }
     foreach ($currencies as $currency) {
         if ($currency->getCurrencyCode() == $orderAmount['currency']) {
             $currencyDecimalPlaces = $currency->getFractionDigits();
@@ -256,17 +271,24 @@ function collectTransactionData($transactionRequest, $client)
     $metaData['plentyPaymentMethodId'] = (int) $paymentMethod['id'];
     $transactionRequest->setMetaData($metaData);
 
-    $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
-    $query = new EntityQuery();
-    $query->setNumberOfEntities(20);
-    $filter = new EntityQueryFilter();
-    $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
-    $filter->setChildren([
-        WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
-        WalleeSdkHelper::createEntityFilter('paymentMethod', $paymentMethodId)
-    ]);
-    $query->setFilter($filter);
-    $paymentMethodConfigurations = $paymentMethodConfigurationService->search($spaceId, $query);
+    if (is_array($prefetch) && array_key_exists('pmConfigs', $prefetch)) {
+        $paymentMethodConfigurations = $prefetch['pmConfigs'];
+    } else {
+        $paymentMethodConfigurationService = new PaymentMethodConfigurationService($client);
+        $query = new EntityQuery();
+        $query->setNumberOfEntities(20);
+        $filter = new EntityQueryFilter();
+        $filter->setType(\Wallee\Sdk\Model\EntityQueryFilterType::_AND);
+        $filter->setChildren([
+            WalleeSdkHelper::createEntityFilter('state', \Wallee\Sdk\Model\CreationEntityState::ACTIVE),
+            WalleeSdkHelper::createEntityFilter('paymentMethod', $paymentMethodId)
+        ]);
+        $query->setFilter($filter);
+        $paymentMethodConfigurations = $paymentMethodConfigurationService->search($spaceId, $query);
+        if (is_array($prefetch)) { 
+            $prefetch['pmConfigs'] = $paymentMethodConfigurations;
+        }
+    }
 
     $allowedPaymentMethodConfigurations = [];
     foreach ($paymentMethodConfigurations as $paymentMethodConfiguration) {
@@ -276,6 +298,10 @@ function collectTransactionData($transactionRequest, $client)
     $transactionRequest->setAllowedPaymentMethodConfigurations($allowedPaymentMethodConfigurations);
 }
 
+// Shared cache of static lookups, populated on the first collectTransactionData
+// pass and reused on the second so the confirm pass skips the re-fetch.
+$prefetch = [];
+
 $service = new TransactionService($client);
 $spaceId = SdkRestApi::getParam('spaceId');
 $transactionId = SdkRestApi::getParam('transactionId');
@@ -283,7 +309,7 @@ if (! empty($transactionId)) {
     $createdTransaction = $service->read($spaceId, $transactionId);
 } else {
     $transactionRequest = new TransactionCreate();
-    collectTransactionData($transactionRequest, $client);
+    collectTransactionData($transactionRequest, $client, $prefetch);
     $transactionRequest->setAutoConfirmationEnabled(false);
     $transactionRequest->setChargeRetryEnabled(false);
     $transactionRequest->setCustomersPresence(\Wallee\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
@@ -293,7 +319,7 @@ if (! empty($transactionId)) {
 $pendingTransaction = new TransactionPending();
 $pendingTransaction->setId($createdTransaction->getId());
 $pendingTransaction->setVersion($createdTransaction->getVersion());
-collectTransactionData($pendingTransaction, $client);
+collectTransactionData($pendingTransaction, $client, $prefetch);
 $pendingTransaction->setFailedUrl(SdkRestApi::getParam('failedUrl') . '/' . $createdTransaction->getId());
 $transactionResponse = $service->confirm($spaceId, $pendingTransaction);
 

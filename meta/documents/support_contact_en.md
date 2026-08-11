@@ -1,25 +1,12 @@
-## Web page
+## Online
  
-For more information or support please <a href="https://en.wallee.com/about-wallee/support?_ga=2.171642464.1523640132.1674037856-1834608674.1611572458" target="_blank">contact us</a>. 
+For information about this payment plugin or the possibilities available with wallee, <a href="https://wallee.com/about-wallee/support" target="_blank">please contact our support team</a>.
+If you already have a wallee account, you can also use the support form available within your account.
 
-In case you do already have a wallee account please use the support form in the application.
- 
-## Email
-
-Our support hours:
-MO - FR, 09.00 - 12.00 / 14.00 - 17.00
-
-customweb GmbH
-General-Guisan-Strasse 47
-CH-8400 Winterthur
-
+If you require additional assistance, we also offer Premium Support, including setup assistance. Please contact us for more information.
  
 ## Phone
  
-Switzerland / Rest of the world:
-+41 (0) 44 533 15 70
-+41 (0) 21 510 21 23 (French)
+Switzerland / International: +41 (0) 44 505 13 60
 
-Germany:
-+49 (0) 180 3 729 636
-(9 ct/min landline call. max. rate for mobile calls: 42 ct/min.)
+Germany: +49 (0) 40 2999 60117

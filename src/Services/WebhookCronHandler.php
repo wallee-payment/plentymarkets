@@ -63,9 +63,43 @@ class WebhookCronHandler extends CronHandler
 
     public function handle()
     {
+        // Ensure the Wallee-side webhook listeners exist. We cannot do it when saving the configuration, so this is the next best place.
+        // This is a no-op if the listeners already exist, so it is safe to call on every cron run.
+        try {
+            $this->paymentService->createWebhook();
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('Wallee::CronWebhookEnsureFailed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        $twoDaysAgo = time() - (2 * 24 * 60 * 60);
+
         foreach ($this->webhookRepository->getWebhookList() as $webhook) {
             try {
-                $this->getLogger(__METHOD__)->info('processWebhook', $webhook);
+                // If a webhook has been in the queue for more than 2 days, it is considered stale
+                // (e.g. from an old or inactive developer space) and is removed to prevent queue bloat.
+                if ($webhook->createdAt < $twoDaysAgo) {
+                    $this->getLogger(__METHOD__)->info(
+                        'Wallee::DeletingStaleWebhook',
+                        [
+                            'webhookId' => $webhook->id,
+                            'createdAt' => $webhook->createdAt,
+                        ],
+                    );
+                    $this->webhookRepository->deleteWebhook($webhook->id);
+                    continue;
+                }
+
+                $this->getLogger(__METHOD__)->info(
+                    'Wallee::processWebhook',
+                    [
+                        'id' => $webhook->id,
+                        'listenerEntityTechnicalName' => $webhook->listenerEntityTechnicalName,
+                        'entityId' => $webhook->entityId,
+                        'spaceId' => $webhook->spaceId,
+                    ],
+                );
                 $result = $this->processWebhook($webhook);
                 if ($result) {
                     $this->webhookRepository->deleteWebhook($webhook->id);

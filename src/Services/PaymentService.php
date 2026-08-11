@@ -16,6 +16,7 @@ use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Wallee\Helper\OrderHelper;
 use Wallee\Helper\OrderItemSkuHelper;
 use Plenty\Modules\Item\Variation\Contracts\VariationRepositoryContract;
@@ -167,8 +168,140 @@ class PaymentService
         $webstoreConfig = $webstoreHelper->getCurrentWebstoreConfiguration();
         $this->sdkService->call('createWebhook', [
             'storeId' => $webstoreConfig->webstoreId,
-            'notificationUrl' => $webstoreConfig->domainSsl . '/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : '')
+            'notificationUrl' => $webstoreConfig->domainSsl . '/rest/v1/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : ''),
         ]);
+    }
+
+    /**
+     * Creates the payment from basket for PWA (before order is created).
+     *
+     * @param PaymentMethod $paymentMethod
+     * @return array
+     */
+    public function executePaymentFromBasket(PaymentMethod $paymentMethod): array
+    {
+        try {
+            $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
+
+            /** @var \IO\Services\BasketService $basketService */
+            $basketService = pluginApp(\IO\Services\BasketService::class);
+            $basket = $basketService->getBasket();
+            $basketForTemplate = $basketService->getBasketForTemplate();
+
+            // Generate temporary merchant reference for PWA (order doesn't exist yet)
+            // Use session ID + timestamp to ensure uniqueness
+            $tempMerchantRef = 'PWA_' . $basket->sessionId . '_' . time();
+
+            $basketItems = $this->getBasketItems($basket);
+
+            // Build parameters - SDK expects basketItems at root level (see createTransactionFromBasket.php line 54)
+            $parameters = [
+                'basket' => [
+                    'currency' => $basket->currency,
+                    'customerId' => $basket->customerId ?? '',
+                    'orderId' => $tempMerchantRef, // PWA: Use temp reference until order is created
+                    'basketAmount' => $basket->basketAmount ?? 0,
+                    'basketAmountNet' => $basket->basketAmountNet ?? 0,
+                    'shippingAmount' => $basket->shippingAmount ?? 0,
+                    'shippingAmountNet' => $basket->shippingAmountNet ?? 0,
+                    'couponDiscount' => $basket->couponDiscount ?? 0,
+                    'paymentAmount' => 0,
+                ],
+                'basketItems' => $basketItems, // SDK expects this at root level, not inside basket!
+                'basketForTemplate' => $basketForTemplate,
+                'paymentMethod' => [
+                    'id' => $paymentMethod->id,
+                    'paymentKey' => $paymentMethod->paymentKey
+                ],
+                'billingAddress' => $this->getBasketBillingAddressSafe($basket),
+                'shippingAddress' => $this->getBasketShippingAddressSafe($basket),
+                // Use the same language for the hosted payment page as for the return URLs
+                'language' => $this->resolveLanguage(),
+                'successUrl' => $this->getSuccessUrl(),
+                'failedUrl' => $this->getFailedUrl(),
+                'checkoutUrl' => $this->getFailedUrl()
+            ];
+
+            // Only add transactionId if it exists (not null)
+            if ($transactionId !== null) {
+                $parameters['transactionId'] = $transactionId;
+            }
+
+            $this->session->getPlugin()->unsetKey('walleeTransactionId');
+
+            try {
+                $transaction = $this->sdkService->call('createTransactionFromBasket', $parameters);
+
+                if (is_array($transaction) && isset($transaction['error']) && $transaction['error']) {
+                    $this->getLogger(__METHOD__)->error('wallee::BasketTransactionError', $transaction);
+                    return [
+                        'transactionId' => $transactionId,
+                        'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                        'content' => $transaction['error_msg'] ?? 'Transaction creation failed'
+                    ];
+                }
+            } catch (\Exception $e) {
+                $this->getLogger(__METHOD__)->error('wallee::BasketTransactionException', [
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return [
+                    'transactionId' => $transactionId,
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => 'Failed to create transaction: ' . $e->getMessage()
+                ];
+            }
+
+            // Store transaction ID for later order association
+            $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
+
+            $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
+
+            if ($isFetchPossiblePaymentMethodsEnabled == "true") {
+                $hasPossiblePaymentMethods = $this->sdkService->call('hasPossiblePaymentMethods', [
+                    'transactionId' => $transaction['id']
+                ]);
+                if (! $hasPossiblePaymentMethods) {
+                    return [
+                        'transactionId' => $transaction['id'],
+                        'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                        'content' => 'The selected payment method is not available.'
+                    ];
+                }
+            }
+
+            $paymentPageUrl = $this->sdkService->call('buildPaymentPageUrl', [
+                'id' => $transaction['id']
+            ]);
+
+            if (is_array($paymentPageUrl) && isset($paymentPageUrl['error'])) {
+                $this->getLogger(__METHOD__)->error('wallee::PaymentPageUrlError', $paymentPageUrl);
+                return [
+                    'transactionId' => $transaction['id'],
+                    'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                    'content' => $paymentPageUrl['error_msg'] ?? 'Payment page URL generation failed'
+                ];
+            }
+
+            $result = [
+                'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+                'content' => $paymentPageUrl,
+                'redirectUrl' => $paymentPageUrl, // Additional field for PWA
+                'transactionId' => $transaction['id']
+            ];
+
+            return $result;
+
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('wallee::BasketPaymentException', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [
+                'type' => GetPaymentMethodContent::RETURN_TYPE_ERROR,
+                'content' => 'An error occurred while processing the payment.'
+            ];
+        }
     }
 
     /**
@@ -178,10 +311,8 @@ class PaymentService
      * @param PaymentMethod $paymentMethod
      * @return string[]
      */
-    public function executePayment(Order $order, PaymentMethod $paymentMethod): array
+    public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
-        // Ensure webhooks are created on each transaction
-        $this->createWebhook();
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [
@@ -192,15 +323,13 @@ class PaymentService
             'paymentMethod' => $paymentMethod,
             'billingAddress' => $this->getAddress($order->billingAddress),
             'shippingAddress' => $this->getAddress($order->deliveryAddress),
-            'language' => $this->session->getLocaleSettings()->language,
+            // Use the same language for the hosted payment page as for the return URLs
+            'language' => $this->resolveLanguage($order),
             'customerId' => $this->orderHelper->getOrderRelationId($order, OrderRelationReference::REFERENCE_TYPE_CONTACT),
-            'successUrl' => $this->getSuccessUrl(),
-            'failedUrl' => $this->getFailedUrl(),
-            'checkoutUrl' => $this->getCheckoutUrl()
+            'successUrl' => $this->getSuccessUrl($order),
+            'failedUrl' => $this->getFailedUrl($order),
+            'checkoutUrl' => $this->getFailedUrl($order)
         ];
-        $this->getLogger(__METHOD__)->debug('wallee::TransactionParameters', $parameters);
-
-        $this->session->getPlugin()->unsetKey('walleeTransactionId');
 
         $existingTransaction = $this->sdkService->call('getTransactionByMerchantReference', [
             'merchantReference' => $order->id
@@ -237,6 +366,7 @@ class PaymentService
         }
 
         $transaction = $this->sdkService->call('createTransactionFromOrder', $parameters);
+
         if (is_array($transaction) && $transaction['error']) {
             $this->getLogger(__METHOD__)->error('wallee::TransactionError', $transaction);
             return [
@@ -246,8 +376,10 @@ class PaymentService
             ];
         }
 
-        $payment = $this->paymentHelper->createPlentyPayment($transaction);
-        $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+        if (!$skipPaymentCreation) {
+            $payment = $this->paymentHelper->createPlentyPayment($transaction);
+            $this->paymentHelper->assignPlentyPaymentToPlentyOrder($payment, $order->id);
+        }
 
         $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
@@ -279,6 +411,7 @@ class PaymentService
 
         return [
             'type' => GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL,
+            'redirectUrl' => $paymentPageUrl, // Additional field for PWA
             'content' => $paymentPageUrl
         ];
     }
@@ -365,6 +498,13 @@ class PaymentService
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
         foreach ($order->orderItems as $orderItem) {
+            if (! in_array($orderItem->typeId, [
+                OrderItemSkuHelper::TYPE_VARIATION,
+                OrderItemSkuHelper::TYPE_ITEM_BUNDLE,
+                OrderItemSkuHelper::TYPE_BUNDLE_COMPONENT
+            ])) {
+                continue;
+            }
             if (! empty($orderItem->itemId)) {
                 $itemIdsByOrderItemId[$orderItem->id] = $orderItem->itemId;
                 continue;
@@ -407,15 +547,6 @@ class PaymentService
                     'reason' => 'missingItemIdForVariation'
                 ];
             }
-        }
-
-        if (! empty($unresolvedOrderItems)) {
-            $this->getLogger(__METHOD__)->error('wallee::debug.basic', [
-                'logCode' => 'OrderItemIdResolutionIncomplete',
-                'orderId' => $order->id,
-                'unresolvedOrderItems' => $unresolvedOrderItems,
-                'resolvedItemIdsByOrderItemId' => $itemIdsByOrderItemId
-            ]);
         }
 
         return $itemIdsByOrderItemId;
@@ -491,6 +622,60 @@ class PaymentService
     }
 
     /**
+     * Safely get basket billing address with error handling
+     *
+     * @param Basket $basket
+     * @return array
+     */
+    private function getBasketBillingAddressSafe(Basket $basket): array
+    {
+        try {
+            $address = $this->getBasketBillingAddress($basket);
+            return $this->getAddress($address);
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('vRPayment::BillingAddressError', [
+                'error' => $e->getMessage(),
+                'addressId' => $basket->customerInvoiceAddressId ?? 'null'
+            ]);
+            // Return minimal valid address structure
+            return [
+                'city' => '',
+                'gender' => '',
+                'country' => 'DE',
+                'dateOfBirth' => null,
+                'emailAddress' => '',
+                'familyName' => '',
+                'givenName' => '',
+                'organisationName' => '',
+                'phoneNumber' => '',
+                'postCode' => '',
+                'street' => ''
+            ];
+        }
+    }
+
+    /**
+     * Safely get basket shipping address with error handling
+     *
+     * @param Basket $basket
+     * @return array
+     */
+    private function getBasketShippingAddressSafe(Basket $basket): array
+    {
+        try {
+            $address = $this->getBasketShippingAddress($basket);
+            return $this->getAddress($address);
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('wallee::ShippingAddressError', [
+                'error' => $e->getMessage(),
+                'addressId' => $basket->customerShippingAddressId ?? 'null'
+            ]);
+            // Fallback to billing address
+            return $this->getBasketBillingAddressSafe($basket);
+        }
+    }
+
+    /**
      *
      * @param Address $address
      * @return array
@@ -515,6 +700,41 @@ class PaymentService
             'postCode' => $address->postalCode,
             'street' => $address->street . ' ' . $address->houseNumber
         ];
+    }
+
+    /**
+     * Extract basket items from basketForTemplate (for PWA)
+     * 
+     * @param array $basketForTemplate
+     * @return array
+     */
+    private function getBasketItemsFromTemplate(array $basketForTemplate): array
+    {
+        $items = [];
+
+        if (!isset($basketForTemplate['basketItems']) || !is_array($basketForTemplate['basketItems'])) {
+            return [];
+        }
+
+        foreach ($basketForTemplate['basketItems'] as $basketItem) {
+            // basketItem from template is already an array with the data we need
+            if (isset($basketItem['plenty_basket_row_item_variation_id'])) {
+                // Already formatted from template
+                $items[] = $basketItem;
+            } else {
+                // Fallback: format manually if not already formatted
+                $items[] = [
+                    'plenty_basket_row_item_variation_id' => $basketItem['variationId'] ?? 0,
+                    'itemId' => $basketItem['itemId'] ?? 0,
+                    'name' => $basketItem['name'] ?? 'Product',
+                    'quantity' => $basketItem['quantity'] ?? 1,
+                    'price' => $basketItem['price'] ?? 0,
+                    'vat' => $basketItem['vat'] ?? 0
+                ];
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -554,12 +774,51 @@ class PaymentService
     }
 
     /**
+     * Resolves the language the end user is browsing the shop with.
+     *
+     * Resolution order:
+     * 1. The order's DOCUMENT_LANGUAGE property (typeId 6) — per-order, survives session loss.
+     * 2. The walleeOriginLang session value registered by the PWA via register-return.
+     * 3. The frontend session locale (Ceres / last resort).
+     *
+     * @param Order|null $order
+     * @return string|null
+     */
+    private function resolveLanguage(?Order $order = null): ?string
+    {
+        $orderLang = null;
+        if ($order) {
+            try {
+                $orderLang = $this->orderHelper->getOrderPropertyValue($order, OrderPropertyType::DOCUMENT_LANGUAGE);
+            } catch (\Exception $e) {
+                $this->getLogger(__METHOD__)->error('Wallee::resolveLanguageOrderPropertyFailed', [
+                    'orderId' => $order->id ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+        $sessionLang = $this->session->getPlugin()->getValue('walleeOriginLang');
+        $localeLang = $this->session->getLocaleSettings()->language;
+        $lang = $orderLang ?: ($sessionLang ?: $localeLang);
+        return $lang;
+    }
+
+    /**
      *
      * @return string
      */
-    private function getSuccessUrl(): string
+    private function getSuccessUrl(?Order $order = null): string
     {
-        $lang = $this->session->getLocaleSettings()->language;
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl && $order) {
+            $accessKey = $this->orderRepository->generateAccessKey($order->id);
+            $originLang = $this->resolveLanguage($order);
+            $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+            $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
+            $url = sprintf('%s%s/confirmation/%d/%s', rtrim($originUrl, '/'), $langPrefix, $order->id, $accessKey);
+            return $url;
+        }
+        $lang = $this->resolveLanguage($order) ?: $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/confirmation', $domain, $lang);
     }
@@ -568,9 +827,28 @@ class PaymentService
      *
      * @return string
      */
-    private function getFailedUrl(): string
+    private function getFailedUrl(?Order $order = null): string
     {
-        $lang = $this->session->getLocaleSettings()->language;
+        $originUrl = $this->session->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl) {
+            $originLang = $this->resolveLanguage($order);
+            $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
+            $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
+            if ($order) {
+                // Redirect to the new PWA payment selection page (outside /checkout guard)
+                // Wallee will automatically append /{transactionId} to this URL
+                $url = sprintf(
+                    '%s%s/payment-selection/%d',
+                    rtrim($originUrl, '/'),
+                    $langPrefix,
+                    $order->id,
+                );
+                return $url;
+            }
+            // Fallback: no order available, redirect to PWA checkout with failure flag
+            return sprintf('%s%s/checkout?wallee_failed=1', rtrim($originUrl, '/'), $langPrefix);
+        }
+        $lang = $this->resolveLanguage($order) ?: $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/wallee/fail-transaction', $domain, $lang);
     }
@@ -581,6 +859,12 @@ class PaymentService
      */
     private function getCheckoutUrl(): string
     {
+        $frontendSession = pluginApp(\Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract::class);
+        $originUrl = $frontendSession->getPlugin()->getValue('walleeOriginUrl');
+        if ($originUrl) {
+            $failedUrl = sprintf('%s/checkout', rtrim($originUrl, '/'));
+            return $failedUrl;
+        }
         $lang = $this->session->getLocaleSettings()->language;
         $domain = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
         return sprintf('%s/%s/checkout', $domain, $lang);
