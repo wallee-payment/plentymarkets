@@ -26,6 +26,7 @@ use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use IO\Services\OrderTotalsService;
 use IO\Models\LocalizedOrder;
 use IO\Services\SessionStorageService;
+use Wallee\Helper\OrderAccessHelper;
 use Wallee\Helper\OrderHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Basket\Contracts\BasketItemRepositoryContract;
@@ -132,6 +133,12 @@ class PaymentProcessController extends Controller
     private $basketItemRepository;
 
     /**
+     *
+     * @var OrderAccessHelper
+     */
+    private $orderAccessHelper;
+
+    /**
      * Constructor.
      *
      * @param Response $response
@@ -150,8 +157,9 @@ class PaymentProcessController extends Controller
      * @param FrontendSessionStorageFactoryContract $frontendSession
      * @param ConfigRepository $config
      * @param BasketItemRepositoryContract $basketItemRepository
+     * @param OrderAccessHelper $orderAccessHelper
      */
-    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession, ConfigRepository $config, BasketItemRepositoryContract $basketItemRepository)
+    public function __construct(Response $response, WalleeSdkService $sdkService, NotificationService $notificationService, PaymentService $paymentService, PaymentHelper $paymentHelper, PaymentRepositoryContract $paymentRepository, OrderRepositoryContract $orderRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderHelper $orderHelper, OrderService $orderService, FrontendPaymentMethodRepositoryContract $frontendPaymentMethodRepository, PaymentMethodRepositoryContract $paymentMethodService, SessionStorageService $sessionStorage, FrontendSessionStorageFactoryContract $frontendSession, ConfigRepository $config, BasketItemRepositoryContract $basketItemRepository, OrderAccessHelper $orderAccessHelper)
     {
         parent::__construct();
         $this->response = $response;
@@ -170,6 +178,7 @@ class PaymentProcessController extends Controller
         $this->frontendSession = $frontendSession;
         $this->config = $config;
         $this->basketItemRepository = $basketItemRepository;
+        $this->orderAccessHelper = $orderAccessHelper;
     }
 
     /**
@@ -185,6 +194,16 @@ class PaymentProcessController extends Controller
         $lang = $this->sessionStorage->getLang();
 
         if (is_array($transaction) && isset($transaction['error'])) {
+            $confirmUrl = sprintf('%s/confirmation', $lang);
+            return $this->response->redirectTo($confirmUrl);
+        }
+
+        // The failure page exposes order data, so it is only rendered for the customer the
+        // transaction belongs to.
+        if (! $this->orderAccessHelper->mayAccessTransaction($transaction)) {
+            $this->getLogger(__METHOD__)->warning('Wallee::FailTransactionAccessDenied', [
+                'transactionId' => $id
+            ]);
             $confirmUrl = sprintf('%s/confirmation', $lang);
             return $this->response->redirectTo($confirmUrl);
         }
@@ -274,6 +293,14 @@ class PaymentProcessController extends Controller
                 'transaction' => $transaction,
             ]);
             return $this->redirectToCheckout(null, $transactionId);
+        }
+
+        // Only the customer who started the payment may trigger the retry flow for it.
+        if (! $this->orderAccessHelper->mayAccessTransaction($transaction)) {
+            $this->getLogger(__METHOD__)->warning('Wallee::ReturnFailedAccessDenied', [
+                'transactionId' => $transactionId
+            ]);
+            return $this->redirectToCheckout();
         }
 
         $payments = $this->paymentRepository->getPaymentsByPropertyTypeAndValue(PaymentProperty::TYPE_TRANSACTION_ID, $transaction['id']);
@@ -510,6 +537,19 @@ class PaymentProcessController extends Controller
         $transaction = $this->sdkService->call('getTransaction', ['id' => $id]);
 
         if (is_array($transaction) && isset($transaction['error'])) {
+            return $this->response->make(
+                json_encode(['message' => null]),
+                200,
+                ['Content-Type' => 'application/json'],
+            );
+        }
+
+        // Failure messages belong to the customer of the transaction, foreign transaction
+        // ids must neither return a message nor update the payment.
+        if (! $this->orderAccessHelper->mayAccessTransaction($transaction)) {
+            $this->getLogger(__METHOD__)->warning('Wallee::TransactionFailureAccessDenied', [
+                'transactionId' => $id
+            ]);
             return $this->response->make(
                 json_encode(['message' => null]),
                 200,

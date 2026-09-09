@@ -11,6 +11,7 @@ use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
+use Wallee\Helper\OrderAccessHelper;
 use Wallee\Helper\PaymentHelper;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
@@ -123,6 +124,12 @@ class PaymentService
     private $orderRepository;
 
     /**
+     *
+     * @var OrderAccessHelper
+     */
+    private $orderAccessHelper;
+
+    /**
      * Constructor.
      *
      * @param WalleeSdkService $sdkService
@@ -140,8 +147,9 @@ class PaymentService
      * @param PaymentHelper $paymentHelper
      * @param OrderHelper $orderHelper
      * @param OrderRepositoryContract $orderRepository
+     * @param OrderAccessHelper $orderAccessHelper
      */
-    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, VariationPropertyValueRepositoryContract $variationPropertyValueRepository, PropertyNameRepositoryContract $propertyNameRepository, PropertyGroupNameRepositoryContract $propertyGroupNameRepository, PropertySelectionRepositoryContract $propertySelectionRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
+    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, VariationPropertyValueRepositoryContract $variationPropertyValueRepository, PropertyNameRepositoryContract $propertyNameRepository, PropertyGroupNameRepositoryContract $propertyGroupNameRepository, PropertySelectionRepositoryContract $propertySelectionRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository, OrderAccessHelper $orderAccessHelper)
     {
         $this->sdkService = $sdkService;
         $this->config = $config;
@@ -158,6 +166,7 @@ class PaymentService
         $this->paymentHelper = $paymentHelper;
         $this->orderHelper = $orderHelper;
         $this->orderRepository = $orderRepository;
+        $this->orderAccessHelper = $orderAccessHelper;
     }
 
     public function createWebhook()
@@ -254,6 +263,10 @@ class PaymentService
 
             // Store transaction ID for later order association
             $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
+
+            // Mark the transaction as belonging to this visitor, the payment return urls
+            // are the only place where the customer can be identified without an order.
+            $this->orderAccessHelper->rememberTransaction($transaction['id']);
 
             $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
@@ -375,6 +388,10 @@ class PaymentService
                 'content' => $transaction['error_msg']
             ];
         }
+
+        // Mark the transaction as belonging to this visitor, so the payment return urls
+        // can tell the customer apart from someone guessing transaction ids.
+        $this->orderAccessHelper->rememberTransaction($transaction['id']);
 
         if (!$skipPaymentCreation) {
             $payment = $this->paymentHelper->createPlentyPayment($transaction);

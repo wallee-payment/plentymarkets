@@ -51,8 +51,14 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
 
         $router->get($defaultPrefix . 'fail-transaction/{id}', $processController . 'failTransaction')->where('id', '\d+');
         $router->post($defaultPrefix . 'pay-order', $processController . 'payOrder');
-        $router->get($defaultPrefix . 'download-invoice/{id}', $transactionController . 'downloadInvoice')->where('id', '\d+');
-        $router->get($defaultPrefix . 'download-packing-slip/{id}', $transactionController . 'downloadPackingSlip')->where('id', '\d+');
+        // Documents are addressed by order id and order access key, never by the sequential
+        // transaction id, so they cannot be enumerated by unauthorized visitors.
+        $router->get($defaultPrefix . 'download-invoice/{orderId}/{accessKey}', $transactionController . 'downloadInvoice')
+            ->where('orderId', '\d+')
+            ->where('accessKey', '[A-Za-z0-9\-_]+');
+        $router->get($defaultPrefix . 'download-packing-slip/{orderId}/{accessKey}', $transactionController . 'downloadPackingSlip')
+            ->where('orderId', '\d+')
+            ->where('accessKey', '[A-Za-z0-9\-_]+');
         $router->get($defaultPrefix . 'redirect-check', $processController . 'redirectCheck');
         $router->get($defaultPrefix . 'return-failed/{id}', $processController . 'returnFailed')->where('id', '\d+');
         $router->post($storefrontPrefix . 'register-return', $processController . 'registerReturnContext');
