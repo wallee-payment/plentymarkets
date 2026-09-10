@@ -53,12 +53,20 @@ class WalleeRouteServiceProvider extends RouteServiceProvider
         $router->post($defaultPrefix . 'pay-order', $processController . 'payOrder');
         // Documents are addressed by order id and order access key, never by the sequential
         // transaction id, so they cannot be enumerated by unauthorized visitors.
-        $router->get($defaultPrefix . 'download-invoice/{orderId}/{accessKey}', $transactionController . 'downloadInvoice')
-            ->where('orderId', '\d+')
-            ->where('accessKey', '[A-Za-z0-9\-_]+');
-        $router->get($defaultPrefix . 'download-packing-slip/{orderId}/{accessKey}', $transactionController . 'downloadPackingSlip')
-            ->where('orderId', '\d+')
-            ->where('accessKey', '[A-Za-z0-9\-_]+');
+        // Both slash and non-slash patterns are registered for the same reason as the webhooks.
+        $documentEndpoints = [
+            'download-invoice' => 'downloadInvoice',
+            'download-packing-slip' => 'downloadPackingSlip',
+        ];
+
+        foreach ($documentEndpoints as $endpoint => $action) {
+            $router->get($defaultPrefix . $endpoint . '/{orderId}/{accessKey}', $transactionController . $action)
+                ->where('orderId', '\d+')
+                ->where('accessKey', '[A-Za-z0-9\-_]+');
+            $router->get($defaultPrefix . $endpoint . '/{orderId}/{accessKey}/', $transactionController . $action)
+                ->where('orderId', '\d+')
+                ->where('accessKey', '[A-Za-z0-9\-_]+');
+        }
         $router->get($defaultPrefix . 'redirect-check', $processController . 'redirectCheck');
         $router->get($defaultPrefix . 'return-failed/{id}', $processController . 'returnFailed')->where('id', '\d+');
         $router->post($storefrontPrefix . 'register-return', $processController . 'registerReturnContext');
