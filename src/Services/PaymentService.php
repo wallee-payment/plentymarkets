@@ -124,12 +124,6 @@ class PaymentService
     private $orderRepository;
 
     /**
-     *
-     * @var OrderAccessHelper
-     */
-    private $orderAccessHelper;
-
-    /**
      * Constructor.
      *
      * @param WalleeSdkService $sdkService
@@ -147,9 +141,8 @@ class PaymentService
      * @param PaymentHelper $paymentHelper
      * @param OrderHelper $orderHelper
      * @param OrderRepositoryContract $orderRepository
-     * @param OrderAccessHelper $orderAccessHelper
      */
-    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, VariationPropertyValueRepositoryContract $variationPropertyValueRepository, PropertyNameRepositoryContract $propertyNameRepository, PropertyGroupNameRepositoryContract $propertyGroupNameRepository, PropertySelectionRepositoryContract $propertySelectionRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository, OrderAccessHelper $orderAccessHelper)
+    public function __construct(WalleeSdkService $sdkService, ConfigRepository $config, ItemRepositoryContract $itemRepository, VariationRepositoryContract $variationRepository, VariationPropertyValueRepositoryContract $variationPropertyValueRepository, PropertyNameRepositoryContract $propertyNameRepository, PropertyGroupNameRepositoryContract $propertyGroupNameRepository, PropertySelectionRepositoryContract $propertySelectionRepository, FrontendSessionStorageFactoryContract $session, AddressRepositoryContract $addressRepository, CountryRepositoryContract $countryRepository, WebstoreHelper $webstoreHelper, PaymentHelper $paymentHelper, OrderHelper $orderHelper, OrderRepositoryContract $orderRepository)
     {
         $this->sdkService = $sdkService;
         $this->config = $config;
@@ -166,7 +159,26 @@ class PaymentService
         $this->paymentHelper = $paymentHelper;
         $this->orderHelper = $orderHelper;
         $this->orderRepository = $orderRepository;
-        $this->orderAccessHelper = $orderAccessHelper;
+    }
+
+    /**
+     * Remembers the transaction as belonging to the current frontend session.
+     *
+     * PaymentService is built for every payment method on every storefront page, so this
+     * dependency is resolved on demand and may never interrupt the payment itself.
+     *
+     * @param mixed $transactionId
+     */
+    private function rememberTransaction($transactionId)
+    {
+        try {
+            pluginApp(OrderAccessHelper::class)->rememberTransaction($transactionId);
+        } catch (\Throwable $e) {
+            $this->getLogger(__METHOD__)->error('wallee::RememberTransactionFailed', [
+                'transactionId' => $transactionId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function createWebhook()
@@ -266,7 +278,7 @@ class PaymentService
 
             // Mark the transaction as belonging to this visitor, the payment return urls
             // are the only place where the customer can be identified without an order.
-            $this->orderAccessHelper->rememberTransaction($transaction['id']);
+            $this->rememberTransaction($transaction['id']);
 
             $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
@@ -391,7 +403,7 @@ class PaymentService
 
         // Mark the transaction as belonging to this visitor, so the payment return urls
         // can tell the customer apart from someone guessing transaction ids.
-        $this->orderAccessHelper->rememberTransaction($transaction['id']);
+        $this->rememberTransaction($transaction['id']);
 
         if (!$skipPaymentCreation) {
             $payment = $this->paymentHelper->createPlentyPayment($transaction);

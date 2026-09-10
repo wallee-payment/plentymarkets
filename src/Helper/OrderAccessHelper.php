@@ -58,12 +58,6 @@ class OrderAccessHelper
 
     /**
      *
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
-     *
      * @var FrontendSessionStorageFactoryContract
      */
     private $frontendSession;
@@ -86,17 +80,15 @@ class OrderAccessHelper
      * @param OrderRepositoryContract $orderRepository
      * @param PaymentRepositoryContract $paymentRepository
      * @param PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository
-     * @param AccountService $accountService
      * @param FrontendSessionStorageFactoryContract $frontendSession
      * @param OrderHelper $orderHelper
      * @param PaymentHelper $paymentHelper
      */
-    public function __construct(OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, AccountService $accountService, FrontendSessionStorageFactoryContract $frontendSession, OrderHelper $orderHelper, PaymentHelper $paymentHelper)
+    public function __construct(OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, FrontendSessionStorageFactoryContract $frontendSession, OrderHelper $orderHelper, PaymentHelper $paymentHelper)
     {
         $this->orderRepository = $orderRepository;
         $this->paymentRepository = $paymentRepository;
         $this->paymentOrderRelationRepository = $paymentOrderRelationRepository;
-        $this->accountService = $accountService;
         $this->frontendSession = $frontendSession;
         $this->orderHelper = $orderHelper;
         $this->paymentHelper = $paymentHelper;
@@ -310,7 +302,10 @@ class OrderAccessHelper
     private function getCurrentContactId()
     {
         try {
-            $contactId = $this->accountService->getAccountContactId();
+            // Resolved on demand: this helper is reached from the payment method list on
+            // every storefront page, and a container that cannot build AccountService must
+            // not take the whole shop down with it.
+            $contactId = pluginApp(AccountService::class)->getAccountContactId();
         } catch (\Throwable $e) {
             return null;
         }
