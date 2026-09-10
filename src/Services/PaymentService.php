@@ -181,16 +181,45 @@ class PaymentService
         }
     }
 
-    public function createWebhook()
+    /**
+     * Registers the webhook listeners in the configured wallee space.
+     *
+     * @return bool true if the listeners exist afterwards
+     */
+    public function createWebhook(): bool
     {
         /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
         $webstoreHelper = pluginApp(\Plenty\Modules\Helper\Services\WebstoreHelper::class);
         /** @var \Plenty\Modules\System\Models\WebstoreConfiguration $webstoreConfig */
         $webstoreConfig = $webstoreHelper->getCurrentWebstoreConfiguration();
-        $this->sdkService->call('createWebhook', [
-            'storeId' => $webstoreConfig->webstoreId,
-            'notificationUrl' => $webstoreConfig->domainSsl . '/rest/v1/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : ''),
+
+        $storeId = $webstoreConfig->webstoreId;
+        $notificationUrl = $webstoreConfig->domainSsl . '/rest/v1/wallee/update-transaction' . ($this->config->get('plenty.system.info.urlTrailingSlash', 0) == 2 ? '/' : '');
+
+        $result = $this->sdkService->call('createWebhook', [
+            'storeId' => $storeId,
+            'notificationUrl' => $notificationUrl,
         ]);
+
+        // Without this check a failed call (missing or wrong api credentials, wrong space)
+        // leaves no trace at all and the shop silently never receives any webhook.
+        if (is_array($result) && isset($result['error'])) {
+            $this->getLogger(__METHOD__)->error('wallee::WebhookCreationFailed', [
+                'storeId' => $storeId,
+                'spaceId' => $this->config->get('wallee.space_id'),
+                'notificationUrl' => $notificationUrl,
+                'error' => $result['error_msg'] ?? $result['error'],
+            ]);
+            return false;
+        }
+
+        $this->getLogger(__METHOD__)->info('wallee::WebhookCreated', [
+            'storeId' => $storeId,
+            'spaceId' => $this->config->get('wallee.space_id'),
+            'notificationUrl' => $notificationUrl,
+        ]);
+
+        return true;
     }
 
     /**
