@@ -31,15 +31,18 @@ class PaymentInformation
                     if (is_array($transaction) && isset($transaction['error'])) {
                         return "";
                     } else {
+                        $downloadInvoice = pluginApp(ConfigRepository::class)->get('wallee.confirmation_invoice') == "true";
+                        $downloadPackingSlip = pluginApp(ConfigRepository::class)->get('wallee.confirmation_packing_slip') == "true";
+
                         return $twig->render('wallee::PaymentInformation', [
                             'order' => $order,
                             'transaction' => $transaction,
                             'payment' => $payment,
                             // The download links carry the order access key, it is the token the
                             // document controller validates before handing out a document.
-                            'accessKey' => pluginApp(OrderAccessHelper::class)->getOrderAccessKey((int) $order['id']),
-                            'downloadInvoice' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_invoice') == "true",
-                            'downloadPackingSlip' => pluginApp(ConfigRepository::class)->get('wallee.confirmation_packing_slip') == "true"
+                            'accessKey' => ($downloadInvoice || $downloadPackingSlip) ? $this->getOrderAccessKey($order) : '',
+                            'downloadInvoice' => $downloadInvoice,
+                            'downloadPackingSlip' => $downloadPackingSlip
                         ]);
                     }
                 } else {
@@ -49,5 +52,23 @@ class PaymentInformation
         }
 
         return "";
+    }
+
+    /**
+     * Returns the access key of the order, an empty string if it cannot be determined.
+     *
+     * This runs while the order confirmation page is being rendered, so it must never
+     * throw: an exception in a container data provider breaks the whole page.
+     *
+     * @param array $order
+     * @return string
+     */
+    private function getOrderAccessKey($order): string
+    {
+        try {
+            return pluginApp(OrderAccessHelper::class)->getOrderAccessKey((int) $order['id']);
+        } catch (\Throwable $e) {
+            return "";
+        }
     }
 }

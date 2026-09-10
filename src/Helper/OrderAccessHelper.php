@@ -124,7 +124,7 @@ class OrderAccessHelper
 
         try {
             $order = $this->orderRepository->findOrderByAccessKey($orderId, $accessKey);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
 
@@ -144,8 +144,16 @@ class OrderAccessHelper
     public function getOrderAccessKey(int $orderId): string
     {
         try {
-            return (string) $this->orderRepository->generateAccessKey($orderId);
-        } catch (\Exception $e) {
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $orderRepository = $this->orderRepository;
+
+            // Generating the key is a backend operation, the storefront session must not
+            // need the corresponding permission to render its own download links.
+            return (string) $authHelper->processUnguarded(function () use ($orderId, $orderRepository) {
+                return $orderRepository->generateAccessKey($orderId);
+            });
+        } catch (\Throwable $e) {
             $this->getLogger(__METHOD__)->error('Wallee::AccessKeyGenerationFailed', [
                 'orderId' => $orderId,
                 'error' => $e->getMessage()
@@ -241,7 +249,7 @@ class OrderAccessHelper
             $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepository) {
                 return $orderRepository->findOrderById($orderId);
             });
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
 
@@ -303,7 +311,7 @@ class OrderAccessHelper
     {
         try {
             $contactId = $this->accountService->getAccountContactId();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
 
