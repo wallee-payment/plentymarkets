@@ -119,7 +119,7 @@ class PaymentProcessController extends Controller
      * @var FrontendSessionStorageFactoryContract
      */
     private $frontendSession;
-    
+
     /**
      *
      * @var ConfigRepository
@@ -402,18 +402,22 @@ class PaymentProcessController extends Controller
     {
         $orderId = $request->get('orderId', '');
         $paymentMethodId = $request->get('paymentMethod', '');
+        $accessKey = (string) $request->get('accessKey', '');
 
-        /** @var AuthHelper $authHelper */
-        $authHelper = pluginApp(AuthHelper::class);
-        $orderRepo = $this->orderRepository;
-        $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
-            return $orderRepo->findOrderById($orderId);
-        });
+        // Get the current language from session storage
+        $lang = $this->sessionStorage->getLang();
+
+        $order = $this->orderAccessHelper->findOwnOrder((int) $orderId, $accessKey);
+        if (! ($order instanceof Order)) {
+            $this->getLogger(__METHOD__)->warning('Wallee::PayOrderAccessDenied', [
+                'orderId' => $orderId
+            ]);
+            $confirmUrl = sprintf('%s/confirmation', $lang);
+            return $this->response->redirectTo($confirmUrl);
+        }
 
         $this->switchPaymentMethodForOrder($order, $paymentMethodId);
         $result = $this->paymentService->executePayment($order, $this->paymentMethodService->findByPaymentMethodId($paymentMethodId));
-        // Get the current language from session storage
-        $lang = $this->sessionStorage->getLang();
 
         if ($result['type'] == GetPaymentMethodContent::RETURN_TYPE_REDIRECT_URL) {
             return $this->response->redirectTo($result['content']);
@@ -512,7 +516,7 @@ class PaymentProcessController extends Controller
             return false;
         }
     }
-    
+
     private function checkOrderRetryStatus($statusId) {
         $orderRetryStatusString = $this->config->get('wallee.order_retry_status');
         if (!empty($orderRetryStatusString)) {
@@ -604,11 +608,12 @@ class PaymentProcessController extends Controller
     public function restoreCart(Request $request)
     {
         $orderId = $request->input('orderId');
+        $accessKey = (string) $request->input('accessKey', '');
 
         if (!$orderId) {
             return $this->response->json(['ok' => false, 'reason' => 'no orderId'], 400);
         }
-        $order = $this->orderRepository->findOrderById($orderId);
+        $order = $this->orderAccessHelper->findOwnOrder((int) $orderId, $accessKey);
 
         if (!$order) {
             return $this->response->json(['ok' => false, 'reason' => 'no order found'], 400);
@@ -642,6 +647,7 @@ class PaymentProcessController extends Controller
     {
         try {
             $orderId = $request->get('orderId', '');
+            $accessKey = (string) $request->get('accessKey', '');
 
             if (empty($orderId)) {
                 return $this->response->make(
@@ -651,12 +657,7 @@ class PaymentProcessController extends Controller
                 );
             }
 
-            /** @var AuthHelper $authHelper */
-            $authHelper = pluginApp(AuthHelper::class);
-            $orderRepo = $this->orderRepository;
-            $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
-                return $orderRepo->findOrderById($orderId);
-            });
+            $order = $this->orderAccessHelper->findOwnOrder((int) $orderId, $accessKey);
 
             if (!$order) {
                 return $this->response->make(
@@ -744,6 +745,7 @@ class PaymentProcessController extends Controller
         try {
             $orderId = $request->get('orderId', '');
             $paymentMethodId = $request->get('paymentMethodId', '');
+            $accessKey = (string) $request->get('accessKey', '');
 
             if (empty($orderId) || empty($paymentMethodId)) {
                 return $this->response->make(
@@ -753,12 +755,7 @@ class PaymentProcessController extends Controller
                 );
             }
 
-            /** @var AuthHelper $authHelper */
-            $authHelper = pluginApp(AuthHelper::class);
-            $orderRepo = $this->orderRepository;
-            $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
-                return $orderRepo->findOrderById($orderId);
-            });
+            $order = $this->orderAccessHelper->findOwnOrder((int) $orderId, $accessKey);
 
             if (!$order) {
                 return $this->response->make(
@@ -780,7 +777,12 @@ class PaymentProcessController extends Controller
             // Switch payment method on the existing order
             $this->switchPaymentMethodForOrder($order, $paymentMethodId);
 
-            // Re-load the order to get updated properties after payment method switch
+            // Re-load the order to get updated properties after payment method switch.
+            // No re-authorization needed: $orderId was already confirmed to belong to
+            // this visitor above, within the same request.
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $orderRepo = $this->orderRepository;
             $order = $authHelper->processUnguarded(function () use ($orderId, $orderRepo) {
                 return $orderRepo->findOrderById($orderId);
             });

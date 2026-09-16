@@ -20,8 +20,9 @@ use Plenty\Plugin\Log\Loggable;
  * Transaction ids are sequential, so no endpoint may expose order data based on a
  * transaction id taken from the URL alone. Access is granted only if either
  * - the order belongs to the contact that is currently logged in, or
- * - the caller knows the order access key (guest checkout), or
- * - the transaction was created in the current frontend session (payment return urls).
+ * - the order's transaction was created in the current frontend session (payment
+ *   return urls and payment retry, for guests without a logged in contact), or
+ * - the caller knows the order access key (guest checkout via an emailed link).
  */
 class OrderAccessHelper
 {
@@ -105,6 +106,13 @@ class OrderAccessHelper
     {
         $order = $this->loadOrder($orderId);
         if ($order instanceof Order && $this->isOrderOfCurrentContact($order)) {
+            return $order;
+        }
+
+        // Covers guests retrying/inspecting the order they just tried to pay for in
+        // this same browser session, without needing a logged in contact or an
+        // access key (e.g. the PWA payment retry page).
+        if ($order instanceof Order && $this->isOrderTransactionInCurrentSession($order)) {
             return $order;
         }
 
@@ -223,6 +231,23 @@ class OrderAccessHelper
         }
 
         return null;
+    }
+
+    /**
+     * Returns true if any transaction linked to the given order was created in the
+     * current frontend session, i.e. the visitor just tried to pay for this order.
+     *
+     * @param Order $order
+     * @return bool
+     */
+    private function isOrderTransactionInCurrentSession(Order $order): bool
+    {
+        $transactionId = $this->getTransactionIdForOrder($order);
+        if (empty($transactionId)) {
+            return false;
+        }
+
+        return in_array((string) $transactionId, $this->getOwnTransactionIds(), true);
     }
 
     /**
