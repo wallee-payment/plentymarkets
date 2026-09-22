@@ -26,16 +26,15 @@ const config = {
               params: { originUrl: string; lang: string }
             ) => {
               const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/register-return`;
-              // Local-dev convenience: some shops sit behind a WAF (e.g. CloudFront) whose SSRF
-              // rules reject request bodies containing a loopback origin (http://localhost,
-              // 127.0.0.1, 0.0.0.0). That makes register-return 403 locally, which leaves
-              // isPwaContext false and the hosted payment page never opens. When the origin is a
-              // loopback address we substitute the shop domain so the WAF accepts the call and the
-              // payment page loads. This branch is inert in real deployments (their origin is a
-              // public domain, never loopback). Trade-off while active: the post-payment return
-              // lands on the shop domain, not the local PWA.
-              const isLoopbackOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:|\/|$)/.test(params.originUrl || '');
-              const originUrl = isLoopbackOrigin ? (process.env.API_ENDPOINT as string) : params.originUrl;
+              // Local-dev convenience: shops behind a WAF (e.g. CloudFront) reject request bodies
+              // containing a loopback origin (localhost / 127.0.0.1 / 0.0.0.0), so register-return
+              // would 403 locally and the hosted payment page never opens. We rewrite the loopback
+              // host to [::1] (IPv6 loopback) — the WAF accepts it and it matches Nuxt's default dev
+              // bind — so register-return succeeds AND the post-payment success/fail redirect returns
+              // to the local PWA. Inert in real deployments (their origin is never loopback).
+              // Local requirement: allow http://[::1]:<port> in the middleware CORS origins, because
+              // the return pages load on the [::1] origin.
+              const originUrl = (params.originUrl || '').replace(/\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(?=[:/]|$)/, '//[::1]');
               const { data } = await context.client.post(
                 url,
                 { originUrl, lang: params.lang },
