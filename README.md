@@ -22,6 +22,25 @@ For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), 
 *   **Client Plugin**: `resources/js/wallee.client.ts` → `apps/web/app/plugins/wallee.client.ts`
 *   **Middleware**: Update `apps/server/middleware.config.ts` using snippets from `resources/js/middleware.config.ts`.
 
+### Local development (running the PWA against a WAF-protected shop)
+
+When the shop sits behind a WAF (e.g. CloudFront), its SSRF rules reject any `register-return`
+request whose body contains a loopback origin (`http://localhost`, `127.0.0.1`, `0.0.0.0`). That
+makes `register-return` return `403` locally, so `isPwaContext` stays `false` and the hosted
+payment page never opens. The middleware snippet already rewrites a loopback origin to the IPv6
+loopback `[::1]`, which the WAF accepts and the browser still resolves to localhost. For the whole
+flow (payment page **and** the post-payment return landing back on the PWA in the same session, so
+the shopper is not asked to re-authenticate) run everything on the `[::1]` origin:
+
+1. In `apps/web/.env` set `USE_IPV6=true` and `MIDDLEWARE_CLIENT_URL=http://[::1]:8181`.
+2. In `apps/server/src/index.ts` add `http://[::1]:3000` to the `cors.origin` list.
+3. In `apps/web/nuxt.config.ts` let `shopCore.apiUrl` read `MIDDLEWARE_CLIENT_URL` (falling back to
+   the existing value), so the browser talks to the middleware on the same `[::1]` host.
+4. Browse the shop on **`http://[::1]:3000`** for the entire flow (not `localhost`).
+
+None of this affects real deployments: their origin is a public domain, never loopback, so the
+rewrite is inert and these local-only settings are unset.
+
 ## License
 
 Please see the [license file](@WalleeRepoPath(LICENSE)) for more information.
