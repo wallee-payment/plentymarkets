@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<meta name="keywords" value="wallee, PlentyONE, PlentyONE Extension, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the PlentyONE extension that enables processing payments with wallee.">		
-		<link rel="canonical" href="https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/master/docs/en/documentation.html" />
+		<link rel="canonical" href="@WalleeCanonicalPath(https://plugin-documentation.wallee.com/wallee-payment, docs/en/documentation.html)" />
 		<title>wallee PlentyONE</title>
 		<link href="assets/monokai-sublime.css" rel="stylesheet" />
 		<link href="assets/base.css" rel="stylesheet" />
@@ -23,7 +23,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/wallee-payment/plentymarkets/releases/tag/2.2.0/">
+		<a href="@WalleeReleasePath()">
 			Source
 		</a>
 	</li>
@@ -347,7 +347,7 @@ this interval.</p>
 <p>If the transaction in wallee is marked as <code>fulfill</code>, the PlentyONE order is marked as <code>[5] Cleared for shipping</code>, indicating that it can now be fulfilled.</p>
 </li>
 <li>
-<p>If the transaction&#8217;s authorization is voided or the risk assessments indicate that the order should not be fulfilled, the order is marked as <code>[8] Canceled</code>.</p>
+<p>If the transaction&#8217;s authorization is voided or the risk assessments indicate that the order should not be fulfilled, the order is marked as <code>[5] Canceled</code>.</p>
 </li>
 </ol>
 </div>							<div class="section" id="_general_remarks_regarding_order_statuses">

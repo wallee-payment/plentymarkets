@@ -11,6 +11,7 @@ use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
+use Wallee\Helper\OrderAccessHelper;
 use Wallee\Helper\PaymentHelper;
 use Plenty\Plugin\Log\Loggable;
 use Plenty\Modules\Payment\Method\Models\PaymentMethod;
@@ -160,6 +161,26 @@ class PaymentService
         $this->orderRepository = $orderRepository;
     }
 
+    /**
+     * Remembers the transaction as belonging to the current frontend session.
+     *
+     * PaymentService is built for every payment method on every storefront page, so this
+     * dependency is resolved on demand and may never interrupt the payment itself.
+     *
+     * @param mixed $transactionId
+     */
+    private function rememberTransaction($transactionId)
+    {
+        try {
+            pluginApp(OrderAccessHelper::class)->rememberTransaction($transactionId);
+        } catch (\Throwable $e) {
+            $this->getLogger(__METHOD__)->error('wallee::RememberTransactionFailed', [
+                'transactionId' => $transactionId,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function createWebhook()
     {
         /** @var \Plenty\Modules\Helper\Services\WebstoreHelper $webstoreHelper */
@@ -254,6 +275,10 @@ class PaymentService
 
             // Store transaction ID for later order association
             $this->session->getPlugin()->setValue('walleeTransactionId', $transaction['id']);
+
+            // Mark the transaction as belonging to this visitor, the payment return urls
+            // are the only place where the customer can be identified without an order.
+            $this->rememberTransaction($transaction['id']);
 
             $isFetchPossiblePaymentMethodsEnabled = $this->config->get('wallee.enable_payment_fetch');
 
@@ -375,6 +400,10 @@ class PaymentService
                 'content' => $transaction['error_msg']
             ];
         }
+
+        // Mark the transaction as belonging to this visitor, so the payment return urls
+        // can tell the customer apart from someone guessing transaction ids.
+        $this->rememberTransaction($transaction['id']);
 
         if (!$skipPaymentCreation) {
             $payment = $this->paymentHelper->createPlentyPayment($transaction);

@@ -1,5 +1,19 @@
 # Release Notes for wallee
 
+## v2.2.1 (2026-09-21)
+## Sicherheitsupdate
+Diese Version behebt eine Sicherheitslücke, die frühere Versionen des Integrations-Plugins betraf.
+Allen Händlern wird dringend empfohlen, sofort auf Version 2.2.1 zu aktualisieren, um die Sicherheit ihrer Integration zu gewährleisten.
+
+## Was hat sich geändert:
+
+* Sicherheit: Ein Problem wurde behoben, das unter bestimmten Konfigurationen unbefugten Zugriff auf bestimmte Daten ermöglichen konnte.
+
+## v2.2.0 (2026-08-11)
+- Unterstützung für Plenty PWA hinzugefügt
+- Rundung bei Rückerstattungen aus Stabilitätsgründen rückgängig gemacht
+- Problem bei der korrekten Übermittlung der Artikel-ID behoben
+
 ## v2.1.8 (2026-02-25)
 - Artikelnummer und Varianten-ID in Portaldaten (für Dokumente) getrennt
 - Unterstützung für Webhook-Signaturen hinzugefügt

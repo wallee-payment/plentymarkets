@@ -13,7 +13,7 @@ This repository contains the PlentyONE extension that enables to process payment
 
 ## Documentation
 
-* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.2.0/docs/en/documentation.html)
+* [Documentation](@WalleeDocPath(/docs/en/documentation.html))
 
 ## PWA Installation
 For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), you'll need to add these files in the PWA project:
@@ -24,4 +24,4 @@ For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), 
 
 ## License
 
-Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.2.0/LICENSE) for more information.
+Please see the [license file](@WalleeRepoPath(LICENSE)) for more information.

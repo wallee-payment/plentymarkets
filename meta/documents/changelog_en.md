@@ -1,5 +1,10 @@
 # Release Notes for wallee
 
+## v2.2.0 (2026-08-11)
+- Added support for Plenty PWA
+- Reverted rounding on refunds for stability
+- Fixed issue with Item Id not transmitting correctly
+
 ## v2.1.8 (2026-02-25)
 - Separated sku from variant id in portal data (for documents)
 - Added support for webhook signatures
