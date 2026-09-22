@@ -52,9 +52,14 @@ const config = {
             // walleeGetOrderCheckoutData fetches order retry eligibility and available payment methods
             walleeGetOrderCheckoutData: async (
               context: any,
-              params: { orderId: string },
+              params: { orderId: string; accessKey?: string },
             ) => {
-              const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/order-checkout-data?orderId=${params.orderId}`;
+              const query = new URLSearchParams({ orderId: params.orderId });
+              // accessKey is required by the access-key-guarded retry endpoint on the shop
+              if (params.accessKey) {
+                query.set('accessKey', params.accessKey);
+              }
+              const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/order-checkout-data?${query.toString()}`;
               const { data } = await context.client.get(
                 url,
                 {
@@ -66,12 +71,17 @@ const config = {
             // walleePayOrderRest submits a payment retry for an existing unpaid order
             walleePayOrderRest: async (
               context: any,
-              params: { orderId: string; paymentMethodId: string },
+              params: { orderId: string; paymentMethodId: string; accessKey?: string },
             ) => {
               const url = `${process.env.API_ENDPOINT}/rest/storefront/wallee/pay-order`;
               const { data } = await context.client.post(
                 url,
-                { orderId: params.orderId, paymentMethodId: params.paymentMethodId },
+                {
+                  orderId: params.orderId,
+                  paymentMethodId: params.paymentMethodId,
+                  // accessKey is required by the access-key-guarded retry endpoint on the shop
+                  accessKey: params.accessKey ?? '',
+                },
                 {
                   headers: { cookie: context.req?.headers?.cookie || '' },
                 },
