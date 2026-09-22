@@ -355,12 +355,16 @@ class PaymentProcessController extends Controller
 
         if ($originUrl) {
             if ($orderId && $transactionId) {
-                // PWA: redirect to the new payment selection page (outside /checkout guard)
+                // PWA: redirect to the new payment selection page (outside /checkout guard).
+                // The order access key is part of the path so the page can pass it to the
+                // access-key-guarded retry endpoints; without it they answer "Order not found".
+                $accessKey = $this->orderAccessHelper->getOrderAccessKey((int) $orderId);
                 $url = sprintf(
-                    '%s%s/payment-selection/%d/%d',
+                    '%s%s/payment-selection/%d/%s/%d',
                     rtrim($originUrl, '/'),
                     $langPrefix,
                     $orderId,
+                    $accessKey,
                     $transactionId,
                 );
             } else {

@@ -864,13 +864,19 @@ class PaymentService
             $defaultLang = $this->webstoreHelper->getCurrentWebstoreConfiguration()->defaultLanguage;
             $langPrefix = ($originLang && $originLang !== $defaultLang) ? '/' . $originLang : '';
             if ($order) {
-                // Redirect to the new PWA payment selection page (outside /checkout guard)
-                // Wallee will automatically append /{transactionId} to this URL
+                // Redirect to the new PWA payment selection page (outside /checkout guard).
+                // The order access key is part of the path so the PWA can pass it back to the
+                // access-key-guarded retry endpoints (order-checkout-data / pay-order); without
+                // it those endpoints answer "Order not found".
+                // Wallee will automatically append /{transactionId} to this URL,
+                // so the final shape is /payment-selection/{orderId}/{accessKey}/{transactionId}.
+                $accessKey = $this->orderRepository->generateAccessKey($order->id);
                 $url = sprintf(
-                    '%s%s/payment-selection/%d',
+                    '%s%s/payment-selection/%d/%s',
                     rtrim($originUrl, '/'),
                     $langPrefix,
                     $order->id,
+                    $accessKey,
                 );
                 return $url;
             }
