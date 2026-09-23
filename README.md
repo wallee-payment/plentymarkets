@@ -24,11 +24,12 @@ For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), 
 
 ### Local development (running the PWA against a WAF-protected shop)
 
-When the shop sits behind a WAF (e.g. CloudFront), its SSRF rules reject any `register-return`
-request whose body contains a loopback origin (`http://localhost`, `127.0.0.1`, `0.0.0.0`). That
-makes `register-return` return `403` locally, so `isPwaContext` stays `false` and the hosted
-payment page never opens. The middleware snippet already rewrites a loopback origin to the IPv6
-loopback `[::1]`, which the WAF accepts and the browser still resolves to localhost. For the whole
+When the PlentyONE backend (the REST API the middleware calls, e.g. `*.plentymarkets.com` — not the
+PWA app) sits behind a WAF (e.g. CloudFront), its SSRF rules reject any `register-return` request
+whose body contains a loopback origin (`http://localhost`, `127.0.0.1`, `0.0.0.0`). That makes
+`register-return` return `403` locally, so `isPwaContext` stays `false` and the hosted payment page
+never opens. The middleware snippet already rewrites a loopback origin to the IPv6 loopback `[::1]`,
+which the WAF accepts and the browser still resolves to localhost. For the whole
 flow (payment page **and** the post-payment return landing back on the PWA in the same session, so
 the shopper is not asked to re-authenticate) run everything on the `[::1]` origin:
 
