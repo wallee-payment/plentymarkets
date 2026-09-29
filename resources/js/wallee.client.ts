@@ -200,17 +200,20 @@ export default defineNuxtPlugin((nuxtApp) => {
     });
   }
   
-  // Intercept XMLHttpRequest as well (in case PWA uses axios)
+  // Intercept XMLHttpRequest as well (in case PWA uses axios).
+  // doPreparePayment and doExecutePayment are only sent from the checkout, so the
+  // prototype is patched only while a checkout route is shown and restored to the
+  // native methods on every other page, keeping unrelated requests untouched.
   if (window.XMLHttpRequest) {
-    const originalXHROpen = XMLHttpRequest.prototype.open;
-    const originalXHRSend = XMLHttpRequest.prototype.send;
-    
-    XMLHttpRequest.prototype.open = function(this: XMLHttpRequest, method: string, url: string | URL, ...rest: any[]) {
+    let originalXHROpen = XMLHttpRequest.prototype.open;
+    let originalXHRSend = XMLHttpRequest.prototype.send;
+
+    const patchedXHROpen = function(this: XMLHttpRequest, method: string, url: string | URL, ...rest: any[]) {
       (this as any).__wallee_url = url.toString();
       return originalXHROpen.apply(this, [method, url, ...rest] as any);
     };
-    
-    XMLHttpRequest.prototype.send = function(body?: any) {
+
+    const patchedXHRSend = function(this: XMLHttpRequest, body?: any) {
       const xhr = this;
       const url = (xhr as any).__wallee_url || '';
 
@@ -256,5 +259,54 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
       return originalXHRSend.call(this, body);
     };
+
+    let xhrInterceptionInstalled = false;
+
+    // Guarded so repeated calls (HMR, plugin re-run, several route changes) never
+    // wrap the wrapper again.
+    function installXHRInterception() {
+      if (xhrInterceptionInstalled) {
+        return;
+      }
+      originalXHROpen = XMLHttpRequest.prototype.open;
+      originalXHRSend = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.open = patchedXHROpen as any;
+      XMLHttpRequest.prototype.send = patchedXHRSend;
+      xhrInterceptionInstalled = true;
+    }
+
+    // Leaves the patch in place if another script has wrapped it since
+    function removeXHRInterception() {
+      if (!xhrInterceptionInstalled
+        || XMLHttpRequest.prototype.open !== patchedXHROpen
+        || XMLHttpRequest.prototype.send !== patchedXHRSend) {
+        return;
+      }
+      XMLHttpRequest.prototype.open = originalXHROpen;
+      XMLHttpRequest.prototype.send = originalXHRSend;
+      xhrInterceptionInstalled = false;
+    }
+
+    // Matches /checkout and /readonly-checkout, with or without a language prefix
+    const isCheckoutPath = (path: string) => /checkout\/?$/.test(path);
+
+    function syncXHRInterception(path: string) {
+      if (isCheckoutPath(path)) {
+        installXHRInterception();
+      } else {
+        removeXHRInterception();
+      }
+    }
+
+    // Covers opening the checkout directly, before any client-side navigation
+    syncXHRInterception(window.location.pathname);
+
+    if (router?.afterEach) {
+      router.afterEach((to: any, _from: any, failure: any) => {
+        if (!failure) {
+          syncXHRInterception(to.path);
+        }
+      });
+    }
   }
 });

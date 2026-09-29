@@ -1,5 +1,17 @@
 # Release Notes for wallee
 
+## v2.2.1 (2026-09-29)
+- Hardened access control for invoice and packing slip downloads
+- Hardened access control for payment retry, cart restore and order checkout data endpoints
+- Document download routes are now registered with and without a trailing slash
+- Access key generation can no longer affect the order confirmation page
+- PWA: limited XMLHttpRequest patching to the checkout page
+
+## v2.2.0 (2026-08-11)
+- Added support for Plenty PWA
+- Reverted rounding on refunds for stability
+- Fixed issue with Item Id not transmitting correctly
+
 ## v2.1.8 (2026-02-25)
 - Separated sku from variant id in portal data (for documents)
 - Added support for webhook signatures

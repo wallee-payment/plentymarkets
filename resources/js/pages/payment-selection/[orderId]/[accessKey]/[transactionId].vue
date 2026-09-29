@@ -221,6 +221,7 @@ const router = useRouter();
 const { send } = useNotification();
 
 const orderId = ref<string>('');
+const accessKey = ref<string>('');
 const isLoading = ref<boolean>(true);
 const isSubmitting = ref<boolean>(false);
 const errorMessage = ref<string>('');
@@ -289,6 +290,9 @@ onMounted(async () => {
   // Read orderId from route params instead of query string to support restful URLs
   const paramsOrderId = route.params.orderId as string;
   const paramsTransactionId = route.params.transactionId as string;
+  // The order access key is carried in the URL so it can be forwarded to the
+  // access-key-guarded retry endpoints; without it they answer "Order not found".
+  const paramsAccessKey = route.params.accessKey as string;
 
   if (!paramsOrderId) {
     errorMessage.value = texts.value.errorNoOrder;
@@ -297,6 +301,7 @@ onMounted(async () => {
     return;
   }
   orderId.value = paramsOrderId;
+  accessKey.value = paramsAccessKey ?? '';
 
   // Fetch the decline reason independently — does not block the main page load.
   // Mirrors CERES NotificationService::error() for the PWA layer (e.g. PowerPay decline message).
@@ -318,6 +323,7 @@ onMounted(async () => {
     const sdk = useSdk() as any;
     const result = await sdk.plentysystems.walleeGetOrderCheckoutData({
       orderId: paramsOrderId,
+      accessKey: paramsAccessKey,
     });
 
     const responseData: CheckoutDataResponse = result?.data || result;
@@ -408,6 +414,7 @@ async function submitPayment(): Promise<void> {
     const sdk = useSdk() as any;
     const result = await sdk.plentysystems.walleePayOrderRest({
       orderId: orderId.value,
+      accessKey: accessKey.value,
       paymentMethodId: selectedPaymentMethod.value,
     });
 

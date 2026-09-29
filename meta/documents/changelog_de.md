@@ -1,5 +1,17 @@
 # Release Notes for wallee
 
+## v2.2.1 (2026-09-29)
+- Zugriffskontrolle für Rechnungs- und Lieferschein-Downloads verstärkt
+- Zugriffskontrolle für Zahlungswiederholung, Warenkorb-Wiederherstellung und Bestell-Checkout-Daten verstärkt
+- Routen für Dokumenten-Downloads werden nun mit und ohne Schrägstrich am Ende registriert
+- Die Erzeugung des Zugriffsschlüssels kann die Bestellbestätigungsseite nicht mehr beeinträchtigen
+- PWA: XMLHttpRequest-Patching auf die Checkout-Seite beschränkt
+
+## v2.2.0 (2026-08-11)
+- Unterstützung für Plenty PWA hinzugefügt
+- Rundung bei Rückerstattungen aus Stabilitätsgründen zurückgenommen
+- Problem behoben, bei dem die Artikel-ID nicht korrekt übertragen wurde
+
 ## v2.1.8 (2026-02-25)
 - Artikelnummer und Varianten-ID in Portaldaten (für Dokumente) getrennt
 - Unterstützung für Webhook-Signaturen hinzugefügt
