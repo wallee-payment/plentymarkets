@@ -162,6 +162,11 @@ function getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId)
 }
 
 /**
+ * Returns the reductions when they refund exactly the refund amount, otherwise an empty list.
+ *
+ * Spreading an amount over the line items cannot always be expressed in whole cents per unit
+ * (e.g. 10.00 over three units), so a refund that does not map onto the credit note items is
+ * sent as an amount-only refund and wallee distributes it over the line items itself.
  *
  * @param float $refundAmount
  * @param \Wallee\Sdk\Model\LineItemReductionCreate[] $reductions
@@ -171,21 +176,16 @@ function getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId)
  * @param int $transactionId
  * @return \Wallee\Sdk\Model\LineItemReductionCreate[]
  */
-function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $spaceId, $transactionId)
+function getExactReductions($refundAmount, $reductions, $apiClient, $refundService, $spaceId, $transactionId)
 {
+    if (empty($reductions)) {
+        return [];
+    }
+
     $baseLineItems = getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId);
     $reductionAmount = WalleeSdkHelper::getReductionAmount($baseLineItems, $reductions);
-    $refundAmount = WalleeSdkHelper::roundAmount($refundAmount);
 
-    if (toCents($reductionAmount) != toCents($refundAmount)) {
-        $baseAmount = WalleeSdkHelper::calculateLineItemTotalAmount($baseLineItems);
-        if (toCents($baseAmount) == 0) {
-            throw new \Exception('There are no line items left that can be refunded on the transaction ' . $transactionId . ' in space ' . $spaceId . '.');
-        }
-        return distributeRefundAmount($refundAmount, $baseLineItems);
-    } else {
-        return $reductions;
-    }
+    return toCents($reductionAmount) == toCents($refundAmount) ? $reductions : [];
 }
 
 /**
@@ -196,79 +196,6 @@ function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $
 function toCents($amount)
 {
     return (int) round($amount * 100);
-}
-
-/**
- * Distributes the refund amount proportionally over the line items as unit price reductions.
- * Works in cents so that the sum of all reductions equals the refund amount exactly; the
- * remainder left by rounding each line is pushed onto the lines that can absorb it,
- * preferring lines with a quantity of one as they can take any amount of cents.
- *
- * @param float $refundAmount
- * @param \Wallee\Sdk\Model\LineItem[] $baseLineItems
- * @return \Wallee\Sdk\Model\LineItemReductionCreate[]
- */
-function distributeRefundAmount($refundAmount, $baseLineItems)
-{
-    $refundCents = toCents($refundAmount);
-    $baseCents = 0;
-    $lines = [];
-    foreach ($baseLineItems as $lineItem) {
-        if ($lineItem->getQuantity() > 0) {
-            $lineCents = toCents($lineItem->getAmountIncludingTax());
-            $baseCents += $lineCents;
-            $lines[] = [
-                'uniqueId' => $lineItem->getUniqueId(),
-                'quantity' => (int) $lineItem->getQuantity(),
-                'lineCents' => $lineCents,
-                'unitCents' => 0
-            ];
-        }
-    }
-
-    $allocatedCents = 0;
-    foreach ($lines as &$line) {
-        $targetCents = $line['lineCents'] * $refundCents / $baseCents;
-        $line['unitCents'] = (int) round($targetCents / $line['quantity']);
-        $allocatedCents += $line['unitCents'] * $line['quantity'];
-    }
-    unset($line);
-
-    $remainderCents = $refundCents - $allocatedCents;
-    if ($remainderCents != 0) {
-        $order = array_keys($lines);
-        usort($order, function ($a, $b) use ($lines) {
-            if ($lines[$a]['quantity'] != $lines[$b]['quantity']) {
-                return $lines[$a]['quantity'] - $lines[$b]['quantity'];
-            }
-            return abs($lines[$b]['lineCents']) - abs($lines[$a]['lineCents']);
-        });
-        $direction = $remainderCents > 0 ? 1 : -1;
-        foreach ($order as $index) {
-            if ($remainderCents == 0) {
-                break;
-            }
-            $line = $lines[$index];
-            // The unit price reduction has to stay between zero and the unit price of the line item.
-            $unitPriceCents = intdiv($line['lineCents'], $line['quantity']);
-            $upperCents = max(0, $unitPriceCents);
-            $lowerCents = min(0, $unitPriceCents);
-            $capacity = $direction > 0 ? $upperCents - $line['unitCents'] : $line['unitCents'] - $lowerCents;
-            $steps = min(intdiv(abs($remainderCents), $line['quantity']), max(0, $capacity));
-            $lines[$index]['unitCents'] += $direction * $steps;
-            $remainderCents -= $direction * $steps * $line['quantity'];
-        }
-    }
-
-    $fixedReductions = [];
-    foreach ($lines as $line) {
-        $reduction = new \Wallee\Sdk\Model\LineItemReductionCreate();
-        $reduction->setLineItemUniqueId($line['uniqueId']);
-        $reduction->setQuantityReduction(0);
-        $reduction->setUnitPriceReduction($line['unitCents'] / 100);
-        $fixedReductions[] = $reduction;
-    }
-    return $fixedReductions;
 }
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
@@ -298,8 +225,8 @@ $refundService = new RefundService($client);
 
 $reductions = getReductions($refundOrder, $orderItems, $isNet);
 $refundAmount = ($isNet ? $refundOrder['amounts'][0]['netTotal'] : $refundOrder['amounts'][0]['grossTotal']);
-$reductions = fixReductions($refundAmount, $reductions, $client, $refundService, $spaceId, $transactionId);
-$refundRequest->setReductions($reductions);
+$refundRequest->setAmount(WalleeSdkHelper::roundAmount($refundAmount));
+$refundRequest->setReductions(getExactReductions($refundAmount, $reductions, $client, $refundService, $spaceId, $transactionId));
 $refundResponse = $refundService->refund($spaceId, $refundRequest);
 
 return WalleeSdkHelper::convertData($refundResponse);
