@@ -207,6 +207,16 @@ class PaymentService
             /** @var \IO\Services\BasketService $basketService */
             $basketService = pluginApp(\IO\Services\BasketService::class);
             $basket = $basketService->getBasket();
+
+            // Nothing to pay, the order is completed without a transaction once it is created.
+            if (round((float) $basket->basketAmount, 2) <= 0) {
+                $this->forgetCheckoutTransaction();
+                return [
+                    'type' => 'continue',
+                    'content' => ''
+                ];
+            }
+
             $basketForTemplate = $basketService->getBasketForTemplate();
 
             // Generate temporary merchant reference for PWA (order doesn't exist yet)
@@ -338,6 +348,10 @@ class PaymentService
      */
     public function executePayment(Order $order, PaymentMethod $paymentMethod, bool $skipPaymentCreation = false): array
     {
+        if ($this->isZeroAmountOrder($order)) {
+            return $this->completeZeroAmountOrder($order, $paymentMethod);
+        }
+
         $transactionId = $this->session->getPlugin()->getValue('walleeTransactionId');
 
         $parameters = [
@@ -443,6 +457,63 @@ class PaymentService
             'redirectUrl' => $paymentPageUrl, // Additional field for PWA
             'content' => $paymentPageUrl
         ];
+    }
+
+    /**
+     * Checks whether the order is fully covered (e.g. by a coupon) and has nothing left to pay.
+     * An order without loaded amounts is treated as payable.
+     *
+     * @param Order $order
+     * @return bool
+     */
+    public function isZeroAmountOrder(Order $order): bool
+    {
+        if (empty($order->amounts) || count($order->amounts) == 0) {
+            return false;
+        }
+        foreach ($order->amounts as $amount) {
+            if (round((float) $amount->invoiceTotal, 2) > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Completes an order with nothing to pay without creating a transaction:
+     * the order is marked as paid and the customer goes straight to the confirmation page.
+     *
+     * @param Order $order
+     * @param PaymentMethod $paymentMethod
+     * @return array
+     */
+    private function completeZeroAmountOrder(Order $order, PaymentMethod $paymentMethod): array
+    {
+        $this->forgetCheckoutTransaction();
+
+        try {
+            $this->paymentHelper->createZeroAmountPlentyPayment($order, (int) $paymentMethod->id);
+        } catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('wallee::ZeroAmountPaymentFailed', [
+                'orderId' => $order->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return [
+            'type' => 'continue',
+            'content' => ''
+        ];
+    }
+
+    /**
+     * Drops the transaction and payment page url of the current checkout from the session,
+     * so they are neither linked to the order nor redirected to.
+     */
+    private function forgetCheckoutTransaction()
+    {
+        $this->session->getPlugin()->unsetKey('walleeTransactionId');
+        $this->session->getPlugin()->unsetKey('walleePendingRedirectUrl');
     }
 
     private function getLineItemAttributes(Order $order)
@@ -733,7 +804,7 @@ class PaymentService
 
     /**
      * Extract basket items from basketForTemplate (for PWA)
-     * 
+     *
      * @param array $basketForTemplate
      * @return array
      */
