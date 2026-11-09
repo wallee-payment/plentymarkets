@@ -162,6 +162,11 @@ function getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId)
 }
 
 /**
+ * Returns the reductions when they refund exactly the refund amount, otherwise an empty list.
+ *
+ * Spreading an amount over the line items cannot always be expressed in whole cents per unit
+ * (e.g. 10.00 over three units), so a refund that does not map onto the credit note items is
+ * sent as an amount-only refund and wallee distributes it over the line items itself.
  *
  * @param float $refundAmount
  * @param \Wallee\Sdk\Model\LineItemReductionCreate[] $reductions
@@ -171,31 +176,26 @@ function getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId)
  * @param int $transactionId
  * @return \Wallee\Sdk\Model\LineItemReductionCreate[]
  */
-function fixReductions($refundAmount, $reductions, $apiClient, $refundService, $spaceId, $transactionId)
+function getExactReductions($refundAmount, $reductions, $apiClient, $refundService, $spaceId, $transactionId)
 {
+    if (empty($reductions)) {
+        return [];
+    }
+
     $baseLineItems = getBaseLineItems($apiClient, $refundService, $spaceId, $transactionId);
     $reductionAmount = WalleeSdkHelper::getReductionAmount($baseLineItems, $reductions);
 
-    if ($reductionAmount != $refundAmount) {
-        $fixedReductions = [];
-        $baseAmount = WalleeSdkHelper::calculateLineItemTotalAmount($baseLineItems);
-        if ($baseAmount == 0) {
-            throw new \Exception('There are no line items left that can be refunded on the transaction ' . $transactionId . ' in space ' . $spaceId . '.');
-        }
-        $rate = $refundAmount / $baseAmount;
-        foreach ($baseLineItems as $lineItem) {
-            if ($lineItem->getQuantity() > 0) {
-                $reduction = new \Wallee\Sdk\Model\LineItemReductionCreate();
-                $reduction->setLineItemUniqueId($lineItem->getUniqueId());
-                $reduction->setQuantityReduction(0);
-                $reduction->setUnitPriceReduction(WalleeSdkHelper::roundAmount($lineItem->getAmountIncludingTax() * $rate / $lineItem->getQuantity()));
-                $fixedReductions[] = $reduction;
-            }
-        }
-        return $fixedReductions;
-    } else {
-        return $reductions;
-    }
+    return toCents($reductionAmount) == toCents($refundAmount) ? $reductions : [];
+}
+
+/**
+ *
+ * @param float $amount
+ * @return int
+ */
+function toCents($amount)
+{
+    return (int) round($amount * 100);
 }
 
 $client = WalleeSdkHelper::getApiClient(SdkRestApi::getParam('gatewayBasePath'), SdkRestApi::getParam('apiUserId'), SdkRestApi::getParam('apiUserKey'));
@@ -225,8 +225,8 @@ $refundService = new RefundService($client);
 
 $reductions = getReductions($refundOrder, $orderItems, $isNet);
 $refundAmount = ($isNet ? $refundOrder['amounts'][0]['netTotal'] : $refundOrder['amounts'][0]['grossTotal']);
-$reductions = fixReductions($refundAmount, $reductions, $client, $refundService, $spaceId, $transactionId);
-$refundRequest->setReductions($reductions);
+$refundRequest->setAmount(WalleeSdkHelper::roundAmount($refundAmount));
+$refundRequest->setReductions(getExactReductions($refundAmount, $reductions, $client, $refundService, $spaceId, $transactionId));
 $refundResponse = $refundService->refund($spaceId, $refundRequest);
 
 return WalleeSdkHelper::convertData($refundResponse);
