@@ -10,13 +10,14 @@ class PostFinancePayPaymentMethod extends AbstractPaymentMethod
 
     /**
      * Defines whether the payment method is active.
+     * Hidden when the basket total is zero, there is nothing to pay.
      *
      * @return bool
      */
     public function isActive(): bool
     {
         if ($this->configRepo->get('wallee.PostFinancePay_active') == "true") {
-            return true;
+            return $this->isBasketAmountPayable();
         } else {
             return false;
         }

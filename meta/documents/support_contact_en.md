@@ -1,6 +1,6 @@
 ## Online
  
-For information about this payment plugin or the possibilities available with wallee, <a href="https://wallee.com/about-wallee/support" target="_blank">please contact our support team</a>.
+For information about this payment plugin or the possibilities available with wallee, <a href="SUPPORT_URL" target="_blank">please contact our support team</a>.
 If you already have a wallee account, you can also use the support form available within your account.
 
 If you require additional assistance, we also offer Premium Support, including setup assistance. Please contact us for more information.

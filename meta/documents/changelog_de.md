@@ -1,5 +1,9 @@
 # Release Notes for wallee
 
+## v2.2.2 (2026-11-10)
+- Problem behoben, das bei Transaktionen mit einem Wert von 0 den Zahlungsvorgang erzwang
+- Problem bei der Rundung von Rückerstattungen behoben
+
 ## v2.2.1 (2026-09-29)
 - Zugriffskontrolle für Rechnungs- und Lieferschein-Downloads verstärkt
 - Zugriffskontrolle für Zahlungswiederholung, Warenkorb-Wiederherstellung und Bestell-Checkout-Daten verstärkt

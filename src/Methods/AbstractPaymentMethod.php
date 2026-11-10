@@ -1,6 +1,7 @@
 <?php
 namespace Wallee\Methods;
 
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodService;
 use Plenty\Plugin\ConfigRepository;
 use Wallee\Services\PaymentService;
@@ -56,6 +57,30 @@ abstract class AbstractPaymentMethod extends PaymentMethodService
     protected function getImagePath($fileName)
     {
         return $this->getBaseIconPath() . $fileName . '?' . time();
+    }
+
+    /**
+     * Checks whether the current basket has an amount left to pay.
+     * A basket fully covered by a coupon must not offer any payment method.
+     * An empty basket counts as payable, so the payment retry page of an
+     * already placed order still lists the payment methods.
+     *
+     * @return bool
+     */
+    protected function isBasketAmountPayable(): bool
+    {
+        try {
+            /** @var BasketRepositoryContract $basketRepository */
+            $basketRepository = pluginApp(BasketRepositoryContract::class);
+            $basket = $basketRepository->load();
+            if (empty($basket) || round((float) $basket->itemSum, 2) <= 0) {
+                return true;
+            }
+            return round((float) $basket->basketAmount, 2) > 0;
+        } catch (\Throwable $e) {
+            // No basket in this context (e.g. back end), keep the method available.
+            return true;
+        }
     }
 
     public function isSwitchableTo($orderId)

@@ -11,9 +11,19 @@ This repository contains the PlentyONE extension that enables to process payment
 * [IO](https://marketplace.plentyone.com/plugins/channels/online-shops/io_4696)
 * [Ceres](https://marketplace.plentyone.com/plugins/channels/online-shops/ceres_4697)
 
+## Required setup: "Already paid" payment method
+
+To handle orders with a total of 0 (e.g. a 100% discount coupon), enable plentyShop's placeholder payment method **Already paid**. The wallee payment methods are hidden for such orders, and the order is completed with Already paid instead.
+
+1. **Setup » Assistants » Plugins » _your plugin set_ » plentyShop LTS » _your client_**: in the **Online store** step, select the delivery countries under **Offer placeholder payment method Already paid in the checkout**, then click **Finalise**.
+2. **Setup » CRM » Classes**: for each customer class, add **Already paid** to **Allowed payment methods** and save.
+
+Without this setup, customers cannot complete checkout for orders with a total of 0.  
+See the [plentyShop LTS manual](https://knowledge.plentyone.com/en-gb/manual/main/online-store/setting-up-ceres.html#295) for details.
+
 ## Documentation
 
-* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.2.1/docs/en/documentation.html)
+* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.2.2/docs/en/documentation.html)
 
 ## PWA Installation
 For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), you'll need to add these files in the PWA project:
@@ -44,4 +54,4 @@ rewrite is inert and these local-only settings are unset.
 
 ## License
 
-Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.2.1/LICENSE) for more information.
+Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.2.2/LICENSE) for more information.

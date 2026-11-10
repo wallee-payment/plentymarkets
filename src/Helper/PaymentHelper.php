@@ -158,6 +158,46 @@ class PaymentHelper
     }
 
     /**
+     * Create a captured payment of zero for an order fully covered by a coupon,
+     * so the order is marked as paid like after a successful webhook.
+     * Does nothing when the order already has this payment.
+     *
+     * @param Order $order
+     * @param int $mopId
+     * @return Payment|null
+     */
+    public function createZeroAmountPlentyPayment(Order $order, int $mopId)
+    {
+        foreach ($this->paymentRepository->getPaymentsByOrderId($order->id) as $existingPayment) {
+            if ($existingPayment->mopId == $mopId && $existingPayment->status == Payment::STATUS_CAPTURED) {
+                return null;
+            }
+        }
+
+        /** @var Payment $payment */
+        $payment = pluginApp(\Plenty\Modules\Payment\Models\Payment::class);
+
+        $payment->mopId = $mopId;
+        $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
+        $payment->status = Payment::STATUS_CAPTURED;
+        $payment->currency = $order->amounts[0]->currency;
+        $payment->amount = 0;
+        $payment->receivedAt = date('Y-m-d H:i:s');
+        $payment->unaccountable = 0;
+        $payment->updateOrderPaymentStatus = true;
+
+        $paymentProperty = [];
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, 'No payment required, order total is zero');
+        $paymentProperty[] = $this->getPaymentProperty(PaymentProperty::TYPE_ORIGIN, Payment::ORIGIN_PLUGIN);
+        $payment->properties = $paymentProperty;
+
+        $payment = $this->paymentRepository->createPayment($payment);
+        $this->paymentOrderRelationRepository->createOrderRelation($payment, $order);
+
+        return $payment;
+    }
+
+    /**
      * Create a payment in plentymarkets for a refund.
      *
      * @param array $refund

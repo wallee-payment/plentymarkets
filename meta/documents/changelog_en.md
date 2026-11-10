@@ -1,5 +1,9 @@
 # Release Notes for wallee
 
+## v2.2.2 (2026-11-10)
+- Fixed problem which forced payment process for 0 value transactions
+- Fixed issue with refund rounding
+
 ## v2.2.1 (2026-09-29)
 - Hardened access control for invoice and packing slip downloads
 - Hardened access control for payment retry, cart restore and order checkout data endpoints
