@@ -1,5 +1,8 @@
 # Release Notes for wallee
 
+## v2.2.3 (2026-11-12)
+- Fixed issue with payment methods not installing on first install
+
 ## v2.2.2 (2026-11-10)
 - Fixed problem which forced payment process for 0 value transactions
 - Fixed issue with refund rounding

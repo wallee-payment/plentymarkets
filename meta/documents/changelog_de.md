@@ -1,5 +1,8 @@
 # Release Notes for wallee
 
+## v2.2.3 (2026-11-12)
+- Problem behoben, bei dem Zahlungsmethoden bei der ersten Installation nicht eingerichtet wurden
+
 ## v2.2.2 (2026-11-10)
 - Problem behoben, das bei Transaktionen mit einem Wert von 0 den Zahlungsvorgang erzwang
 - Problem bei der Rundung von Rückerstattungen behoben

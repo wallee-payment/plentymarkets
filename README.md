@@ -23,7 +23,7 @@ See the [plentyShop LTS manual](https://knowledge.plentyone.com/en-gb/manual/mai
 
 ## Documentation
 
-* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.2.2/docs/en/documentation.html)
+* [Documentation](https://plugin-documentation.wallee.com/wallee-payment/plentymarkets/2.2.3/docs/en/documentation.html)
 
 ## PWA Installation
 For using the [PlentyONE PWA](https://github.com/plentymarkets/plentyshop-pwa), you'll need to add these files in the PWA project:
@@ -54,4 +54,4 @@ rewrite is inert and these local-only settings are unset.
 
 ## License
 
-Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.2.2/LICENSE) for more information.
+Please see the [license file](https://github.com/wallee-payment/plentymarkets/blob/2.2.3/LICENSE) for more information.
